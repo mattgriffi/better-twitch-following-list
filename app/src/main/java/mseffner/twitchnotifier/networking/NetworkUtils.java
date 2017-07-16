@@ -1,6 +1,10 @@
 package mseffner.twitchnotifier.networking;
 
+import android.net.Uri;
+import android.util.Log;
+
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 public final class NetworkUtils {
@@ -25,8 +29,25 @@ public final class NetworkUtils {
     public static String makeHttpRequest() {
         return null;
     }
+
     private static URL buildUrl() {
-        return null;
+
+        // Build the Uri
+        Uri uri = Uri.parse(TWITCH_API_BASE_URL).buildUpon()
+                .appendPath(PATH_CHANNELS)
+                .appendPath(CHANNEL_NAME)
+                .appendQueryParameter(PARAM_CLIENT_ID, CLIENT_ID)
+                .build();
+
+        // Convert Uri into URL
+        URL url = null;
+        try {
+            url = new URL(uri.toString());
+        } catch (MalformedURLException e) {
+            Log.e("NetworkUtils", e.toString());
+        }
+
+        return url;
     }
 
     private static String readFromInputStream(InputStream inputStream) {
