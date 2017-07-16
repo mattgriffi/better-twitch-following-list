@@ -6,6 +6,7 @@ import android.util.Log;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Scanner;
 
 public final class NetworkUtils {
 
@@ -51,7 +52,12 @@ public final class NetworkUtils {
     }
 
     private static String readFromInputStream(InputStream inputStream) {
-        return null;
+
+        Scanner scanner = new Scanner(inputStream);
+        // Using \A as the delimiter causes the Scanner to read in the InputStream in one chunk
+        scanner.useDelimiter("\\A");
+
+        return scanner.hasNext() ? scanner.next() : "";
     }
 
 }
