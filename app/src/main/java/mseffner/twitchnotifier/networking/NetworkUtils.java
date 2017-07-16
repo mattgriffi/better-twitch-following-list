@@ -30,20 +30,51 @@ public final class NetworkUtils {
 
     private NetworkUtils() {}
 
-    public static String makeHttpRequest() throws IOException {
+    public static String makeHttpRequest() {
 
         URL url = buildUrl();
-        HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 
         String response = "";
+        HttpsURLConnection urlConnection = null;
+        InputStream inputStream = null;
         try {
-            InputStream inputStream = urlConnection.getInputStream();
-            response = readFromInputStream(inputStream);
+            // Set up the connection
+            urlConnection = (HttpsURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setReadTimeout(10_000);
+            urlConnection.setConnectTimeout(15_000);
+            urlConnection.connect();
+
+            // Check the response code and get the response if it's OK
+            int responseCode = urlConnection.getResponseCode();
+            if (responseCode == 200) {
+                inputStream = urlConnection.getInputStream();
+                response = readFromInputStream(inputStream);
+            } else {
+                Log.e("NetworkUtils",  "Error response code: " + responseCode);
+            }
+
+        } catch (IOException e) {
+            Log.e("NetworkUtils", e.toString());
         } finally {
-            urlConnection.disconnect();
+            closeConnections(urlConnection, inputStream);
         }
 
         return response;
+    }
+
+    private static void closeConnections(HttpsURLConnection urlConnection, InputStream inputStream) {
+
+        if (urlConnection != null)
+            urlConnection.disconnect();
+
+        if (inputStream != null) {
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                Log.e("NetworkUtils", e.toString());
+            }
+        }
     }
 
     private static URL buildUrl() {

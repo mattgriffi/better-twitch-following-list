@@ -29,15 +29,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(Void... voids) {
 
-            String apiResponse = "";
-
-            try {
-                apiResponse = NetworkUtils.makeHttpRequest();
-            } catch (IOException e) {
-                Log.e("TestAsyncTask", e.toString());
-            }
-
-            return apiResponse;
+            return NetworkUtils.makeHttpRequest();
         }
 
         @Override
