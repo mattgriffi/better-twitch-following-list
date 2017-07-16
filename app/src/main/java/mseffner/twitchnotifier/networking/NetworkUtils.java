@@ -1,6 +1,7 @@
 package mseffner.twitchnotifier.networking;
 
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.IOException;
@@ -30,7 +31,7 @@ public final class NetworkUtils {
 
     private NetworkUtils() {}
 
-    public static String makeHttpRequest() {
+    public static String makeHttpsRequest() {
 
         URL url = buildUrl();
 
@@ -38,11 +39,8 @@ public final class NetworkUtils {
         HttpsURLConnection urlConnection = null;
         InputStream inputStream = null;
         try {
-            // Set up the connection
-            urlConnection = (HttpsURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.setReadTimeout(10_000);
-            urlConnection.setConnectTimeout(15_000);
+
+            urlConnection = setupHttpsURLConnection(url);
             urlConnection.connect();
 
             // Check the response code and get the response if it's OK
@@ -61,6 +59,14 @@ public final class NetworkUtils {
         }
 
         return response;
+    }
+
+    private static HttpsURLConnection setupHttpsURLConnection(URL url) throws IOException {
+        HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+        urlConnection.setRequestMethod("GET");
+        urlConnection.setReadTimeout(10_000);
+        urlConnection.setConnectTimeout(15_000);
+        return urlConnection;
     }
 
     private static void closeConnections(HttpsURLConnection urlConnection, InputStream inputStream) {
