@@ -3,13 +3,20 @@ package mseffner.twitchnotifier.networking;
 import android.net.Uri;
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import javax.net.ssl.HttpsURLConnection;
+
+import mseffner.twitchnotifier.data.Channel;
 
 public final class NetworkUtils {
 
@@ -23,16 +30,14 @@ public final class NetworkUtils {
     private static final String PATH_USERS = "users";
     private static final String PATH_FOLLOWS_CHANNELS = "follows/channels";
 
-    private static final String CHANNEL_NAME = "Cirno_TV";
-
     private static final String PARAM_CLIENT_ID = "client_id";
 
 
     private NetworkUtils() {}
 
-    public static String makeHttpsRequest() {
+    public static String makeHttpsRequest(String channelName) {
 
-        URL url = buildUrl();
+        URL url = buildUrl(channelName);
 
         String response = "";
         HttpsURLConnection urlConnection = null;
@@ -60,6 +65,39 @@ public final class NetworkUtils {
         return response;
     }
 
+    public static List<Channel> getChannels(String[] channelNames) {
+
+        List<Channel> channels = new ArrayList<>();
+
+        for (String channelName : channelNames) {
+            String jsonResponse = makeHttpsRequest(channelName);
+            Channel channel = getChannelFromJson(jsonResponse);
+            channels.add(channel);
+        }
+
+        return channels;
+    }
+
+    private static Channel getChannelFromJson(String jsonResponse) {
+
+        try {
+
+            JSONObject channelData = new JSONObject(jsonResponse);
+
+            String displayName = channelData.getString("display_name");
+            String name = channelData.getString("name");
+            String logoUrl = channelData.getString("logo");
+            String streamUrl = channelData.getString("url");
+
+            return new Channel(displayName, name, logoUrl, streamUrl);
+
+        }catch (JSONException e) {
+            Log.e("NetworkUtils", e.toString());
+        }
+
+        return null;
+    }
+
     private static HttpsURLConnection setupHttpsURLConnection(URL url) throws IOException {
         HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
         urlConnection.setRequestMethod("GET");
@@ -82,12 +120,12 @@ public final class NetworkUtils {
         }
     }
 
-    private static URL buildUrl() {
+    private static URL buildUrl(String channelName) {
 
         // Build the Uri
         Uri uri = Uri.parse(TWITCH_API_BASE_URL).buildUpon()
                 .appendPath(PATH_CHANNELS)
-                .appendPath(CHANNEL_NAME)
+                .appendPath(channelName)
                 .appendQueryParameter(PARAM_CLIENT_ID, CLIENT_ID)
                 .build();
 
