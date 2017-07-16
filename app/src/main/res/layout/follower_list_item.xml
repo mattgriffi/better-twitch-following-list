@@ -114,7 +114,7 @@
         android:layout_gravity="center"
         android:layout_margin="8dp"
         android:contentDescription="@string/channel_options_menu"
-        android:src="@drawable/ic_more_horiz_black_24dp"
+        android:src="@drawable/ic_more_vert_black_24dp"
         tools:ignore="RtlHardcoded" />
 
 </LinearLayout>
