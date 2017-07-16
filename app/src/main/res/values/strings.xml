@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Twitch Notifier</string>
     <string name="channel_options_menu">Channel options menu</string>
+    <string name="offline">Offline</string>
 </resources>

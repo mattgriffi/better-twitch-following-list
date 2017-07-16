@@ -63,7 +63,7 @@
             android:layout_centerInParent="true"
             android:textAllCaps="true"
             android:visibility="gone"
-            tools:text="Offline"/>
+            android:text="@string/offline"/>
 
         <!-- LiveStream title -->
         <TextView
