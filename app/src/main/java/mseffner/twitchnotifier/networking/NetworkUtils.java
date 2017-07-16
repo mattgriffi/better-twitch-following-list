@@ -1,7 +1,6 @@
 package mseffner.twitchnotifier.networking;
 
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.IOException;
