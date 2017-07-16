@@ -65,7 +65,7 @@
             android:visibility="gone"
             tools:text="Offline"/>
 
-        <!-- Stream title -->
+        <!-- LiveStream title -->
         <TextView
             android:id="@+id/stream_title"
             android:layout_width="wrap_content"
