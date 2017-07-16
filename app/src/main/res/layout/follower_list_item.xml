@@ -40,7 +40,7 @@
                 android:textColor="@android:color/black"
                 tools:text="Cirno_TV"/>
 
-            <!-- Game the channel is currently playing -->
+            <!-- Current game -->
             <TextView
                 android:id="@+id/current_game"
                 android:layout_width="wrap_content"
@@ -52,6 +52,18 @@
                 tools:text="Dark Souls" />
 
         </LinearLayout>
+
+        <!-- Offline text -->
+        <TextView
+            android:id="@+id/offline_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_centerInParent="true"
+            android:textAllCaps="true"
+            android:visibility="gone"
+            tools:text="Offline"/>
 
         <!-- Stream title -->
         <TextView
@@ -65,8 +77,9 @@
             android:maxLines="1"
             tools:text="Dark Souls All Bosses! I'm addicted to this route!" />
 
-        <!-- Viewer count and uptime -->
+        <!-- Viewer count, uptime, and vodcast tag -->
         <LinearLayout
+            android:id="@+id/live_stream_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
@@ -105,6 +118,20 @@
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/black"
                 tools:text="4:46"/>
+
+            <!-- Vodcast tag -->
+            <TextView
+                android:id="@+id/vodcast_tag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="24dp"
+                android:background="@drawable/vodcast_tag_background"
+                android:paddingLeft="2dp"
+                android:paddingRight="2dp"
+                android:textAllCaps="true"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                tools:text="vodcast"/>
 
         </LinearLayout>
 
