@@ -1,40 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    tools:context="mseffner.twitchnotifier.MainActivity"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
-    <LinearLayout
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/following_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        tools:context="mseffner.twitchnotifier.MainActivity">
+        android:layout_height="match_parent"/>
 
-        <TextView
-            android:id="@+id/test"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <include layout="@layout/follower_list_item"/>
-        <include layout="@layout/follower_list_item"/>
-        <include layout="@layout/follower_list_item"/>
-        <include layout="@layout/follower_list_item"/>
-        <include layout="@layout/follower_list_item"/>
-        <include layout="@layout/follower_list_item"/>
-        <include layout="@layout/follower_list_item"/>
-        <include layout="@layout/follower_list_item"/>
-        <include layout="@layout/follower_list_item"/>
-        <include layout="@layout/follower_list_item"/>
-        <include layout="@layout/follower_list_item"/>
-        <include layout="@layout/follower_list_item"/>
-        <include layout="@layout/follower_list_item"/>
-        <include layout="@layout/follower_list_item"/>
-        <include layout="@layout/follower_list_item"/>
-        <include layout="@layout/follower_list_item"/>
-        <include layout="@layout/follower_list_item"/>
-
-    </LinearLayout>
-
-</ScrollView>
+</FrameLayout>
 

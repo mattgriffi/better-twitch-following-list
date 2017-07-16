@@ -3,35 +3,49 @@ package mseffner.twitchnotifier;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.widget.TextView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 
+import java.util.List;
+
+import mseffner.twitchnotifier.data.Channel;
+import mseffner.twitchnotifier.data.ChannelAdapter;
 import mseffner.twitchnotifier.networking.NetworkUtils;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView testTextView;
+    private RecyclerView followingList;
+    private static final String[] CHANNEL_NAMES = {"cirno_tv", "dansgaming", "spamfish", "bobross",
+    "b0aty", "admiralbahroo", "firedragon", "chessnetwork", "northernlion", "bisnap", };
+    private ChannelAdapter channelAdapter;
+    private RecyclerView recyclerView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        testTextView = (TextView) findViewById(R.id.test);
+        followingList = (RecyclerView) findViewById(R.id.following_list);
 
-        new TestAsyncTask().execute();
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        followingList.setLayoutManager(layoutManager);
+        followingList.setHasFixedSize(true);
+
+        new TestAsyncTask().execute(CHANNEL_NAMES);
     }
 
-    private class TestAsyncTask extends AsyncTask<Void, Void, String> {
+    private class TestAsyncTask extends AsyncTask<String, Void, List<Channel>> {
         @Override
-        protected String doInBackground(Void... voids) {
+        protected List<Channel> doInBackground(String... channelNames) {
 
-            return NetworkUtils.makeHttpsRequest();
+            return NetworkUtils.getChannels(channelNames);
         }
 
         @Override
-        protected void onPostExecute(String s) {
-            testTextView.setText(s);
+        protected void onPostExecute(List<Channel> channelList) {
+            followingList.setAdapter(new ChannelAdapter(channelList));
         }
     }
 
