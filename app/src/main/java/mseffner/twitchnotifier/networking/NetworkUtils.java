@@ -3,10 +3,13 @@ package mseffner.twitchnotifier.networking;
 import android.net.Uri;
 import android.util.Log;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Scanner;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public final class NetworkUtils {
 
@@ -27,8 +30,20 @@ public final class NetworkUtils {
 
     private NetworkUtils() {}
 
-    public static String makeHttpRequest() {
-        return null;
+    public static String makeHttpRequest() throws IOException {
+
+        URL url = buildUrl();
+        HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+
+        String response = "";
+        try {
+            InputStream inputStream = urlConnection.getInputStream();
+            response = readFromInputStream(inputStream);
+        } finally {
+            urlConnection.disconnect();
+        }
+
+        return response;
     }
 
     private static URL buildUrl() {
@@ -57,7 +72,13 @@ public final class NetworkUtils {
         // Using \A as the delimiter causes the Scanner to read in the InputStream in one chunk
         scanner.useDelimiter("\\A");
 
-        return scanner.hasNext() ? scanner.next() : "";
+        String result = "";
+        if (scanner.hasNext()) {
+            result = scanner.next();
+        }
+        scanner.close();
+
+        return result;
     }
 
 }
