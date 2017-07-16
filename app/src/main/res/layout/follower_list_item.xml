@@ -8,6 +8,7 @@
     android:orientation="horizontal"
     android:padding="8dp">
 
+    <!-- The channel logo -->
     <ImageView
         android:id="@+id/channel_logo"
         android:layout_width="64dp"
@@ -16,6 +17,7 @@
         tools:ignore="ContentDescription"
         tools:src="@drawable/cirno_tv_profile_image"/>
 
+    <!-- Channel information -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
@@ -29,6 +31,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
+            <!-- Channel name -->
             <TextView
                 android:id="@+id/channel_name"
                 android:textAppearance="?android:textAppearanceMedium"
@@ -37,6 +40,7 @@
                 android:textColor="@android:color/black"
                 tools:text="Cirno_TV"/>
 
+            <!-- Game the channel is currently playing -->
             <TextView
                 android:id="@+id/current_game"
                 android:layout_width="wrap_content"
@@ -48,6 +52,7 @@
 
         </LinearLayout>
 
+        <!-- Stream title -->
         <TextView
             android:id="@+id/stream_title"
             android:layout_width="wrap_content"
@@ -57,6 +62,7 @@
             android:maxLines="1"
             tools:text="Dark Souls All Bosses! I'm addicted to this route!"/>
 
+        <!-- Current viewer count -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -80,6 +86,7 @@
 
     </LinearLayout>
 
+    <!-- Channel options menu -->
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
