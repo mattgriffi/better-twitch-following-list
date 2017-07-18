@@ -5,6 +5,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import java.util.List;
 
@@ -17,9 +19,10 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView followingList;
     private static final String[] CHANNEL_NAMES = {"cirno_tv", "dansgaming", "spamfish", "bobross",
-    "b0aty", "admiralbahroo", "firedragon", "chessnetwork", "northernlion", "bisnap", };
+    "b0aty", "admiralbahroo", "firedragon", "chessnetwork", "northernlion", "bisnap", "pgl"};
     private ChannelAdapter channelAdapter;
     private RecyclerView recyclerView;
+    private ProgressBar progressBar;
 
 
     @Override
@@ -28,6 +31,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         followingList = (RecyclerView) findViewById(R.id.following_list);
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+
+        progressBar.setVisibility(View.VISIBLE);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         followingList.setLayoutManager(layoutManager);
@@ -45,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(List<Channel> channelList) {
+            progressBar.setVisibility(View.INVISIBLE);
             followingList.setAdapter(new ChannelAdapter(channelList));
         }
     }
