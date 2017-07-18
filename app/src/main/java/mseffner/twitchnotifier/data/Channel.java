@@ -1,6 +1,7 @@
 package mseffner.twitchnotifier.data;
 
 
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 
 public class Channel implements Comparable<Channel> {
@@ -9,6 +10,7 @@ public class Channel implements Comparable<Channel> {
     private String name;
     private String logoUrl;
     private String streamUrl;
+    private Bitmap bmp;
 
     private LiveStream stream;
 
@@ -17,6 +19,7 @@ public class Channel implements Comparable<Channel> {
         this.name = name;
         this.logoUrl = logoUrl;
         this.streamUrl = streamUrl;
+        this.bmp = null;
         this.stream = null;
     }
 
@@ -42,6 +45,14 @@ public class Channel implements Comparable<Channel> {
 
     public String getStreamUrl() {
         return streamUrl;
+    }
+
+    public void setLogoBmp(Bitmap bmp) {
+        this.bmp = bmp;
+    }
+
+    public Bitmap getLogoBmp() {
+        return bmp;
     }
 
     @Override
