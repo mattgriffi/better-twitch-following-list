@@ -52,6 +52,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
         private LinearLayout streamInfo;
         private TextView viewerCount;
         private TextView uptime;
+        private TextView vodcastTag;
 
         ChannelViewHolder(View itemView) {
             super(itemView);
@@ -90,13 +91,17 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
 
             viewerCount = itemView.findViewById(R.id.viewer_count);
             uptime = itemView.findViewById(R.id.uptime);
+            vodcastTag = itemView.findViewById(R.id.vodcast_tag);
 
             offlineText.setVisibility(View.GONE);
             currentGame.setText(stream.getCurrentGame());
             streamTitle.setText(stream.getStatus());
             streamInfo.setVisibility(View.VISIBLE);
-            viewerCount.setText(stream.getCurrentViewers());
-            uptime.setText("2:21");
+            viewerCount.setText(Integer.toString(stream.getCurrentViewers()));
+            uptime.setText("4:20");
+
+            if (stream.getStreamType().equals(LiveStream.STREAM_TYPE_VODCAST))
+                vodcastTag.setVisibility(View.VISIBLE);
         }
     }
 }
