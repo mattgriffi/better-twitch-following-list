@@ -17,11 +17,16 @@ import java.util.Scanner;
 import javax.net.ssl.HttpsURLConnection;
 
 import mseffner.twitchnotifier.data.Channel;
+import mseffner.twitchnotifier.data.LiveStream;
+
 
 public final class NetworkUtils {
 
     // Note that this is a test client_id and is not used for release versions
     private static final String CLIENT_ID = "6mmva5zc6ubb4j8zswa0fg6dv3y4xw";
+
+    private static final int QUERY_TYPE_CHANNEL = 0;
+    private static final int QUERY_TYPE_STREAM = 1;
 
     private static final String TWITCH_API_BASE_URL = "https://api.twitch.tv/kraken/";
 
@@ -35,9 +40,9 @@ public final class NetworkUtils {
 
     private NetworkUtils() {}
 
-    public static String makeHttpsRequest(String channelName) {
+    public static String makeHttpsRequest(String channelName, int queryType) {
 
-        URL url = buildUrl(channelName);
+        URL url = buildUrl(channelName, queryType);
 
         String response = "";
         HttpsURLConnection urlConnection = null;
@@ -70,12 +75,48 @@ public final class NetworkUtils {
         List<Channel> channels = new ArrayList<>();
 
         for (String channelName : channelNames) {
-            String jsonResponse = makeHttpsRequest(channelName);
-            Channel channel = getChannelFromJson(jsonResponse);
-            channels.add(channel);
+
+            String channelJsonResponse = makeHttpsRequest(channelName, QUERY_TYPE_CHANNEL);
+            Channel channel = getChannelFromJson(channelJsonResponse);
+
+            if (channel != null) {
+
+                String streamJsonResponse = makeHttpsRequest(channelName, QUERY_TYPE_STREAM);
+                LiveStream stream = getStreamFromJson(streamJsonResponse);
+
+                channel.setStream(stream);
+
+                channels.add(channel);
+            }
         }
 
         return channels;
+    }
+
+    public static LiveStream getStreamFromJson(String jsonResponse) {
+
+        try {
+
+            JSONObject resultJson = new JSONObject(jsonResponse);
+            if (resultJson.isNull("stream"))
+                return null;
+
+            JSONObject streamData = resultJson.getJSONObject("stream");
+            JSONObject channelData = streamData.getJSONObject("channel");
+
+            String game = streamData.getString("game");
+            int viewers = streamData.getInt("viewers");
+            String status = channelData.getString("status");
+            String streamType = streamData.getString("stream_type");
+            String startTime = streamData.getString("created_at");
+
+            return new LiveStream(game, viewers, status, startTime, streamType);
+
+        }catch (JSONException e) {
+            Log.e("NetworkUtils", e.toString());
+        }
+
+        return null;
     }
 
     private static Channel getChannelFromJson(String jsonResponse) {
@@ -120,14 +161,13 @@ public final class NetworkUtils {
         }
     }
 
-    private static URL buildUrl(String channelName) {
+    private static URL buildUrl(String channelName, int queryType) {
 
-        // Build the Uri
-        Uri uri = Uri.parse(TWITCH_API_BASE_URL).buildUpon()
-                .appendPath(PATH_CHANNELS)
-                .appendPath(channelName)
-                .appendQueryParameter(PARAM_CLIENT_ID, CLIENT_ID)
-                .build();
+        Uri uri = Uri.EMPTY;
+        if (queryType == QUERY_TYPE_CHANNEL)
+            uri = buildChannelQueryUri(channelName);
+        else if (queryType == QUERY_TYPE_STREAM)
+            uri = buildStreamQueryUri(channelName);
 
         // Convert Uri into URL
         URL url = null;
@@ -138,6 +178,22 @@ public final class NetworkUtils {
         }
 
         return url;
+    }
+
+    private static Uri buildChannelQueryUri(String channelName) {
+        return Uri.parse(TWITCH_API_BASE_URL).buildUpon()
+                .appendPath(PATH_CHANNELS)
+                .appendPath(channelName)
+                .appendQueryParameter(PARAM_CLIENT_ID, CLIENT_ID)
+                .build();
+    }
+
+    private static Uri buildStreamQueryUri(String channelName) {
+        return Uri.parse(TWITCH_API_BASE_URL).buildUpon()
+                .appendPath(PATH_STREAMS)
+                .appendPath(channelName)
+                .appendQueryParameter(PARAM_CLIENT_ID, CLIENT_ID)
+                .build();
     }
 
     private static String readFromInputStream(InputStream inputStream) {
