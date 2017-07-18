@@ -1,6 +1,5 @@
 package mseffner.twitchnotifier.data;
 
-import android.annotation.SuppressLint;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -67,47 +66,56 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             offlineText = itemView.findViewById(R.id.offline_text);
             streamTitle = itemView.findViewById(R.id.stream_title);
             streamInfo = itemView.findViewById(R.id.live_stream_info);
+            vodcastTag = itemView.findViewById(R.id.vodcast_tag);
+            viewerCount = itemView.findViewById(R.id.viewer_count);
+            uptime = itemView.findViewById(R.id.uptime);
         }
 
         void bind(int index) {
 
             Channel channel = channelList.get(index);
 
-            if (channel == null)
-                return;
-
             channelName.setText(channel.getDisplayName());
             channelLogo.setImageBitmap(channel.getLogoBmp());
 
             if (channel.getStream() == null) {
-                bindOfflineStream(channel);
+                bindOfflineStream();
             } else {
                 bindOnlineStream(channel);
             }
         }
 
-        private void bindOfflineStream(Channel channel) {
+        private void bindOfflineStream() {
+
+            offlineText.setVisibility(View.VISIBLE);
+
             currentGame.setVisibility(View.INVISIBLE);
             streamInfo.setVisibility(View.INVISIBLE);
-            offlineText.setVisibility(View.VISIBLE);
+            streamTitle.setVisibility(View.INVISIBLE);
+            vodcastTag.setVisibility(View.INVISIBLE);
         }
 
         private void bindOnlineStream(Channel channel) {
             LiveStream stream = channel.getStream();
 
-            viewerCount = itemView.findViewById(R.id.viewer_count);
-            uptime = itemView.findViewById(R.id.uptime);
-            vodcastTag = itemView.findViewById(R.id.vodcast_tag);
+            offlineText.setVisibility(View.INVISIBLE);
+            currentGame.setVisibility(View.VISIBLE);
+            streamTitle.setVisibility(View.VISIBLE);
+            streamInfo.setVisibility(View.VISIBLE);
 
-            offlineText.setVisibility(View.GONE);
             currentGame.setText(stream.getCurrentGame());
             streamTitle.setText(stream.getStatus());
-            streamInfo.setVisibility(View.VISIBLE);
             viewerCount.setText(Integer.toString(stream.getCurrentViewers()));
+
+            String actualUptime = calculateUptime(stream.getCreatedAt());
             uptime.setText("4:20");
 
             if (stream.getStreamType().equals(LiveStream.STREAM_TYPE_VODCAST))
                 vodcastTag.setVisibility(View.VISIBLE);
+        }
+
+        public String calculateUptime(String createdAt) {
+            return null;
         }
     }
 }
