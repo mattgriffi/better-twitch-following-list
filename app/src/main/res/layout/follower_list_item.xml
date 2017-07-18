@@ -91,13 +91,14 @@
             <ImageView
                 android:layout_width="16dp"
                 android:layout_height="16dp"
+                android:layout_gravity="center_vertical"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_person_black_24dp"
                 tools:ignore="ContentDescription" />
 
             <TextView
                 android:id="@+id/viewer_count"
-                android:layout_width="wrap_content"
+                android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:textColor="#FC3636"
                 tools:text="1512"/>
@@ -106,7 +107,7 @@
             <ImageView
                 android:layout_width="16dp"
                 android:layout_height="16dp"
-                android:layout_marginLeft="24dp"
+                android:layout_gravity="center_vertical"
                 android:layout_marginRight="2dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_access_time_black_24dp"
@@ -114,7 +115,7 @@
 
             <TextView
                 android:id="@+id/uptime"
-                android:layout_width="wrap_content"
+                android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/black"
                 tools:text="4:46"/>
@@ -124,7 +125,6 @@
                 android:id="@+id/vodcast_tag"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="24dp"
                 android:background="@drawable/vodcast_tag_background"
                 android:paddingLeft="2dp"
                 android:paddingRight="2dp"
