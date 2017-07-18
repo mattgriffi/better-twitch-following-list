@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -40,49 +41,21 @@ public final class NetworkUtils {
 
     private NetworkUtils() {}
 
-    public static String makeHttpsRequest(String channelName, int queryType) {
-
-        URL url = buildUrl(channelName, queryType);
-
-        String response = "";
-        HttpsURLConnection urlConnection = null;
-        InputStream inputStream = null;
-        try {
-
-            urlConnection = setupHttpsURLConnection(url);
-            urlConnection.connect();
-
-            // Check the response code and get the response if it's OK
-            int responseCode = urlConnection.getResponseCode();
-            if (responseCode == 200) {
-                inputStream = urlConnection.getInputStream();
-                response = readFromInputStream(inputStream);
-            } else {
-                Log.e("NetworkUtils",  "Error response code: " + responseCode);
-            }
-
-        } catch (IOException e) {
-            Log.e("NetworkUtils", e.toString());
-        } finally {
-            closeConnections(urlConnection, inputStream);
-        }
-
-        return response;
-    }
-
     public static List<Channel> getChannels(String[] channelNames) {
 
         List<Channel> channels = new ArrayList<>();
 
         for (String channelName : channelNames) {
 
-            String channelJsonResponse = makeHttpsRequest(channelName, QUERY_TYPE_CHANNEL);
+            URL channelQueryUrl = buildUrl(channelName, QUERY_TYPE_CHANNEL);
+            String channelJsonResponse = makeTwitchQuery(channelQueryUrl);
             Channel channel = getChannelFromJson(channelJsonResponse);
 
             if (channel != null) {
 
-                String streamJsonResponse = makeHttpsRequest(channelName, QUERY_TYPE_STREAM);
-                LiveStream stream = getStreamFromJson(streamJsonResponse);
+                URL streamQueryUrl = buildUrl(channelName, QUERY_TYPE_STREAM);
+                String streamJsonResponse = makeTwitchQuery(streamQueryUrl);
+                LiveStream stream = getLiveStreamFromJson(streamJsonResponse);
 
                 channel.setStream(stream);
 
@@ -93,50 +66,59 @@ public final class NetworkUtils {
         return channels;
     }
 
-    public static LiveStream getStreamFromJson(String jsonResponse) {
+    private static String makeTwitchQuery(URL url) {
 
-        try {
+        String response;
 
-            JSONObject resultJson = new JSONObject(jsonResponse);
-            if (resultJson.isNull("stream"))
-                return null;
+        HttpsURLConnection urlConnection = openHttpsConnection(url);
+        if (urlConnection == null)
+            return null;
 
-            JSONObject streamData = resultJson.getJSONObject("stream");
-            JSONObject channelData = streamData.getJSONObject("channel");
-
-            String game = streamData.getString("game");
-            int viewers = streamData.getInt("viewers");
-            String status = channelData.getString("status");
-            String streamType = streamData.getString("stream_type");
-            String startTime = streamData.getString("created_at");
-
-            return new LiveStream(game, viewers, status, startTime, streamType);
-
-        }catch (JSONException e) {
-            Log.e("NetworkUtils", e.toString());
+        InputStream inputStream = getInputStreamFromConnection(urlConnection);
+        if (inputStream == null) {
+            closeConnections(urlConnection, null);
+            return null;
         }
 
-        return null;
+        response = readStringFromInputStream(inputStream);
+
+        closeConnections(urlConnection, inputStream);
+
+        return response;
     }
 
-    private static Channel getChannelFromJson(String jsonResponse) {
+    private static HttpsURLConnection openHttpsConnection(URL url) {
+
+        HttpsURLConnection urlConnection = null;
 
         try {
 
-            JSONObject channelData = new JSONObject(jsonResponse);
+            urlConnection = setupHttpsURLConnection(url);
+            urlConnection.connect();
 
-            String displayName = channelData.getString("display_name");
-            String name = channelData.getString("name");
-            String logoUrl = channelData.getString("logo");
-            String streamUrl = channelData.getString("url");
+            // Check the response code, log and return null if it's bad
+            int responseCode = urlConnection.getResponseCode();
+            if (responseCode != 200) {
+                Log.e("NetworkUtils",  "Error response code: " + responseCode);
+                return null;
+            }
 
-            return new Channel(displayName, name, logoUrl, streamUrl);
-
-        }catch (JSONException e) {
-            Log.e("NetworkUtils", e.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        return null;
+        return urlConnection;
+    }
+
+    private static InputStream getInputStreamFromConnection(HttpURLConnection connection) {
+        InputStream inputStream = null;
+        try {
+            inputStream = connection.getInputStream();
+        } catch (IOException e) {
+            closeConnections(connection, null);
+            Log.e("NetworkUtils", e.toString());
+        }
+        return inputStream;
     }
 
     private static HttpsURLConnection setupHttpsURLConnection(URL url) throws IOException {
@@ -147,7 +129,7 @@ public final class NetworkUtils {
         return urlConnection;
     }
 
-    private static void closeConnections(HttpsURLConnection urlConnection, InputStream inputStream) {
+    private static void closeConnections(HttpURLConnection urlConnection, InputStream inputStream) {
 
         if (urlConnection != null)
             urlConnection.disconnect();
@@ -180,12 +162,14 @@ public final class NetworkUtils {
         return url;
     }
 
-    private static Uri buildChannelQueryUri(String channelName) {
-        return Uri.parse(TWITCH_API_BASE_URL).buildUpon()
-                .appendPath(PATH_CHANNELS)
-                .appendPath(channelName)
-                .appendQueryParameter(PARAM_CLIENT_ID, CLIENT_ID)
-                .build();
+    private static URL buildChannelLogoQueryURL(String logoUrl) {
+        URL url = null;
+        try {
+            url = new URL(logoUrl);
+        } catch (MalformedURLException e) {
+            Log.e("NetworkUtils", e.toString());
+        }
+        return url;
     }
 
     private static Uri buildStreamQueryUri(String channelName) {
@@ -196,7 +180,15 @@ public final class NetworkUtils {
                 .build();
     }
 
-    private static String readFromInputStream(InputStream inputStream) {
+    private static Uri buildChannelQueryUri(String channelName) {
+        return Uri.parse(TWITCH_API_BASE_URL).buildUpon()
+                .appendPath(PATH_CHANNELS)
+                .appendPath(channelName)
+                .appendQueryParameter(PARAM_CLIENT_ID, CLIENT_ID)
+                .build();
+    }
+
+    private static String readStringFromInputStream(InputStream inputStream) {
 
         Scanner scanner = new Scanner(inputStream);
         // Using \A as the delimiter causes the Scanner to read in the InputStream in one chunk
@@ -209,6 +201,52 @@ public final class NetworkUtils {
         scanner.close();
 
         return result;
+    }
+
+    private static Channel getChannelFromJson(String jsonResponse) {
+
+        try {
+
+            JSONObject channelData = new JSONObject(jsonResponse);
+
+            String displayName = channelData.getString("display_name");
+            String name = channelData.getString("name");
+            String logoUrl = channelData.getString("logo");
+            String streamUrl = channelData.getString("url");
+
+            return new Channel(displayName, name, logoUrl, streamUrl);
+
+        }catch (JSONException e) {
+            Log.e("NetworkUtils", e.toString());
+        }
+
+        return null;
+    }
+
+    private static LiveStream getLiveStreamFromJson(String jsonResponse) {
+
+        try {
+
+            JSONObject resultJson = new JSONObject(jsonResponse);
+            if (resultJson.isNull("stream"))
+                return null;
+
+            JSONObject streamData = resultJson.getJSONObject("stream");
+            JSONObject channelData = streamData.getJSONObject("channel");
+
+            String game = streamData.getString("game");
+            int viewers = streamData.getInt("viewers");
+            String status = channelData.getString("status");
+            String streamType = streamData.getString("stream_type");
+            String startTime = streamData.getString("created_at");
+
+            return new LiveStream(game, viewers, status, startTime, streamType);
+
+        }catch (JSONException e) {
+            Log.e("NetworkUtils", e.toString());
+        }
+
+        return null;
     }
 
 }
