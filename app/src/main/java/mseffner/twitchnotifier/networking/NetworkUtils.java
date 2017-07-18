@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -14,7 +15,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -30,6 +33,8 @@ public final class NetworkUtils {
 
     private static final int QUERY_TYPE_CHANNEL = 0;
     private static final int QUERY_TYPE_STREAM = 1;
+    private static final int QUERY_TYPE_USER_FOLLOWS = 2;
+    private static final int QUERY_TYPE_STREAM_MULTIPLE = 3;
 
     private static final String TWITCH_API_BASE_URL = "https://api.twitch.tv/kraken/";
 
@@ -39,9 +44,66 @@ public final class NetworkUtils {
     private static final String PATH_FOLLOWS_CHANNELS = "follows/channels";
 
     private static final String PARAM_CLIENT_ID = "client_id";
+    private static final String PARAM_LIMIT = "limit";
+    private static final String PARAM_CHANNEL = "channel";
+
+    private static final String LIMIT_MAX = "100";
 
 
     private NetworkUtils() {}
+
+    public static List<Channel> getUserFollowChannels(String userName) {
+
+        URL followsQueryUrl = buildUrl(userName, QUERY_TYPE_USER_FOLLOWS);
+        String followsJsonResponse = makeTwitchQuery(followsQueryUrl);
+
+        List<Channel> channels = new ArrayList<>();
+        Map<String, Channel> channelMap = new HashMap<>();
+
+        try {
+
+            JSONArray followsJsonArray = new JSONObject(followsJsonResponse).getJSONArray("follows");
+
+            // Iterate over the array of followed channels
+            for (int i = 0; i < followsJsonArray.length(); i++) {
+
+                // Get the JSONObject String for each channel
+                String channelJsonString = followsJsonArray.getJSONObject(i)
+                        .getJSONObject("channel").toString();
+
+                // Build the Channel object
+                Channel channel = getChannelFromJson(channelJsonString);
+
+                if (channel != null) {
+
+                    // Get the logo image
+                    String logoUrlString = channel.getLogoUrl();
+                    // If a channel has not set a custom logo, logoUrlString will be "null"
+                    if (!logoUrlString.equals("null")) {
+                        URL logoUrl = buildChannelLogoQueryURL(channel.getLogoUrl());
+                        Bitmap logoBmp = getLogoBitmap(logoUrl);
+                        channel.setLogoBmp(logoBmp);
+                    }
+
+                    // Get the stream data
+                    URL streamQueryUrl = buildUrl(channel.getName(), QUERY_TYPE_STREAM);
+                    String streamJsonResponse = makeTwitchQuery(streamQueryUrl);
+                    LiveStream stream = getLiveStreamFromJson(streamJsonResponse);
+
+                    channel.setStream(stream);
+
+                    // Put the channel in the output list
+                    channels.add(channel);
+                }
+            }
+
+        } catch (JSONException e) {
+            Log.e("NetworkUtils", e.toString());
+        }
+
+        return channels;
+
+    }
 
     public static List<Channel> getChannels(String[] channelNames) {
 
@@ -172,13 +234,17 @@ public final class NetworkUtils {
         }
     }
 
-    private static URL buildUrl(String channelName, int queryType) {
+    private static URL buildUrl(String query, int queryType) {
 
         Uri uri = Uri.EMPTY;
         if (queryType == QUERY_TYPE_CHANNEL)
-            uri = buildChannelQueryUri(channelName);
+            uri = buildChannelQueryUri(query);
         else if (queryType == QUERY_TYPE_STREAM)
-            uri = buildStreamQueryUri(channelName);
+            uri = buildStreamQueryUri(query);
+        else if (queryType == QUERY_TYPE_USER_FOLLOWS)
+            uri = buildUserFollowsQueryUri(query);
+        else if (queryType == QUERY_TYPE_STREAM_MULTIPLE)
+            uri = buildMultiStreamQueryUri(query);
 
         // Convert Uri into URL
         URL url = null;
@@ -214,6 +280,25 @@ public final class NetworkUtils {
                 .appendPath(PATH_CHANNELS)
                 .appendPath(channelName)
                 .appendQueryParameter(PARAM_CLIENT_ID, CLIENT_ID)
+                .build();
+    }
+
+    private static Uri buildUserFollowsQueryUri(String userName) {
+        return Uri.parse(TWITCH_API_BASE_URL).buildUpon()
+                .appendPath(PATH_USERS)
+                .appendPath(userName)
+                .appendEncodedPath(PATH_FOLLOWS_CHANNELS)
+                .appendQueryParameter(PARAM_CLIENT_ID, CLIENT_ID)
+                .appendQueryParameter(PARAM_LIMIT, LIMIT_MAX)
+                .build();
+    }
+
+    private static Uri buildMultiStreamQueryUri(String commaSeparatedChannelNames) {
+        return Uri.parse(TWITCH_API_BASE_URL).buildUpon()
+                .appendPath(PATH_STREAMS)
+                .appendQueryParameter(PARAM_CLIENT_ID, CLIENT_ID)
+                .appendQueryParameter(PARAM_LIMIT, LIMIT_MAX)
+                .appendQueryParameter(PARAM_CHANNEL, commaSeparatedChannelNames)
                 .build();
     }
 
@@ -253,6 +338,9 @@ public final class NetworkUtils {
     }
 
     private static LiveStream getLiveStreamFromJson(String jsonResponse) {
+
+        if (jsonResponse == null)
+            return null;
 
         try {
 

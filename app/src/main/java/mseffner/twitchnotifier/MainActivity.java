@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView followingList;
     private static final String[] CHANNEL_NAMES = {"cirno_tv", "dansgaming", "spamfish", "bobross",
     "b0aty", "admiralbahroo", "firedragon", "chessnetwork", "northernlion", "bisnap", "pgl"};
+    private static final String USER_NAME = "holokraft";
     private ChannelAdapter channelAdapter;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
@@ -39,14 +40,14 @@ public class MainActivity extends AppCompatActivity {
         followingList.setLayoutManager(layoutManager);
         followingList.setHasFixedSize(true);
 
-        new TestAsyncTask().execute(CHANNEL_NAMES);
+        new TestAsyncTask().execute(USER_NAME);
     }
 
     private class TestAsyncTask extends AsyncTask<String, Void, List<Channel>> {
         @Override
         protected List<Channel> doInBackground(String... channelNames) {
 
-            return NetworkUtils.getChannels(channelNames);
+            return NetworkUtils.getUserFollowChannels(channelNames[0]);
         }
 
         @Override
@@ -55,5 +56,4 @@ public class MainActivity extends AppCompatActivity {
             followingList.setAdapter(new ChannelAdapter(channelList));
         }
     }
-
 }
