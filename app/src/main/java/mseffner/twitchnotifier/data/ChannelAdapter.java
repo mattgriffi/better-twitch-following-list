@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.Collections;
 import java.util.List;
 
 import mseffner.twitchnotifier.R;
@@ -19,6 +20,8 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
 
     public ChannelAdapter(List<Channel> channelList) {
         this.channelList = channelList;
+        Collections.sort(this.channelList);
+        Collections.reverse(this.channelList);
     }
 
     @Override

@@ -1,7 +1,9 @@
 package mseffner.twitchnotifier.data;
 
 
-public class Channel {
+import android.support.annotation.NonNull;
+
+public class Channel implements Comparable<Channel> {
 
     private String displayName;
     private String name;
@@ -40,5 +42,19 @@ public class Channel {
 
     public String getStreamUrl() {
         return streamUrl;
+    }
+
+    @Override
+    public int compareTo(@NonNull Channel channel) {
+
+        // Sort live channels by viewers
+        if (this.stream != null && channel.stream != null)
+            return this.stream.getCurrentViewers() - channel.stream.getCurrentViewers();
+        // Live channels greater than offline
+        else if (this.stream != null)
+            return 1;
+        else
+            return -1;
+
     }
 }
