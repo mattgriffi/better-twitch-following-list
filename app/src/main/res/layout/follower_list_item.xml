@@ -61,9 +61,9 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_centerInParent="true"
+            android:text="@string/offline"
             android:textAllCaps="true"
-            android:visibility="gone"
-            android:text="@string/offline"/>
+            android:visibility="gone"/>
 
         <!-- LiveStream title -->
         <TextView
@@ -128,10 +128,11 @@
                 android:background="@drawable/vodcast_tag_background"
                 android:paddingLeft="2dp"
                 android:paddingRight="2dp"
+                android:text="@string/vodcast"
                 android:textAllCaps="true"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
-                tools:text="vodcast"/>
+                android:visibility="invisible"/>
 
         </LinearLayout>
 
@@ -143,8 +144,8 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:padding="8dp"
         android:contentDescription="@string/channel_options_menu"
+        android:padding="8dp"
         android:src="@drawable/ic_more_vert_black_24dp" />
 
 </LinearLayout>
