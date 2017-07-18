@@ -1,5 +1,6 @@
 package mseffner.twitchnotifier.data;
 
+import android.annotation.SuppressLint;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -74,7 +75,9 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
 
             if (channel == null)
                 return;
+
             channelName.setText(channel.getDisplayName());
+            channelLogo.setImageBitmap(channel.getLogoBmp());
 
             if (channel.getStream() == null) {
                 bindOfflineStream(channel);
@@ -82,7 +85,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                 bindOnlineStream(channel);
             }
         }
-        // TODO test code for online streams
+
         private void bindOfflineStream(Channel channel) {
             currentGame.setVisibility(View.INVISIBLE);
             streamInfo.setVisibility(View.INVISIBLE);

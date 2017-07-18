@@ -1,5 +1,7 @@
 package mseffner.twitchnotifier.networking;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.util.Log;
 
@@ -47,18 +49,26 @@ public final class NetworkUtils {
 
         for (String channelName : channelNames) {
 
+            // Get the channel data
             URL channelQueryUrl = buildUrl(channelName, QUERY_TYPE_CHANNEL);
             String channelJsonResponse = makeTwitchQuery(channelQueryUrl);
             Channel channel = getChannelFromJson(channelJsonResponse);
 
             if (channel != null) {
 
+                // Get the logo image
+                URL logoUrl = buildChannelLogoQueryURL(channel.getLogoUrl());
+                Bitmap logoBmp = getLogoBitmap(logoUrl);
+                channel.setLogoBmp(logoBmp);
+
+                // Get the stream data
                 URL streamQueryUrl = buildUrl(channelName, QUERY_TYPE_STREAM);
                 String streamJsonResponse = makeTwitchQuery(streamQueryUrl);
                 LiveStream stream = getLiveStreamFromJson(streamJsonResponse);
 
                 channel.setStream(stream);
 
+                // Put the channel in the output list
                 channels.add(channel);
             }
         }
@@ -85,6 +95,25 @@ public final class NetworkUtils {
         closeConnections(urlConnection, inputStream);
 
         return response;
+    }
+
+    private static Bitmap getLogoBitmap(URL url) {
+
+        HttpsURLConnection connection = openHttpsConnection(url);
+        if (connection == null)
+            return null;
+
+        InputStream inputStream = getInputStreamFromConnection(connection);
+        if (inputStream == null) {
+            closeConnections(connection, null);
+            return null;
+        }
+
+        Bitmap bmp = getBitmapFromInputStream(inputStream);
+
+        closeConnections(connection, inputStream);
+
+        return bmp;
     }
 
     private static HttpsURLConnection openHttpsConnection(URL url) {
@@ -247,6 +276,10 @@ public final class NetworkUtils {
         }
 
         return null;
+    }
+
+    private static Bitmap getBitmapFromInputStream(InputStream inputStream) {
+        return BitmapFactory.decodeStream(inputStream);
     }
 
 }
