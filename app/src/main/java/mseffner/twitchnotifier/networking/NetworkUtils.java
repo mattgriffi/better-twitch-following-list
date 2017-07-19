@@ -28,6 +28,8 @@ import mseffner.twitchnotifier.data.LiveStream;
 
 public final class NetworkUtils {
 
+    private static final String LOG_TAG = NetworkUtils.class.getSimpleName();
+
     // Note that this is a test client_id and is not used for release versions
     private static final String CLIENT_ID = "6mmva5zc6ubb4j8zswa0fg6dv3y4xw";
 
@@ -98,7 +100,7 @@ public final class NetworkUtils {
             }
 
         } catch (JSONException e) {
-            Log.e("NetworkUtils", e.toString());
+            Log.e(LOG_TAG, e.toString());
         }
 
         return channels;
@@ -190,7 +192,7 @@ public final class NetworkUtils {
             // Check the response code, log and return null if it's bad
             int responseCode = urlConnection.getResponseCode();
             if (responseCode != 200) {
-                Log.e("NetworkUtils",  "Error response code: " + responseCode);
+                Log.e(LOG_TAG,  "Error response code: " + responseCode);
                 return null;
             }
 
@@ -207,7 +209,7 @@ public final class NetworkUtils {
             inputStream = connection.getInputStream();
         } catch (IOException e) {
             closeConnections(connection, null);
-            Log.e("NetworkUtils", e.toString());
+            Log.e(LOG_TAG, e.toString());
         }
         return inputStream;
     }
@@ -229,7 +231,7 @@ public final class NetworkUtils {
             try {
                 inputStream.close();
             } catch (IOException e) {
-                Log.e("NetworkUtils", e.toString());
+                Log.e(LOG_TAG, e.toString());
             }
         }
     }
@@ -251,7 +253,7 @@ public final class NetworkUtils {
         try {
             url = new URL(uri.toString());
         } catch (MalformedURLException e) {
-            Log.e("NetworkUtils", e.toString());
+            Log.e(LOG_TAG, e.toString());
         }
 
         return url;
@@ -262,7 +264,7 @@ public final class NetworkUtils {
         try {
             url = new URL(logoUrl);
         } catch (MalformedURLException e) {
-            Log.e("NetworkUtils", e.toString());
+            Log.e(LOG_TAG, e.toString());
         }
         return url;
     }
@@ -331,7 +333,7 @@ public final class NetworkUtils {
             return new Channel(displayName, name, logoUrl, streamUrl);
 
         }catch (JSONException e) {
-            Log.e("NetworkUtils", e.toString());
+            Log.e(LOG_TAG, e.toString());
         }
 
         return null;
@@ -360,7 +362,7 @@ public final class NetworkUtils {
             return new LiveStream(game, viewers, status, startTime, streamType);
 
         }catch (JSONException e) {
-            Log.e("NetworkUtils", e.toString());
+            Log.e(LOG_TAG, e.toString());
         }
 
         return null;
