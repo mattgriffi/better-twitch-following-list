@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import javax.net.ssl.HttpsURLConnection;
 
 import mseffner.twitchnotifier.data.Channel;
 import mseffner.twitchnotifier.data.LiveStream;
@@ -81,11 +80,12 @@ public final class NetworkUtils {
                     // Get the logo image
                     String logoUrlString = channel.getLogoUrl();
                     // If a channel has not set a custom logo, logoUrlString will be "null"
-                    if (!logoUrlString.equals("null")) {
-                        URL logoUrl = buildChannelLogoQueryURL(channel.getLogoUrl());
-                        Bitmap logoBmp = getLogoBitmap(logoUrl);
-                        channel.setLogoBmp(logoBmp);
+                    if (logoUrlString.equals("null")) {
+                        logoUrlString = "https://www-cdn.jtvnw.net/images/xarth/404_user_50x50.png";
                     }
+                    URL logoUrl = buildChannelLogoQueryURL(logoUrlString);
+                    Bitmap logoBmp = getLogoBitmap(logoUrl);
+                    channel.setLogoBmp(logoBmp);
 
                     // Get the stream data
                     URL streamQueryUrl = buildUrl(channel.getName(), QUERY_TYPE_STREAM);
@@ -144,7 +144,7 @@ public final class NetworkUtils {
 
         String response;
 
-        HttpsURLConnection urlConnection = openHttpsConnection(url);
+        HttpURLConnection urlConnection = openHttpConnection(url);
         if (urlConnection == null)
             return null;
 
@@ -163,7 +163,7 @@ public final class NetworkUtils {
 
     private static Bitmap getLogoBitmap(URL url) {
 
-        HttpsURLConnection connection = openHttpsConnection(url);
+        HttpURLConnection connection = openHttpConnection(url);
         if (connection == null)
             return null;
 
@@ -180,13 +180,13 @@ public final class NetworkUtils {
         return bmp;
     }
 
-    private static HttpsURLConnection openHttpsConnection(URL url) {
+    private static HttpURLConnection openHttpConnection(URL url) {
 
-        HttpsURLConnection urlConnection = null;
+        HttpURLConnection urlConnection = null;
 
         try {
 
-            urlConnection = setupHttpsURLConnection(url);
+            urlConnection = setupHttpURLConnection(url);
             urlConnection.connect();
 
             // Check the response code, log and return null if it's bad
@@ -214,8 +214,8 @@ public final class NetworkUtils {
         return inputStream;
     }
 
-    private static HttpsURLConnection setupHttpsURLConnection(URL url) throws IOException {
-        HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+    private static HttpURLConnection setupHttpURLConnection(URL url) throws IOException {
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setRequestMethod("GET");
         urlConnection.setReadTimeout(10_000);
         urlConnection.setConnectTimeout(15_000);
