@@ -13,7 +13,6 @@ public final class ChannelContract {
     public static class ChannelEntry implements BaseColumns {
 
         public static final String TABLE_NAME = "channels";
-        public static final String COLUMN_ID = _ID;
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_DISPLAY_NAME = "display_name";
         public static final String COLUMN_LOGO_URL = "logo_url";
@@ -24,7 +23,6 @@ public final class ChannelContract {
     public static class StreamEntry implements BaseColumns {
 
         public static final String TABLE_NAME = "streams";
-        public static final String COLUMN_ID = _ID;
         public static final String COLUMN_GAME = "game";
         public static final String COLUMN_VIEWERS = "viewers";
         public static final String COLUMN_STATUS = "status";
