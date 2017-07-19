@@ -81,7 +81,7 @@ public final class NetworkUtils {
                     String logoUrlString = channel.getLogoUrl();
                     // If a channel has not set a custom logo, logoUrlString will be "null"
                     if (logoUrlString.equals("null")) {
-                        logoUrlString = "https://www-cdn.jtvnw.net/images/xarth/404_user_50x50.png";
+                        logoUrlString = "https://www-cdn.jtvnw.net/images/xarth/404_user_300x300.png";
                     }
                     URL logoUrl = buildChannelLogoQueryURL(logoUrlString);
                     Bitmap logoBmp = getLogoBitmap(logoUrl);
