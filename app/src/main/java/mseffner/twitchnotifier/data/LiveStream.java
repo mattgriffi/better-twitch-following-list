@@ -35,6 +35,7 @@ public class LiveStream {
     public String getCreatedAt() {
         return createdAt;
     }
+
     public String getStreamType() {
         return streamType;
     }
