@@ -11,7 +11,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -20,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+
+import javax.net.ssl.HttpsURLConnection;
 
 import mseffner.twitchnotifier.data.Channel;
 import mseffner.twitchnotifier.data.LiveStream;
@@ -144,7 +145,7 @@ public final class NetworkUtils {
 
         String response;
 
-        HttpURLConnection urlConnection = openHttpConnection(url);
+        HttpsURLConnection urlConnection = openHttpConnection(url);
         if (urlConnection == null)
             return null;
 
@@ -163,7 +164,7 @@ public final class NetworkUtils {
 
     private static Bitmap getLogoBitmap(URL url) {
 
-        HttpURLConnection connection = openHttpConnection(url);
+        HttpsURLConnection connection = openHttpConnection(url);
         if (connection == null)
             return null;
 
@@ -180,13 +181,13 @@ public final class NetworkUtils {
         return bmp;
     }
 
-    private static HttpURLConnection openHttpConnection(URL url) {
+    private static HttpsURLConnection openHttpConnection(URL url) {
 
-        HttpURLConnection urlConnection = null;
+        HttpsURLConnection urlConnection = null;
 
         try {
 
-            urlConnection = setupHttpURLConnection(url);
+            urlConnection = setupHttpsURLConnection(url);
             urlConnection.connect();
 
             // Check the response code, log and return null if it's bad
@@ -203,7 +204,7 @@ public final class NetworkUtils {
         return urlConnection;
     }
 
-    private static InputStream getInputStreamFromConnection(HttpURLConnection connection) {
+    private static InputStream getInputStreamFromConnection(HttpsURLConnection connection) {
         InputStream inputStream = null;
         try {
             inputStream = connection.getInputStream();
@@ -214,15 +215,15 @@ public final class NetworkUtils {
         return inputStream;
     }
 
-    private static HttpURLConnection setupHttpURLConnection(URL url) throws IOException {
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+    private static HttpsURLConnection setupHttpsURLConnection(URL url) throws IOException {
+        HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
         urlConnection.setRequestMethod("GET");
         urlConnection.setReadTimeout(10_000);
         urlConnection.setConnectTimeout(15_000);
         return urlConnection;
     }
 
-    private static void closeConnections(HttpURLConnection urlConnection, InputStream inputStream) {
+    private static void closeConnections(HttpsURLConnection urlConnection, InputStream inputStream) {
 
         if (urlConnection != null)
             urlConnection.disconnect();
