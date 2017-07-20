@@ -23,7 +23,7 @@ import java.util.Scanner;
 import javax.net.ssl.HttpsURLConnection;
 
 import mseffner.twitchnotifier.data.Channel;
-import mseffner.twitchnotifier.data.LiveStream;
+import mseffner.twitchnotifier.data.Stream;
 
 
 public final class NetworkUtils {
@@ -91,7 +91,7 @@ public final class NetworkUtils {
                     // Get the stream data
                     URL streamQueryUrl = buildUrl(channel.getName(), QUERY_TYPE_STREAM);
                     String streamJsonResponse = makeTwitchQuery(streamQueryUrl);
-                    LiveStream stream = getLiveStreamFromJson(streamJsonResponse);
+                    Stream stream = getLiveStreamFromJson(streamJsonResponse);
 
                     channel.setStream(stream);
 
@@ -129,7 +129,7 @@ public final class NetworkUtils {
                 // Get the stream data
                 URL streamQueryUrl = buildUrl(channelName, QUERY_TYPE_STREAM);
                 String streamJsonResponse = makeTwitchQuery(streamQueryUrl);
-                LiveStream stream = getLiveStreamFromJson(streamJsonResponse);
+                Stream stream = getLiveStreamFromJson(streamJsonResponse);
 
                 channel.setStream(stream);
 
@@ -340,7 +340,7 @@ public final class NetworkUtils {
         return null;
     }
 
-    private static LiveStream getLiveStreamFromJson(String jsonResponse) {
+    private static Stream getLiveStreamFromJson(String jsonResponse) {
 
         if (jsonResponse == null)
             return null;
@@ -360,7 +360,7 @@ public final class NetworkUtils {
             String streamType = streamData.getString("stream_type");
             String startTime = streamData.getString("created_at");
 
-            return new LiveStream(game, viewers, status, startTime, streamType);
+            return new Stream(game, viewers, status, startTime, streamType);
 
         }catch (JSONException e) {
             Log.e(LOG_TAG, e.toString());

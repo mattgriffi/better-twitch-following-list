@@ -1,6 +1,6 @@
 package mseffner.twitchnotifier.data;
 
-public class LiveStream {
+public class Stream {
 
     public static final String STREAM_TYPE_LIVE = "live";
     public static final String STREAM_TYPE_PLAYLIST = "playlist";
@@ -12,7 +12,7 @@ public class LiveStream {
     private String streamType;
     private String createdAt;
 
-    public LiveStream(String currentGame, int currentViewers, String status, String createdAt, String streamType) {
+    public Stream(String currentGame, int currentViewers, String status, String createdAt, String streamType) {
         this.currentGame = currentGame;
         this.currentViewers = currentViewers;
         this.status = status;

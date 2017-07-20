@@ -12,7 +12,7 @@ public class Channel implements Comparable<Channel> {
     private String streamUrl;
     private Bitmap bmp;
 
-    private LiveStream stream;
+    private Stream stream;
 
     public Channel(String displayName, String name, String logoUrl, String streamUrl) {
         this.displayName = displayName;
@@ -23,11 +23,11 @@ public class Channel implements Comparable<Channel> {
         this.stream = null;
     }
 
-    public void setStream(LiveStream stream) {
+    public void setStream(Stream stream) {
         this.stream = stream;
     }
 
-    public LiveStream getStream() {
+    public Stream getStream() {
         return stream;
     }
 

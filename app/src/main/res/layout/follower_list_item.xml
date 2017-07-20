@@ -65,7 +65,7 @@
             android:textAllCaps="true"
             android:visibility="gone"/>
 
-        <!-- LiveStream title -->
+        <!-- Stream title -->
         <TextView
             android:id="@+id/stream_title"
             android:layout_width="wrap_content"

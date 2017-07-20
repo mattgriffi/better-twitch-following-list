@@ -96,7 +96,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
         }
 
         private void bindOnlineStream(Channel channel) {
-            LiveStream stream = channel.getStream();
+            Stream stream = channel.getStream();
 
             offlineText.setVisibility(View.INVISIBLE);
             currentGame.setVisibility(View.VISIBLE);
@@ -110,7 +110,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             String actualUptime = calculateUptime(stream.getCreatedAt());
             uptime.setText("4:20");
 
-            if (stream.getStreamType().equals(LiveStream.STREAM_TYPE_VODCAST))
+            if (stream.getStreamType().equals(Stream.STREAM_TYPE_VODCAST))
                 vodcastTag.setVisibility(View.VISIBLE);
         }
 
