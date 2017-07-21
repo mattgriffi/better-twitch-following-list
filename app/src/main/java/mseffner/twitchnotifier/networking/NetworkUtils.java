@@ -326,12 +326,13 @@ public final class NetworkUtils {
 
             JSONObject channelData = new JSONObject(jsonResponse);
 
+            int id = channelData.getInt("_id");
             String displayName = channelData.getString("display_name");
             String name = channelData.getString("name");
             String logoUrl = channelData.getString("logo");
             String streamUrl = channelData.getString("url");
 
-            return new Channel(displayName, name, logoUrl, streamUrl);
+            return new Channel(id, displayName, name, logoUrl, streamUrl);
 
         }catch (JSONException e) {
             Log.e(LOG_TAG, e.toString());

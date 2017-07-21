@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 
 public class Channel implements Comparable<Channel> {
 
+    private int id;
     private String displayName;
     private String name;
     private String logoUrl;
@@ -14,7 +15,8 @@ public class Channel implements Comparable<Channel> {
 
     private Stream stream;
 
-    public Channel(String displayName, String name, String logoUrl, String streamUrl) {
+    public Channel(int id, String displayName, String name, String logoUrl, String streamUrl) {
+        this.id = id;
         this.displayName = displayName;
         this.name = name;
         this.logoUrl = logoUrl;
@@ -53,6 +55,10 @@ public class Channel implements Comparable<Channel> {
 
     public Bitmap getLogoBmp() {
         return bmp;
+    }
+
+    public int getId() {
+        return id;
     }
 
     @Override
