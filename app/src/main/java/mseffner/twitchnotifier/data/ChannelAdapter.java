@@ -107,15 +107,22 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             streamTitle.setText(stream.getStatus());
             viewerCount.setText(Integer.toString(stream.getCurrentViewers()));
 
-            String actualUptime = calculateUptime(stream.getCreatedAt());
-            uptime.setText("4:20");
+            uptime.setText(getUptime(stream.getCreatedAt()));
 
-            if (stream.getStreamType().equals(Stream.STREAM_TYPE_VODCAST))
+            if (stream.getStreamType() == ChannelContract.ChannelEntry.STREAM_TYPE_VODCAST)
                 vodcastTag.setVisibility(View.VISIBLE);
         }
 
-        public String calculateUptime(String createdAt) {
-            return null;
+        private String getUptime(long createdAt) {
+            long currentTime = System.currentTimeMillis() / 1000;
+            int uptimeInSeconds = (int) (currentTime - createdAt);
+
+            int hours = uptimeInSeconds / 3600;
+            uptimeInSeconds %= 3600;
+            int minutes = uptimeInSeconds / 60;
+
+            return String.format("%02d:%02d", hours, minutes);
+
         }
     }
 }
