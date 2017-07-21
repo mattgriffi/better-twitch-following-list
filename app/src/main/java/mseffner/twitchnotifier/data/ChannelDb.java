@@ -3,6 +3,7 @@ package mseffner.twitchnotifier.data;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 public class ChannelDb {
 
@@ -16,18 +17,32 @@ public class ChannelDb {
 
     public Cursor query(String[] projection, String selection, String[] selectionArgs,
                         String sortOrder) {
-        return null;
+
+        SQLiteDatabase database = dbHelper.getReadableDatabase();
+        return database.query(TABLE, projection, selection, selectionArgs, null, null, sortOrder);
     }
 
-    public int insert(ContentValues contentValues) {
-        return 0;
+    public long insert(ContentValues contentValues) {
+
+        // TODO input validation
+
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        return database.insert(TABLE, null, contentValues);
     }
 
-    public int update(ContentValues contentValues, String selection, String[] selectionArgs) {
-        return 0;
+    public long update(ContentValues contentValues, String selection, String[] selectionArgs) {
+
+        // TODO input validation
+
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        return database.update(TABLE, contentValues, selection, selectionArgs);
     }
 
-    public int delete(String selection, String[] selectionArgs) {
-        return 0;
+    public long delete(String selection, String[] selectionArgs) {
+
+        // TODO input validation
+
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        return database.delete(TABLE, selection, selectionArgs);
     }
 }
