@@ -12,7 +12,7 @@ public class ChannelDb {
 
 
     public ChannelDb(Context context) {
-        dbHelper = new ChannelDbHelper(context);
+        dbHelper = ChannelDbHelper.getInstance(context);
     }
 
     public Cursor query(String[] projection, String selection, String[] selectionArgs,
