@@ -9,13 +9,22 @@ import mseffner.twitchnotifier.data.ChannelContract.ChannelEntry;
 
 public class ChannelDbHelper extends SQLiteOpenHelper {
 
+    private static ChannelDbHelper instance;
+
     private static final String DATABASE_NAME = "channels.db";
     private static int DATABASE_VERSION = 1;
 
     private static final String DEFAULT_LOGO_URL = "https://www-cdn.jtvnw.net/images/xarth/404_user_300x300.png";
 
-    public ChannelDbHelper(Context context) {
+    private ChannelDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    public static ChannelDbHelper getInstance(Context context) {
+        if (instance == null) {
+            instance = new ChannelDbHelper(context.getApplicationContext());
+        }
+        return instance;
     }
 
     @Override
