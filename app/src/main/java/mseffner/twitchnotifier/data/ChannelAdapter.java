@@ -121,8 +121,6 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             uptimeInSeconds %= 3600;
             int minutes = uptimeInSeconds / 60;
 
-            if (hours < 100)  // Marathons can sometimes go over 99 hours straight
-                return String.format("%02d:%02d", hours, minutes);
             return String.format("%d:%02d", hours, minutes);
 
         }
