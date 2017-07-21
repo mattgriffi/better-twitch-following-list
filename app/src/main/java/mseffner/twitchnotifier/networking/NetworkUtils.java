@@ -1,6 +1,5 @@
 package mseffner.twitchnotifier.networking;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -15,9 +14,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 
 
@@ -53,15 +50,10 @@ public final class NetworkUtils {
 
     private static final String LIMIT_MAX = "100";
 
-    // TODO remove all references to context; only for testing
-    private static Context context;
-
 
     private NetworkUtils() {}
 
-    public static void getUserFollowChannels(String userName, Context context) {
-
-        NetworkUtils.context = context;
+    public static void getUserFollowChannels(String userName, ChannelDb database) {
 
         URL followsQueryUrl = buildUrl(userName, QUERY_TYPE_USER_FOLLOWS);
         String followsJsonResponse = makeTwitchQuery(followsQueryUrl);
@@ -99,8 +91,7 @@ public final class NetworkUtils {
 
                     channel.setStream(stream);
 
-                    ChannelDb db = new ChannelDb(context);
-                    db.insertChannel(channel);
+                    database.insertChannel(channel);
                 }
             }
 
