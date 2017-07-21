@@ -1,6 +1,5 @@
 package mseffner.twitchnotifier.networking;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -25,6 +24,7 @@ import java.util.Scanner;
 import javax.net.ssl.HttpsURLConnection;
 
 import mseffner.twitchnotifier.data.Channel;
+import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.data.Stream;
 
 
@@ -101,6 +101,9 @@ public final class NetworkUtils {
                     Stream stream = getLiveStreamFromJson(streamJsonResponse);
 
                     channel.setStream(stream);
+
+                    ChannelDb db = new ChannelDb(context);
+                    db.insertChannel(channel);
 
                     // Put the channel in the output list
                     channels.add(channel);
@@ -181,6 +184,7 @@ public final class NetworkUtils {
             return null;
         }
 
+        // TODO return a byte array instead of a Bitmap
         Bitmap bmp = getBitmapFromInputStream(inputStream);
 
         closeConnections(connection, inputStream);
