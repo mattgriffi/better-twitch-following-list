@@ -14,7 +14,7 @@ public class ChannelDbHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "channels.db";
     private static int DATABASE_VERSION = 1;
 
-    private static final String DEFAULT_LOGO_URL = "https://www-cdn.jtvnw.net/images/xarth/404_user_300x300.png";
+    private static final String DEFAULT_LOGO_URL = "\"https://www-cdn.jtvnw.net/images/xarth/404_user_300x300.png\"";
 
     private ChannelDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
