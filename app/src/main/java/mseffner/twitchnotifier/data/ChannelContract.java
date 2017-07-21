@@ -1,5 +1,6 @@
 package mseffner.twitchnotifier.data;
 
+import android.content.ContentResolver;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -7,10 +8,24 @@ public final class ChannelContract {
 
     public static final String CONTENT_AUTHORITY = "mseffner.twitchnotifier";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+    public static final String PATH_CHANNELS = "channels";
+    public static final String PATH_STREAMS = "streams";
+
+    // MIME types for ChannelProvider
+    public static final String CONTENT_CHANNELS_LIST_TYPE =
+            ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_CHANNELS;
+    public static final String CONTENT_CHANNELS_ITEM_TYPE =
+            ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_CHANNELS;
+    public static final String CONTENT_STREAMS_LIST_TYPE =
+            ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_STREAMS;
+    public static final String CONTENT_STREAMS_ITEM_TYPE =
+            ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_STREAMS;
 
     private ChannelContract() {}
 
     public static class ChannelEntry implements BaseColumns {
+
+        public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_CHANNELS);
 
         public static final String TABLE_NAME = "channels";
         public static final String COLUMN_NAME = "name";
@@ -21,6 +36,8 @@ public final class ChannelContract {
     }
 
     public static class StreamEntry implements BaseColumns {
+
+        public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_STREAMS);
 
         public static final String TABLE_NAME = "streams";
         public static final String COLUMN_GAME = "game";
