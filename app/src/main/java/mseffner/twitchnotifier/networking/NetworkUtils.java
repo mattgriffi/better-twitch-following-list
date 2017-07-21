@@ -1,5 +1,7 @@
 package mseffner.twitchnotifier.networking;
 
+import android.content.ContentValues;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -51,10 +53,15 @@ public final class NetworkUtils {
 
     private static final String LIMIT_MAX = "100";
 
+    // TODO remove all references to context; only for testing
+    private static Context context;
+
 
     private NetworkUtils() {}
 
-    public static List<Channel> getUserFollowChannels(String userName) {
+    public static List<Channel> getUserFollowChannels(String userName, Context context) {
+
+        NetworkUtils.context = context;
 
         URL followsQueryUrl = buildUrl(userName, QUERY_TYPE_USER_FOLLOWS);
         String followsJsonResponse = makeTwitchQuery(followsQueryUrl);

@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected List<Channel> doInBackground(String... channelNames) {
 
-            return NetworkUtils.getUserFollowChannels(channelNames[0]);
+            return NetworkUtils.getUserFollowChannels(channelNames[0], getApplicationContext());
         }
 
         @Override
