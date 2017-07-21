@@ -22,19 +22,23 @@ public class ChannelDbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase database) {
 
         String CREATE_CHANNELS_TABLE =
-            "CREATE TABLE " +
-            ChannelEntry.TABLE_NAME + " (" +
+            "CREATE TABLE " + ChannelEntry.TABLE_NAME +
+            " (" +
+            // The ID will be the ID returned by the Twitch API, which allows me to use it
+            // to specify channels in future API requests.
             ChannelEntry._ID + " INTEGER PRIMARY KEY, " +
             ChannelEntry.COLUMN_NAME + " TEXT NOT NULL, " +
             ChannelEntry.COLUMN_DISPLAY_NAME + " TEXT NOT NULL DEFAULT \"unknown_name\", " +
             ChannelEntry.COLUMN_CHANNEL_URL + " TEXT NOT NULL, " +
             ChannelEntry.COLUMN_LOGO_URL + " TEXT NOT NULL DEFAULT " + DEFAULT_LOGO_URL +  ", " +
-            ChannelEntry.COLUMN_LOGO_BMP + " BLOB" +
+            ChannelEntry.COLUMN_LOGO_BMP + " BLOB, " +
             ChannelEntry.COLUMN_STREAM_TYPE + " INTEGER NOT NULL DEFAULT " + ChannelEntry.STREAM_TYPE_OFFLINE + ", " +
             ChannelEntry.COLUMN_STATUS + " TEXT NOT NULL DEFAULT \"\", " +
             ChannelEntry.COLUMN_GAME + " TEXT NOT NULL DEFAULT \"\", " +
             ChannelEntry.COLUMN_VIEWERS + " INTEGER NOT NULL DEFAULT 0, " +
-            ChannelEntry.COLUMN_CREATED_AT + " INTEGER NOT NULL DEFAULT 0" + ");";  // Unix timestamp
+            // CREATED_AT will be a Unix timestamp showing when the stream went live.
+            ChannelEntry.COLUMN_CREATED_AT + " INTEGER NOT NULL DEFAULT 0" +
+            ");";
 
         database.execSQL(CREATE_CHANNELS_TABLE);
     }
