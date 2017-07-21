@@ -12,6 +12,7 @@ import java.util.List;
 
 import mseffner.twitchnotifier.data.Channel;
 import mseffner.twitchnotifier.data.ChannelAdapter;
+import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.networking.NetworkUtils;
 
 
@@ -47,7 +48,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected List<Channel> doInBackground(String... channelNames) {
 
-            return NetworkUtils.getUserFollowChannels(channelNames[0], getApplicationContext());
+            NetworkUtils.getUserFollowChannels(channelNames[0], getApplicationContext());
+            ChannelDb database = new ChannelDb(getApplicationContext());
+            return database.getAllChannels();
         }
 
         @Override

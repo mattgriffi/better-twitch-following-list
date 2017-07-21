@@ -59,15 +59,12 @@ public final class NetworkUtils {
 
     private NetworkUtils() {}
 
-    public static List<Channel> getUserFollowChannels(String userName, Context context) {
+    public static void getUserFollowChannels(String userName, Context context) {
 
         NetworkUtils.context = context;
 
         URL followsQueryUrl = buildUrl(userName, QUERY_TYPE_USER_FOLLOWS);
         String followsJsonResponse = makeTwitchQuery(followsQueryUrl);
-
-        List<Channel> channels = new ArrayList<>();
-        Map<String, Channel> channelMap = new HashMap<>();
 
         try {
 
@@ -104,18 +101,12 @@ public final class NetworkUtils {
 
                     ChannelDb db = new ChannelDb(context);
                     db.insertChannel(channel);
-
-                    // Put the channel in the output list
-                    channels.add(channel);
                 }
             }
 
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.toString());
         }
-
-        return channels;
-
     }
 
     public static List<Channel> getChannels(String[] channelNames) {

@@ -18,23 +18,35 @@ public class Stream {
     private int streamType;
     private long createdAt;
 
+    public Stream(String currentGame, int currentViewers, String status, long createdAt, int streamType) {
+        this(currentGame, currentViewers, status);
+        this.createdAt = createdAt;
+        this.streamType = streamType;
+    }
+
     public Stream(String currentGame, int currentViewers, String status, String createdAt, String streamType) {
+        this(currentGame, currentViewers, status);
+        this.createdAt = getUnixTimestampFromUTC(createdAt);
+
+        int streamTypeInt = ChannelContract.ChannelEntry.STREAM_TYPE_OFFLINE;
+        switch (streamType) {
+            case STREAM_TYPE_LIVE:
+                streamTypeInt = ChannelContract.ChannelEntry.STREAM_TYPE_LIVE;
+                break;
+            case STREAM_TYPE_PLAYLIST:
+                streamTypeInt = ChannelContract.ChannelEntry.STREAM_TYPE_PLAYLIST;
+                break;
+            case STREAM_TYPE_VODCAST:
+                streamTypeInt = ChannelContract.ChannelEntry.STREAM_TYPE_VODCAST;
+                break;
+        }
+        this.streamType = streamTypeInt;
+    }
+
+    private Stream(String currentGame, int currentViewers, String status) {
         this.currentGame = currentGame;
         this.currentViewers = currentViewers;
         this.status = status;
-        this.createdAt = getUnixTimestampFromUTC(createdAt);
-
-        switch (streamType) {
-            case STREAM_TYPE_LIVE:
-                this.streamType = ChannelContract.ChannelEntry.STREAM_TYPE_LIVE;
-                break;
-            case STREAM_TYPE_PLAYLIST:
-                this.streamType = ChannelContract.ChannelEntry.STREAM_TYPE_PLAYLIST;
-                break;
-            case STREAM_TYPE_VODCAST:
-                this.streamType = ChannelContract.ChannelEntry.STREAM_TYPE_VODCAST;
-                break;
-        }
     }
 
     public String getCurrentGame() {
@@ -57,7 +69,7 @@ public class Stream {
         return streamType;
     }
 
-    private long getUnixTimestampFromUTC(String utcFormattedTimestamp) {
+    private static long getUnixTimestampFromUTC(String utcFormattedTimestamp) {
         @SuppressLint("SimpleDateFormat")
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         format.setTimeZone(TimeZone.getTimeZone("GMT"));
