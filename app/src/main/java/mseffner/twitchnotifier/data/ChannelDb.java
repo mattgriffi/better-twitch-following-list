@@ -24,23 +24,17 @@ public class ChannelDb {
 
     public long insert(ContentValues contentValues) {
 
-        // TODO input validation
-
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         return database.insert(TABLE, null, contentValues);
     }
 
     public long update(ContentValues contentValues, String selection, String[] selectionArgs) {
 
-        // TODO input validation
-
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         return database.update(TABLE, contentValues, selection, selectionArgs);
     }
 
     public long delete(String selection, String[] selectionArgs) {
-
-        // TODO input validation
 
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         return database.delete(TABLE, selection, selectionArgs);
