@@ -73,7 +73,7 @@ public final class NetworkUtils {
 
         do {
 
-            URL followsQueryUrl = buildUrl(userId, offsetMultiplier * chunkSize, QUERY_TYPE_USER_FOLLOWS);
+            URL followsQueryUrl = buildUserFollowsUrl(userId, offsetMultiplier * chunkSize);
             String followsJsonResponse = makeTwitchQuery(followsQueryUrl);
 
             try {
@@ -337,8 +337,8 @@ public final class NetworkUtils {
         return getUrlFromUri(uri);
     }
 
-    private static URL buildUrl(String query, int offset, int queryType) {
-        Uri uri = buildUserFollowsQueryUri(query, offset);
+    private static URL buildUserFollowsUrl(String channelId, int offset) {
+        Uri uri = buildUserFollowsQueryUri(channelId, offset);
 
         return getUrlFromUri(uri);
     }
