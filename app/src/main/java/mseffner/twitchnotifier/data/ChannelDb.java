@@ -194,6 +194,9 @@ public class ChannelDb {
 
     private byte[] getByteArrayFromBitmap(Bitmap bmp) {
 
+        if (bmp == null)
+            return null;
+
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
         Bitmap newBitmap = bmp;
@@ -213,6 +216,8 @@ public class ChannelDb {
     }
 
     private Bitmap getBitmapFromByteArray(byte[] bytes) {
+        if (bytes == null)
+            return null;
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
     }
 
