@@ -36,6 +36,7 @@ public final class NetworkUtils {
     private static final int QUERY_TYPE_STREAM = 1;
     private static final int QUERY_TYPE_USER_FOLLOWS = 2;
     private static final int QUERY_TYPE_STREAM_MULTIPLE = 3;
+    private static final int QUERY_TYPE_USER_ID = 4;
 
     private static final String TWITCH_API_BASE_URL = "https://api.twitch.tv/kraken/";
 
@@ -47,15 +48,24 @@ public final class NetworkUtils {
     private static final String PARAM_CLIENT_ID = "client_id";
     private static final String PARAM_LIMIT = "limit";
     private static final String PARAM_CHANNEL = "channel";
+    private static final String PARAM_OFFSET = "offset";
+    private static final String PARAM_STREAM_TYPE = "stream_type";
+    private static final String PARAM_API_VERSION = "api_version";
+    private static final String PARAM_LOGIN = "login";
 
     private static final String LIMIT_MAX = "100";
+    private static final String STREAM_TYPE_ALL = "all";
+    private static final String STREAM_TYPE_LIVE = "live";
+    private static final String API_VERSION = "5";
 
 
     private NetworkUtils() {}
 
-    public static void getUserFollowChannels(String userName, ChannelDb database) {
+    public static void populateUserFollowedChannels(String userName, ChannelDb database) {
 
-        URL followsQueryUrl = buildUrl(userName, QUERY_TYPE_USER_FOLLOWS);
+        String userId = Long.toString(getTwitchUserId(userName));
+
+        URL followsQueryUrl = buildUrl(userId, QUERY_TYPE_USER_FOLLOWS);
         String followsJsonResponse = makeTwitchQuery(followsQueryUrl);
 
         try {
@@ -85,7 +95,7 @@ public final class NetworkUtils {
                     channel.setLogoBmp(logoBmp);
 
                     // Get the stream data
-                    URL streamQueryUrl = buildUrl(channel.getName(), QUERY_TYPE_STREAM);
+                    URL streamQueryUrl = buildUrl(Integer.toString(channel.getId()), QUERY_TYPE_STREAM);
                     String streamJsonResponse = makeTwitchQuery(streamQueryUrl);
                     Stream stream = getLiveStreamFromJson(streamJsonResponse);
 
@@ -98,6 +108,35 @@ public final class NetworkUtils {
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.toString());
         }
+    }
+
+    public static void updateStreamData(ChannelDb database) {
+
+        int[] channelIds = database.getAllChannelIds();
+        String[] commaSeparatedIdLists = getCommaSeparatedIdLists(channelIds);
+
+        for (String commaSeparatedIds : commaSeparatedIdLists) {
+
+            URL streamQueryUrl = buildUrl(commaSeparatedIds, QUERY_TYPE_STREAM_MULTIPLE);
+            String streamQueryResponse = makeTwitchQuery(streamQueryUrl);
+        }
+    }
+
+    /**
+     * @param idArray An array of every channel ID in the database.
+     * @return An array of Strings where each string is a comma separated list of IDs, up to 100 each.
+     */
+    private static String[] getCommaSeparatedIdLists(int[] idArray) {
+
+        String[] commaSeparatedIdList = new String[(idArray.length / Integer.parseInt(LIMIT_MAX)) + 1];
+        return commaSeparatedIdList;
+    }
+
+    private static long getTwitchUserId(String userName) {
+
+        URL userIdQueryUrl = buildUrl(userName, QUERY_TYPE_USER_ID);
+        String response = makeTwitchQuery(userIdQueryUrl);
+        return getUserIdFromJson(response);
     }
 
     public static List<Channel> getChannels(String[] channelNames) {
@@ -241,6 +280,8 @@ public final class NetworkUtils {
             uri = buildUserFollowsQueryUri(query);
         else if (queryType == QUERY_TYPE_STREAM_MULTIPLE)
             uri = buildMultiStreamQueryUri(query);
+        else if (queryType == QUERY_TYPE_USER_ID)
+            uri = buildUserIdQueryUri(query);
 
         // Convert Uri into URL
         URL url = null;
@@ -267,6 +308,7 @@ public final class NetworkUtils {
         return Uri.parse(TWITCH_API_BASE_URL).buildUpon()
                 .appendPath(PATH_STREAMS)
                 .appendPath(channelName)
+                .appendQueryParameter(PARAM_API_VERSION, API_VERSION)
                 .appendQueryParameter(PARAM_CLIENT_ID, CLIENT_ID)
                 .build();
     }
@@ -275,6 +317,7 @@ public final class NetworkUtils {
         return Uri.parse(TWITCH_API_BASE_URL).buildUpon()
                 .appendPath(PATH_CHANNELS)
                 .appendPath(channelName)
+                .appendQueryParameter(PARAM_API_VERSION, API_VERSION)
                 .appendQueryParameter(PARAM_CLIENT_ID, CLIENT_ID)
                 .build();
     }
@@ -284,17 +327,29 @@ public final class NetworkUtils {
                 .appendPath(PATH_USERS)
                 .appendPath(userName)
                 .appendEncodedPath(PATH_FOLLOWS_CHANNELS)
+                .appendQueryParameter(PARAM_API_VERSION, API_VERSION)
                 .appendQueryParameter(PARAM_CLIENT_ID, CLIENT_ID)
                 .appendQueryParameter(PARAM_LIMIT, LIMIT_MAX)
                 .build();
     }
 
-    private static Uri buildMultiStreamQueryUri(String commaSeparatedChannelNames) {
+    private static Uri buildMultiStreamQueryUri(String commaSeparatedChannelIds) {
         return Uri.parse(TWITCH_API_BASE_URL).buildUpon()
                 .appendPath(PATH_STREAMS)
+                .appendQueryParameter(PARAM_API_VERSION, API_VERSION)
                 .appendQueryParameter(PARAM_CLIENT_ID, CLIENT_ID)
                 .appendQueryParameter(PARAM_LIMIT, LIMIT_MAX)
-                .appendQueryParameter(PARAM_CHANNEL, commaSeparatedChannelNames)
+                .appendQueryParameter(PARAM_STREAM_TYPE, STREAM_TYPE_LIVE)
+                .appendQueryParameter(PARAM_CHANNEL, commaSeparatedChannelIds)
+                .build();
+    }
+
+    private static Uri buildUserIdQueryUri(String userName) {
+        return Uri.parse(TWITCH_API_BASE_URL).buildUpon()
+                .appendPath(PATH_USERS)
+                .appendQueryParameter(PARAM_API_VERSION, API_VERSION)
+                .appendQueryParameter(PARAM_CLIENT_ID, CLIENT_ID)
+                .appendQueryParameter(PARAM_LOGIN, userName)
                 .build();
     }
 
@@ -361,6 +416,20 @@ public final class NetworkUtils {
         }
 
         return null;
+    }
+
+    private static long getUserIdFromJson(String jsonResponse) {
+
+        try {
+
+            JSONObject resultJson = new JSONObject(jsonResponse);
+            return resultJson.getJSONArray("users").getJSONObject(0).getLong("_id");
+
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, e.toString());
+        }
+
+        return 0;
     }
 
     private static Bitmap getBitmapFromInputStream(InputStream inputStream) {

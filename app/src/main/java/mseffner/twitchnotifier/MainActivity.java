@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
 
             ChannelDb database = new ChannelDb(getApplicationContext());
-            NetworkUtils.getUserFollowChannels(channelNames[0], database);
+            NetworkUtils.populateUserFollowedChannels(channelNames[0], database);
             return database.getAllChannels();
         }
 
