@@ -100,7 +100,7 @@ public class ChannelDb {
             // Build the Channel object from the data
             Channel channel = new Channel(id, displayName, name, logoUrl, channelUrl);
             if (streamType != ChannelEntry.STREAM_TYPE_OFFLINE)
-                channel.setStream(new Stream(game, viewers, status, createdAt, streamType));
+                channel.setStream(new Stream(id, game, viewers, status, createdAt, streamType));
             channel.setLogoBmp(getBitmapFromByteArray(logoByteArray));
 
             channelList.add(channel);

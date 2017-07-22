@@ -403,13 +403,14 @@ public final class NetworkUtils {
             JSONObject streamData = resultJson.getJSONObject("stream");
             JSONObject channelData = streamData.getJSONObject("channel");
 
+            long id = channelData.getLong("_id");
             String game = streamData.getString("game");
             int viewers = streamData.getInt("viewers");
             String status = channelData.getString("status");
             String streamType = streamData.getString("stream_type");
             String startTime = streamData.getString("created_at");
 
-            return new Stream(game, viewers, status, startTime, streamType);
+            return new Stream(id, game, viewers, status, startTime, streamType);
 
         }catch (JSONException e) {
             Log.e(LOG_TAG, e.toString());

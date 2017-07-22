@@ -12,20 +12,22 @@ public class Stream {
     public static final String STREAM_TYPE_PLAYLIST = "playlist";
     public static final String STREAM_TYPE_VODCAST = "watch_party";
 
+    private long id;
     private String currentGame;
     private int currentViewers;
     private String status;
     private int streamType;
     private long createdAt;
 
-    public Stream(String currentGame, int currentViewers, String status, long createdAt, int streamType) {
-        this(currentGame, currentViewers, status);
+    public Stream(long id, String currentGame, int currentViewers, String status, long createdAt,
+                  int streamType) {
+        this(id, currentGame, currentViewers, status);
         this.createdAt = createdAt;
         this.streamType = streamType;
     }
 
-    public Stream(String currentGame, int currentViewers, String status, String createdAt, String streamType) {
-        this(currentGame, currentViewers, status);
+    public Stream(long id, String currentGame, int currentViewers, String status, String createdAt, String streamType) {
+        this(id, currentGame, currentViewers, status);
         this.createdAt = getUnixTimestampFromUTC(createdAt);
 
         int streamTypeInt = ChannelContract.ChannelEntry.STREAM_TYPE_OFFLINE;
@@ -43,7 +45,8 @@ public class Stream {
         this.streamType = streamTypeInt;
     }
 
-    private Stream(String currentGame, int currentViewers, String status) {
+    private Stream(long id, String currentGame, int currentViewers, String status) {
+        this.id = id;
         this.currentGame = currentGame;
         this.currentViewers = currentViewers;
         this.status = status;
@@ -67,6 +70,10 @@ public class Stream {
 
     public int getStreamType() {
         return streamType;
+    }
+
+    public long getId() {
+        return id;
     }
 
     private static long getUnixTimestampFromUTC(String utcFormattedTimestamp) {
