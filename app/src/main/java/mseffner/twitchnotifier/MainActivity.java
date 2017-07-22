@@ -48,9 +48,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected List<Channel> doInBackground(String... channelNames) {
 
-
             ChannelDb database = new ChannelDb(getApplicationContext());
-            NetworkUtils.populateUserFollowedChannels(channelNames[0], database);
+//            NetworkUtils.populateUserFollowedChannels(channelNames[0], database);
+            database.resetAllStreamData();
             NetworkUtils.updateStreamData(database);
             return database.getAllChannels();
         }
