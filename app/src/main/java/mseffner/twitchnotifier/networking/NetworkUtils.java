@@ -106,7 +106,7 @@ public final class NetworkUtils {
     public static void updateStreamData(ChannelDb database) {
 
         int[] channelIds = database.getAllChannelIds();
-        String[] commaSeparatedIdLists = getCommaSeparatedIdLists(channelIds);
+        String[] commaSeparatedIdLists = getCommaSeparatedIdsArray(channelIds);
 
         List<Stream> streamList = getStreamsFromCommaSeparatedIds(commaSeparatedIdLists);
 
@@ -155,7 +155,7 @@ public final class NetworkUtils {
      * @param idArray An array of every channel ID in the database.
      * @return An array of Strings where each string is a comma separated list of IDs, up to 100 each.
      */
-    private static String[] getCommaSeparatedIdLists(int[] idArray) {
+    private static String[] getCommaSeparatedIdsArray(int[] idArray) {
 
         int chunkSize = Integer.parseInt(LIMIT_MAX);
         String[] commaSeparatedIdList = new String[(idArray.length / chunkSize) + 1];
@@ -183,39 +183,6 @@ public final class NetworkUtils {
         URL userIdQueryUrl = buildUrl(userName, QUERY_TYPE_USER_ID);
         String response = makeTwitchQuery(userIdQueryUrl);
         return getUserIdFromJson(response);
-    }
-
-    public static List<Channel> getChannels(String[] channelNames) {
-
-        List<Channel> channels = new ArrayList<>();
-
-        for (String channelName : channelNames) {
-
-            // Get the channel data
-            URL channelQueryUrl = buildUrl(channelName, QUERY_TYPE_CHANNEL);
-            String channelJsonResponse = makeTwitchQuery(channelQueryUrl);
-            Channel channel = getChannelFromJson(channelJsonResponse);
-
-            if (channel != null) {
-
-                // Get the logo image
-                URL logoUrl = buildChannelLogoQueryURL(channel.getLogoUrl());
-                Bitmap logoBmp = getLogoBitmap(logoUrl);
-                channel.setLogoBmp(logoBmp);
-
-                // Get the stream data
-                URL streamQueryUrl = buildUrl(channelName, QUERY_TYPE_STREAM);
-                String streamJsonResponse = makeTwitchQuery(streamQueryUrl);
-                Stream stream = getStreamFromJson(streamJsonResponse);
-
-                channel.setStream(stream);
-
-                // Put the channel in the output list
-                channels.add(channel);
-            }
-        }
-
-        return channels;
     }
 
     private static String makeTwitchQuery(URL url) {
