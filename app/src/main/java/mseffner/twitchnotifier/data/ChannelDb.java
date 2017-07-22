@@ -26,6 +26,23 @@ public class ChannelDb {
         dbHelper = ChannelDbHelper.getInstance(context);
     }
 
+    public int[] getAllChannelIds() {
+
+        Cursor cursor = query(new String[]{ChannelEntry._ID}, null, null, null);
+
+        int[] idArray = new int[cursor.getCount()];
+        int idColumnIndex = cursor.getColumnIndex(ChannelEntry._ID);
+
+        int i = 0;
+        while (cursor.moveToNext()) {
+            idArray[i++] = cursor.getInt(idColumnIndex);
+        }
+
+        cursor.close();
+
+        return idArray;
+    }
+
     public List<Channel> getAllChannels() {
 
         List<Channel> channelList = new ArrayList<>();
@@ -66,6 +83,8 @@ public class ChannelDb {
 
             channelList.add(channel);
         }
+
+        cursor.close();
 
         return channelList;
     }
