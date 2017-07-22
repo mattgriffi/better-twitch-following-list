@@ -136,6 +136,30 @@ public class ChannelDb {
         return numRowsInserted == 1;
     }
 
+    /**
+     * This method will set all of the Stream data for every row to their default values:
+     *      stream_type = 0
+     *      status = ""
+     *      game = ""
+     *      viewers = 0
+     *      created_at = 0
+     *
+     * This method should be called before updating the database with fresh Stream data. For the
+     * purpose of making notifications, be sure to call this method AFTER getting the old data to
+     * compare against (use getOfflineIdSet).
+     */
+    public void resetAllStreamData() {
+
+        ContentValues values = new ContentValues();
+        values.put(ChannelEntry.COLUMN_STREAM_TYPE, ChannelEntry.STREAM_TYPE_OFFLINE);
+        values.put(ChannelEntry.COLUMN_GAME, "");
+        values.put(ChannelEntry.COLUMN_VIEWERS, 0);
+        values.put(ChannelEntry.COLUMN_STATUS, "");
+        values.put(ChannelEntry.COLUMN_CREATED_AT, 0);
+
+        update(values, null, null);
+    }
+
     private byte[] getByteArrayFromBitmap(Bitmap bmp) {
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
