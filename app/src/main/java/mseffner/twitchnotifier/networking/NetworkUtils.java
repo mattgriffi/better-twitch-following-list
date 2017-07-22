@@ -3,6 +3,7 @@ package mseffner.twitchnotifier.networking;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -107,37 +108,46 @@ public final class NetworkUtils {
         int[] channelIds = database.getAllChannelIds();
         String[] commaSeparatedIdLists = getCommaSeparatedIdLists(channelIds);
 
+        List<Stream> streamList = getStreamsFromCommaSeparatedIds(commaSeparatedIdLists);
+
+        for (Stream stream : streamList) {
+            database.updateStreamData(stream);
+        }
+    }
+
+    @NonNull
+    private static List<Stream> getStreamsFromCommaSeparatedIds(String[] commaSeparatedIdLists) {
+
         List<Stream> streamList = new ArrayList<>();
 
         for (String commaSeparatedIds : commaSeparatedIdLists) {
 
             URL streamQueryUrl = buildUrl(commaSeparatedIds, QUERY_TYPE_STREAM_MULTIPLE);
-            Log.e(LOG_TAG, streamQueryUrl.toString());
             String streamQueryResponse = makeTwitchQuery(streamQueryUrl);
 
-            JSONArray streamArray = null;
-            int numStreams = 0;
+            fillStreamListFromJson(streamList, streamQueryResponse);
+        }
+        return streamList;
+    }
+
+    private static void fillStreamListFromJson(List<Stream> streamList, String streamQueryResponse) {
+
+        JSONArray streamArray = null;
+        int numStreams = 0;
+        try {
+            JSONObject response = new JSONObject(streamQueryResponse);
+            streamArray = response.getJSONArray("streams");
+            numStreams = response.getInt("_total");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        for (int i = 0; i < numStreams; i++) {
             try {
-                JSONObject response = new JSONObject(streamQueryResponse);
-                streamArray = response.getJSONArray("streams");
-                numStreams = response.getInt("_total");
+                streamList.add(getStreamFromJson(streamArray.getJSONObject(i).toString()));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
-            for (int i = 0; i < numStreams; i++) {
-                try {
-                    streamList.add(getLiveStreamFromJson(streamArray.getJSONObject(i).toString()));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        Log.e(LOG_TAG, Integer.toString(streamList.size()));
-
-        for (Stream stream : streamList) {
-            database.updateStreamData(stream);
         }
     }
 
@@ -196,7 +206,7 @@ public final class NetworkUtils {
                 // Get the stream data
                 URL streamQueryUrl = buildUrl(channelName, QUERY_TYPE_STREAM);
                 String streamJsonResponse = makeTwitchQuery(streamQueryUrl);
-                Stream stream = getLiveStreamFromJson(streamJsonResponse);
+                Stream stream = getStreamFromJson(streamJsonResponse);
 
                 channel.setStream(stream);
 
@@ -434,7 +444,7 @@ public final class NetworkUtils {
         return null;
     }
 
-    private static Stream getLiveStreamFromJson(String jsonResponse) {
+    private static Stream getStreamFromJson(String jsonResponse) {
 
         if (jsonResponse == null)
             return null;
