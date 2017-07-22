@@ -11,7 +11,9 @@ import android.graphics.Color;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import mseffner.twitchnotifier.data.ChannelContract.ChannelEntry;
 
@@ -24,6 +26,26 @@ public class ChannelDb {
 
     public ChannelDb(Context context) {
         dbHelper = ChannelDbHelper.getInstance(context);
+    }
+
+    public Set<Integer> getOfflineIdSet() {
+
+        String[] projection = new String[] {ChannelEntry._ID};
+        String selection = ChannelEntry.COLUMN_STREAM_TYPE + "=?";
+        String[] selectionArgs = new String[] {Integer.toString(ChannelEntry.STREAM_TYPE_OFFLINE)};
+
+        Cursor cursor = query(projection, selection, selectionArgs, null);
+
+        Set<Integer> idSet = new HashSet<>();
+        int idColumnIndex = cursor.getColumnIndex(ChannelEntry._ID);
+
+        while (cursor.moveToNext()) {
+            idSet.add(cursor.getInt(idColumnIndex));
+        }
+
+        cursor.close();
+
+        return idSet;
     }
 
     public int[] getAllChannelIds() {
