@@ -77,6 +77,13 @@ public class Stream {
         return id;
     }
 
+    @SuppressLint("DefaultLocale")
+    @Override
+    public String toString() {
+        return String.format("id: %d, currentGame: %s, currentViewers: %d, status: %s, streamType: %d, createdAt: %d",
+                id, currentGame, currentViewers, status, streamType, createdAt);
+    }
+
     private static long getUnixTimestampFromUTC(String utcFormattedTimestamp) {
         @SuppressLint("SimpleDateFormat")
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
