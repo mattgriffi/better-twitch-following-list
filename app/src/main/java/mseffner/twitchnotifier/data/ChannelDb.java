@@ -136,6 +136,24 @@ public class ChannelDb {
         return numRowsInserted == 1;
     }
 
+    public long updateStreamData(Stream stream) {
+
+        if (stream == null)
+            return 0;
+
+        ContentValues values = new ContentValues();
+        values.put(ChannelEntry.COLUMN_GAME, stream.getCurrentGame());
+        values.put(ChannelEntry.COLUMN_VIEWERS, stream.getCurrentViewers());
+        values.put(ChannelEntry.COLUMN_STATUS, stream.getStatus());
+        values.put(ChannelEntry.COLUMN_STREAM_TYPE, stream.getStreamType());
+        values.put(ChannelEntry.COLUMN_CREATED_AT, stream.getCreatedAt());
+
+        String selection = ChannelEntry._ID + "=?";
+        String[] selectionArgs = {Long.toString(stream.getChannelId())};
+
+        return update(values, selection, selectionArgs);
+    }
+
     public boolean deleteChannel(int channelId) {
 
         String selection = ChannelEntry._ID + "=?";
