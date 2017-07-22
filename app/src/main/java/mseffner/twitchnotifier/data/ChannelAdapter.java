@@ -8,6 +8,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -76,7 +78,11 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             Channel channel = channelList.get(index);
 
             channelName.setText(channel.getDisplayName());
-            channelLogo.setImageBitmap(channel.getLogoBmp());
+
+            Picasso.with(itemView.getContext())
+                    .load(channel.getLogoUrl())
+                    .placeholder(R.drawable.default_logo_300x300)
+                    .into(channelLogo);
 
             if (channel.getStream() == null) {
                 bindOfflineStream();
