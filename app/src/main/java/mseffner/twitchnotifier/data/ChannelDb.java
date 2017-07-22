@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -94,8 +96,22 @@ public class ChannelDb {
     }
 
     private byte[] getByteArrayFromBitmap(Bitmap bmp) {
+
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bmp.compress(Bitmap.CompressFormat.PNG, 0, stream);
+
+        Bitmap newBitmap = bmp;
+        if (bmp.hasAlpha()) {
+            // Draw the bmp onto a white background, otherwise transparent backgrounds may turn black
+            newBitmap = Bitmap.createBitmap(bmp.getWidth(), bmp.getHeight(), bmp.getConfig());
+            Canvas canvas = new Canvas(newBitmap);
+            // TODO use a color resource to ensure consistency with other API versions
+            canvas.drawColor(Color.parseColor("#FAFAFA"));
+            canvas.drawBitmap(bmp, 0, 0, null);
+            bmp.recycle();
+        }
+
+        newBitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);  // Compress it to save space
+        newBitmap.recycle();
         return stream.toByteArray();
     }
 
