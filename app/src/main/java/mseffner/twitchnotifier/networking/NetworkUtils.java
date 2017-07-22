@@ -65,23 +65,22 @@ public final class NetworkUtils {
     public static void populateUserFollowedChannels(String userName, ChannelDb database) {
 
         String userId = Long.toString(getTwitchUserId(userName));
-
         int chunkSize = Integer.parseInt(LIMIT_MAX);
-
         int offsetMultiplier = 0;
-        int totalFollowedChannels = 0;  // This will be set within the loop
+        // This will be set within the loop, since I don't know how many channels there are until
+        // after I have gotten the first response
+        int totalFollowedChannels = 0;
 
         do {
-
+            // The API will only return 100 channels in a single response, so I have to use an
+            // offset in order to get all of the channels in chunks of 100
             URL followsQueryUrl = buildUserFollowsUrl(userId, offsetMultiplier * chunkSize);
             String followsJsonResponse = makeTwitchQuery(followsQueryUrl);
 
             try {
 
                 JSONObject responseObject = new JSONObject(followsJsonResponse);
-
                 totalFollowedChannels = responseObject.getInt("_total");
-
                 JSONArray followsJsonArray = responseObject.getJSONArray("follows");
 
                 // Iterate over the array of followed channels
@@ -91,25 +90,9 @@ public final class NetworkUtils {
                     String channelJsonString = followsJsonArray.getJSONObject(i)
                             .getJSONObject("channel").toString();
 
-                    // Build the Channel object
-                    Channel channel = getChannelFromJson(channelJsonString);
-
-                    if (channel != null) {
-
-                        // Get the logo image
-                        String logoUrlString = channel.getLogoUrl();
-                        // If a channel has not set a custom logo, logoUrlString will be "null"
-                        if (logoUrlString.equals("null")) {
-                            logoUrlString = "https://www-cdn.jtvnw.net/images/xarth/404_user_300x300.png";
-                        }
-//                        URL logoUrl = buildChannelLogoQueryURL(logoUrlString);
-//                        Bitmap logoBmp = getLogoBitmap(logoUrl);
-//                        channel.setLogoBmp(logoBmp);
-
-                        database.insertChannel(channel);
-                    }
+                    // Insert each channel into the database
+                    database.insertChannel(getChannelFromJson(channelJsonString));
                 }
-
             } catch (JSONException e) {
                 Log.e(LOG_TAG, e.toString());
             }
