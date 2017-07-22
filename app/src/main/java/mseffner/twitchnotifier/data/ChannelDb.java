@@ -113,6 +113,9 @@ public class ChannelDb {
 
     public boolean insertChannel(Channel channel) {
 
+        if (channel == null)
+            return false;
+
         ContentValues values = new ContentValues();
 
         values.put(ChannelEntry._ID, channel.getId());
