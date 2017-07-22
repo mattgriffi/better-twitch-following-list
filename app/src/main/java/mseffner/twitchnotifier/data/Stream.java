@@ -19,15 +19,16 @@ public class Stream {
     private int streamType;
     private long createdAt;
 
-    public Stream(long id, String currentGame, int currentViewers, String status, long createdAt,
+    public Stream(long channelId, String currentGame, int currentViewers, String status, long createdAt,
                   int streamType) {
-        this(id, currentGame, currentViewers, status);
+        this(channelId, currentGame, currentViewers, status);
         this.createdAt = createdAt;
         this.streamType = streamType;
     }
 
-    public Stream(long id, String currentGame, int currentViewers, String status, String createdAt, String streamType) {
-        this(id, currentGame, currentViewers, status);
+    public Stream(long channelId, String currentGame, int currentViewers, String status, String createdAt,
+                  String streamType) {
+        this(channelId, currentGame, currentViewers, status);
         this.createdAt = getUnixTimestampFromUTC(createdAt);
 
         int streamTypeInt = ChannelContract.ChannelEntry.STREAM_TYPE_OFFLINE;
@@ -45,8 +46,8 @@ public class Stream {
         this.streamType = streamTypeInt;
     }
 
-    private Stream(long id, String currentGame, int currentViewers, String status) {
-        this.id = id;
+    private Stream(long channelId, String currentGame, int currentViewers, String status) {
+        this.id = channelId;
         this.currentGame = currentGame;
         this.currentViewers = currentViewers;
         this.status = status;
@@ -72,7 +73,7 @@ public class Stream {
         return streamType;
     }
 
-    public long getId() {
+    public long getChannelId() {
         return id;
     }
 
