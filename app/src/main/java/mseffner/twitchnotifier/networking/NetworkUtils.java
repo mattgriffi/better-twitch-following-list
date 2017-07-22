@@ -3,6 +3,7 @@ package mseffner.twitchnotifier.networking;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -65,42 +66,57 @@ public final class NetworkUtils {
 
         String userId = Long.toString(getTwitchUserId(userName));
 
-        URL followsQueryUrl = buildUrl(userId, QUERY_TYPE_USER_FOLLOWS);
-        String followsJsonResponse = makeTwitchQuery(followsQueryUrl);
+        int chunkSize = Integer.parseInt(LIMIT_MAX);
 
-        try {
+        int offsetMultiplier = 0;
+        int totalFollowedChannels = 0;  // This will be set within the loop
 
-            JSONArray followsJsonArray = new JSONObject(followsJsonResponse).getJSONArray("follows");
+        do {
 
-            // Iterate over the array of followed channels
-            for (int i = 0; i < followsJsonArray.length(); i++) {
+            URL followsQueryUrl = buildUrl(userId, offsetMultiplier * chunkSize, QUERY_TYPE_USER_FOLLOWS);
+            String followsJsonResponse = makeTwitchQuery(followsQueryUrl);
 
-                // Get the JSONObject String for each channel
-                String channelJsonString = followsJsonArray.getJSONObject(i)
-                        .getJSONObject("channel").toString();
+            try {
 
-                // Build the Channel object
-                Channel channel = getChannelFromJson(channelJsonString);
+                JSONObject responseObject = new JSONObject(followsJsonResponse);
 
-                if (channel != null) {
+                totalFollowedChannels = responseObject.getInt("_total");
 
-                    // Get the logo image
-                    String logoUrlString = channel.getLogoUrl();
-                    // If a channel has not set a custom logo, logoUrlString will be "null"
-                    if (logoUrlString.equals("null")) {
-                        logoUrlString = "https://www-cdn.jtvnw.net/images/xarth/404_user_300x300.png";
+                JSONArray followsJsonArray = responseObject.getJSONArray("follows");
+
+                // Iterate over the array of followed channels
+                for (int i = 0; i < followsJsonArray.length(); i++) {
+
+                    // Get the JSONObject String for each channel
+                    String channelJsonString = followsJsonArray.getJSONObject(i)
+                            .getJSONObject("channel").toString();
+
+                    // Build the Channel object
+                    Channel channel = getChannelFromJson(channelJsonString);
+
+                    if (channel != null) {
+
+                        // Get the logo image
+                        String logoUrlString = channel.getLogoUrl();
+                        // If a channel has not set a custom logo, logoUrlString will be "null"
+                        if (logoUrlString.equals("null")) {
+                            logoUrlString = "https://www-cdn.jtvnw.net/images/xarth/404_user_300x300.png";
+                        }
+//                        URL logoUrl = buildChannelLogoQueryURL(logoUrlString);
+//                        Bitmap logoBmp = getLogoBitmap(logoUrl);
+//                        channel.setLogoBmp(logoBmp);
+
+                        database.insertChannel(channel);
                     }
-                    URL logoUrl = buildChannelLogoQueryURL(logoUrlString);
-                    Bitmap logoBmp = getLogoBitmap(logoUrl);
-                    channel.setLogoBmp(logoBmp);
-
-                    database.insertChannel(channel);
                 }
+
+            } catch (JSONException e) {
+                Log.e(LOG_TAG, e.toString());
             }
 
-        } catch (JSONException e) {
-            Log.e(LOG_TAG, e.toString());
-        }
+            offsetMultiplier++;
+
+        } while (offsetMultiplier < totalFollowedChannels / chunkSize);
     }
 
     public static void updateStreamData(ChannelDb database) {
@@ -113,6 +129,7 @@ public final class NetworkUtils {
         for (String commaSeparatedIds : commaSeparatedIdLists) {
 
             URL streamQueryUrl = buildUrl(commaSeparatedIds, QUERY_TYPE_STREAM_MULTIPLE);
+            Log.e(LOG_TAG, streamQueryUrl.toString());
             String streamQueryResponse = makeTwitchQuery(streamQueryUrl);
 
             JSONArray streamArray = null;
@@ -133,6 +150,8 @@ public final class NetworkUtils {
                 }
             }
         }
+
+        Log.e(LOG_TAG, Integer.toString(streamList.size()));
 
         for (Stream stream : streamList) {
             database.updateStreamData(stream);
@@ -310,14 +329,22 @@ public final class NetworkUtils {
             uri = buildChannelQueryUri(query);
         else if (queryType == QUERY_TYPE_STREAM)
             uri = buildStreamQueryUri(query);
-        else if (queryType == QUERY_TYPE_USER_FOLLOWS)
-            uri = buildUserFollowsQueryUri(query);
         else if (queryType == QUERY_TYPE_STREAM_MULTIPLE)
             uri = buildMultiStreamQueryUri(query);
         else if (queryType == QUERY_TYPE_USER_ID)
             uri = buildUserIdQueryUri(query);
 
-        // Convert Uri into URL
+        return getUrlFromUri(uri);
+    }
+
+    private static URL buildUrl(String query, int offset, int queryType) {
+        Uri uri = buildUserFollowsQueryUri(query, offset);
+
+        return getUrlFromUri(uri);
+    }
+
+    @Nullable
+    private static URL getUrlFromUri(Uri uri) {
         URL url = null;
         try {
             url = new URL(uri.toString());
@@ -356,7 +383,7 @@ public final class NetworkUtils {
                 .build();
     }
 
-    private static Uri buildUserFollowsQueryUri(String userName) {
+    private static Uri buildUserFollowsQueryUri(String userName, int offset) {
         return Uri.parse(TWITCH_API_BASE_URL).buildUpon()
                 .appendPath(PATH_USERS)
                 .appendPath(userName)
@@ -364,6 +391,7 @@ public final class NetworkUtils {
                 .appendQueryParameter(PARAM_API_VERSION, API_VERSION)
                 .appendQueryParameter(PARAM_CLIENT_ID, CLIENT_ID)
                 .appendQueryParameter(PARAM_LIMIT, LIMIT_MAX)
+                .appendQueryParameter(PARAM_OFFSET, Integer.toString(offset))
                 .build();
     }
 
