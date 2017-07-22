@@ -136,6 +136,20 @@ public class ChannelDb {
         return numRowsInserted == 1;
     }
 
+    public boolean deleteChannel(int channelId) {
+
+        String selection = ChannelEntry._ID + "=?";
+        String[] selectionArgs = new String[] {Integer.toString(channelId)};
+
+        long rowsDeleted = delete(selection, selectionArgs);
+        return rowsDeleted == 1;
+    }
+
+    public long deleteAllChannels() {
+
+        return delete(null, null);
+    }
+
     /**
      * This method will set all of the Stream data for every row to their default values:
      *      stream_type = 0
