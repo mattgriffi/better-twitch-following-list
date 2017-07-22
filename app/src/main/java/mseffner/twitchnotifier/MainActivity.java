@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView followingList;
     private static final String[] CHANNEL_NAMES = {"cirno_tv", "dansgaming", "spamfish", "bobross",
     "b0aty", "admiralbahroo", "firedragon", "chessnetwork", "northernlion", "bisnap", "pgl"};
-    private static final String USER_NAME = "holokraft";
+    private static final String USER_NAME = "iammetv";
     private ChannelAdapter channelAdapter;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
             ChannelDb database = new ChannelDb(getApplicationContext());
             NetworkUtils.populateUserFollowedChannels(channelNames[0], database);
+            NetworkUtils.updateStreamData(database);
             return database.getAllChannels();
         }
 

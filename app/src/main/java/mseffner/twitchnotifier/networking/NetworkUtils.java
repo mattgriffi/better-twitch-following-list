@@ -94,13 +94,6 @@ public final class NetworkUtils {
                     Bitmap logoBmp = getLogoBitmap(logoUrl);
                     channel.setLogoBmp(logoBmp);
 
-                    // Get the stream data
-                    URL streamQueryUrl = buildUrl(Integer.toString(channel.getId()), QUERY_TYPE_STREAM);
-                    String streamJsonResponse = makeTwitchQuery(streamQueryUrl);
-                    Stream stream = getLiveStreamFromJson(streamJsonResponse);
-
-                    channel.setStream(stream);
-
                     database.insertChannel(channel);
                 }
             }
@@ -115,10 +108,34 @@ public final class NetworkUtils {
         int[] channelIds = database.getAllChannelIds();
         String[] commaSeparatedIdLists = getCommaSeparatedIdLists(channelIds);
 
+        List<Stream> streamList = new ArrayList<>();
+
         for (String commaSeparatedIds : commaSeparatedIdLists) {
 
             URL streamQueryUrl = buildUrl(commaSeparatedIds, QUERY_TYPE_STREAM_MULTIPLE);
             String streamQueryResponse = makeTwitchQuery(streamQueryUrl);
+
+            JSONArray streamArray = null;
+            int numStreams = 0;
+            try {
+                JSONObject response = new JSONObject(streamQueryResponse);
+                streamArray = response.getJSONArray("streams");
+                numStreams = response.getInt("_total");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            for (int i = 0; i < numStreams; i++) {
+                try {
+                    streamList.add(getLiveStreamFromJson(streamArray.getJSONObject(i).toString()));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        for (Stream stream : streamList) {
+            database.updateStreamData(stream);
         }
     }
 
@@ -128,7 +145,24 @@ public final class NetworkUtils {
      */
     private static String[] getCommaSeparatedIdLists(int[] idArray) {
 
-        String[] commaSeparatedIdList = new String[(idArray.length / Integer.parseInt(LIMIT_MAX)) + 1];
+        int chunkSize = Integer.parseInt(LIMIT_MAX);
+        String[] commaSeparatedIdList = new String[(idArray.length / chunkSize) + 1];
+
+        StringBuilder stringBuilder = new StringBuilder(1000);
+
+        int idArrayIndex = 0;
+        int stringArrayIndex = 0;
+        int totalIds = idArray.length;
+        while (idArrayIndex < totalIds) {
+            if (idArrayIndex > 0 && idArrayIndex % chunkSize == 0) {  // We have the required amount in the StringBuilder
+                commaSeparatedIdList[stringArrayIndex++] = stringBuilder.toString();
+                stringBuilder.setLength(0);
+            }
+            stringBuilder.append(Integer.toString(idArray[idArrayIndex++]));
+            stringBuilder.append(",");
+        }
+        commaSeparatedIdList[stringArrayIndex] = stringBuilder.toString();
+
         return commaSeparatedIdList;
     }
 
@@ -396,11 +430,7 @@ public final class NetworkUtils {
 
         try {
 
-            JSONObject resultJson = new JSONObject(jsonResponse);
-            if (resultJson.isNull("stream"))
-                return null;
-
-            JSONObject streamData = resultJson.getJSONObject("stream");
+            JSONObject streamData = new JSONObject(jsonResponse);
             JSONObject channelData = streamData.getJSONObject("channel");
 
             long id = channelData.getLong("_id");
