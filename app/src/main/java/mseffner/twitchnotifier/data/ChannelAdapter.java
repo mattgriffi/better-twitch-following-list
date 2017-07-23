@@ -122,8 +122,11 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
 
             uptime.setText(getUptime(stream.getCreatedAt()));
 
-            if (stream.getStreamType() == ChannelContract.ChannelEntry.STREAM_TYPE_VODCAST)
+            if (stream.getStreamType() == ChannelContract.ChannelEntry.STREAM_TYPE_VODCAST) {
                 vodcastTag.setVisibility(View.VISIBLE);
+            } else {
+                vodcastTag.setVisibility(View.INVISIBLE);
+            }
         }
 
         private String getUptime(long createdAt) {
