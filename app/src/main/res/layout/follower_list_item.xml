@@ -145,7 +145,11 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:contentDescription="@string/channel_options_menu"
-        android:padding="8dp"
-        android:src="@drawable/ic_more_vert_black_24dp" />
+        android:paddingBottom="8dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="2dp"
+        android:paddingTop="8dp"
+        android:src="@drawable/ic_more_vert_black_24dp"
+        tools:ignore="RtlHardcoded" />
 
 </LinearLayout>
