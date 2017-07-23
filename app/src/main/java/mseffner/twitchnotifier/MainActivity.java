@@ -5,6 +5,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -21,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView followingList;
     private static final String[] CHANNEL_NAMES = {"cirno_tv", "dansgaming", "spamfish", "bobross",
     "b0aty", "admiralbahroo", "firedragon", "chessnetwork", "northernlion", "bisnap", "pgl"};
-    private static final String USER_NAME = "iammetv";
+    private static final String USER_NAME = "holokraft";
     private ChannelAdapter channelAdapter;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
@@ -41,17 +43,50 @@ public class MainActivity extends AppCompatActivity {
         followingList.setLayoutManager(layoutManager);
         followingList.setHasFixedSize(true);
 
-        new TestAsyncTask().execute(USER_NAME);
+        new UpdateAdapterAsyncTask().execute();
     }
 
-    private class TestAsyncTask extends AsyncTask<String, Void, List<Channel>> {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_following_list, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        ChannelDb database = new ChannelDb(this);
+
+        switch (item.getItemId()) {
+
+            case R.id.action_empty_database:
+                database.deleteAllChannels();
+                new UpdateAdapterAsyncTask().execute();
+                return true;
+
+            case R.id.action_update_stream_data:
+                new UpdateStreamsAsyncTask().execute();
+                return true;
+
+            case R.id.action_user_follow:
+                // TODO add way for user to input their twitch name
+                new ChangeUserAsyncTask().execute(USER_NAME);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private class UpdateAdapterAsyncTask extends AsyncTask<Void, Void, List<Channel>> {
+
         @Override
-        protected List<Channel> doInBackground(String... channelNames) {
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected List<Channel> doInBackground(Void... voids) {
 
             ChannelDb database = new ChannelDb(getApplicationContext());
-//            NetworkUtils.populateUserFollowedChannels(channelNames[0], database);
-            database.resetAllStreamData();
-            NetworkUtils.updateStreamData(database);
             return database.getAllChannels();
         }
 
@@ -59,6 +94,47 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(List<Channel> channelList) {
             progressBar.setVisibility(View.INVISIBLE);
             followingList.setAdapter(new ChannelAdapter(channelList));
+        }
+    }
+
+    private class UpdateStreamsAsyncTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            ChannelDb database = new ChannelDb(getApplicationContext());
+            database.resetAllStreamData();
+            NetworkUtils.updateStreamData(database);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            new UpdateAdapterAsyncTask().execute();
+        }
+    }
+
+    private class ChangeUserAsyncTask extends AsyncTask<String, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            NetworkUtils.populateUserFollowedChannels(strings[0], new ChannelDb(getApplicationContext()));
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            new UpdateStreamsAsyncTask().execute();
+            new UpdateAdapterAsyncTask().execute();
         }
     }
 }
