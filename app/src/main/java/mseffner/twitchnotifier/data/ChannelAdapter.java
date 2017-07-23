@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import java.util.Collections;
 import java.util.List;
 
 import mseffner.twitchnotifier.R;
@@ -22,8 +21,16 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
 
     public ChannelAdapter(List<Channel> channelList) {
         this.channelList = channelList;
-        Collections.sort(this.channelList);
-        Collections.reverse(this.channelList);
+    }
+
+    public void clear() {
+        channelList.clear();
+        notifyDataSetChanged();
+    }
+
+    public void addAll(List<Channel> list) {
+        channelList.addAll(list);
+        notifyDataSetChanged();
     }
 
     @Override
