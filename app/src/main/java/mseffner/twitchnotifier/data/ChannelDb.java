@@ -75,8 +75,8 @@ public class ChannelDb {
                 " WHEN " + ChannelEntry.STREAM_TYPE_PLAYLIST + " THEN 1" +
                 " WHEN " + ChannelEntry.STREAM_TYPE_VODCAST + " THEN 1" +
                 " ELSE 0" +
-            " END, " +
-            ChannelEntry.COLUMN_VIEWERS + ", " +  // Sort by viewer count (offline streams have 0)
+            " END DESC, " +
+            ChannelEntry.COLUMN_VIEWERS + " DESC, " +  // Sort by viewer count (offline streams have 0)
             ChannelEntry.COLUMN_DISPLAY_NAME + " COLLATE NOCASE";  // Break ties by display_name
 
         Cursor cursor = query(null, null, null, sortOrder);
