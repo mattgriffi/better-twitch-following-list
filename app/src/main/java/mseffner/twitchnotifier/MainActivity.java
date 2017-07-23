@@ -1,14 +1,14 @@
 package mseffner.twitchnotifier;
 
 import android.os.AsyncTask;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ProgressBar;
 
 import java.util.List;
 
@@ -21,12 +21,9 @@ import mseffner.twitchnotifier.networking.NetworkUtils;
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView followingList;
-    private static final String[] CHANNEL_NAMES = {"cirno_tv", "dansgaming", "spamfish", "bobross",
-    "b0aty", "admiralbahroo", "firedragon", "chessnetwork", "northernlion", "bisnap", "pgl"};
     private static final String USER_NAME = "holokraft";
     private ChannelAdapter channelAdapter;
-    private RecyclerView recyclerView;
-    private ProgressBar progressBar;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
 
     @Override
@@ -35,13 +32,22 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         followingList = (RecyclerView) findViewById(R.id.following_list);
-        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
 
-        progressBar.setVisibility(View.VISIBLE);
+        swipeRefreshLayout.setRefreshing(true);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         followingList.setLayoutManager(layoutManager);
         followingList.setHasFixedSize(true);
+
+        swipeRefreshLayout.setColorSchemeColors(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null));
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                new UpdateStreamsAsyncTask().execute();
+            }
+        });
 
         new UpdateAdapterAsyncTask().execute();
     }
@@ -80,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            progressBar.setVisibility(View.VISIBLE);
+            swipeRefreshLayout.setRefreshing(true);
         }
 
         @Override
@@ -92,8 +98,17 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(List<Channel> channelList) {
-            progressBar.setVisibility(View.INVISIBLE);
-            followingList.setAdapter(new ChannelAdapter(channelList));
+
+            swipeRefreshLayout.setRefreshing(false);
+
+            if (channelAdapter == null) {
+                channelAdapter = new ChannelAdapter(channelList);
+                followingList.setAdapter(channelAdapter);
+            } else {
+                channelAdapter.clear();
+                channelAdapter.addAll(channelList);
+            }
+            swipeRefreshLayout.setRefreshing(false);
         }
     }
 
@@ -101,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            progressBar.setVisibility(View.VISIBLE);
+            swipeRefreshLayout.setRefreshing(true);
         }
 
         @Override
@@ -122,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            progressBar.setVisibility(View.VISIBLE);
+            swipeRefreshLayout.setRefreshing(true);
         }
 
         @Override
