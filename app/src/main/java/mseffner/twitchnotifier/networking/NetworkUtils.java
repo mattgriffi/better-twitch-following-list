@@ -132,6 +132,11 @@ public final class NetworkUtils {
 
     private static void fillStreamListFromJson(List<Stream> streamList, String streamQueryResponse) {
 
+        if (streamQueryResponse == null || streamQueryResponse.length() == 0) {
+            Log.e(LOG_TAG, "fillStreamListFromJson called with empty String");
+            return;
+        }
+
         JSONArray streamArray = null;
         int numStreams = 0;
         try {
