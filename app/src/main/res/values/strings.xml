@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Twitch Notifier</string>
-    <string name="channel_options_menu">Channel options menu</string>
+    <string name="pin_icon">Channel pin icon</string>
     <string name="offline">Offline</string>
     <string name="vodcast">vodcast</string>
 </resources>

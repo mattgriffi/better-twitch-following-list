@@ -141,14 +141,13 @@
 
     </RelativeLayout>
 
-    <!-- Channel options menu -->
-    <!-- TODO turn this into a pin icon -->
+    <!-- Channel pin icon -->
     <ImageView
-        android:id="@+id/channel_options_icon"
+        android:id="@+id/pin_icon"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:contentDescription="@string/channel_options_menu"
+        android:contentDescription="@string/pin_icon"
         android:paddingBottom="8dp"
         android:paddingLeft="8dp"
         android:paddingRight="2dp"

@@ -1,6 +1,5 @@
 package mseffner.twitchnotifier.data;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
@@ -10,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -83,7 +81,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             vodcastTag = itemView.findViewById(R.id.vodcast_tag);
             viewerCount = itemView.findViewById(R.id.viewer_count);
             uptime = itemView.findViewById(R.id.uptime);
-            pinIcon = itemView.findViewById(R.id.channel_options_icon);
+            pinIcon = itemView.findViewById(R.id.pin_icon);
         }
 
         void bind(int index) {
