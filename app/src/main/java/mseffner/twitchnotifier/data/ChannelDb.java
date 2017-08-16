@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -157,13 +158,28 @@ public class ChannelDb {
         return update(values, selection, selectionArgs);
     }
 
-    public boolean deleteChannel(int channelId) {
+    public void toggleChannelPin(Channel channel) {
 
+        if (channel == null)
+            return;
+
+        ContentValues values = new ContentValues();
         String selection = ChannelEntry._ID + "=?";
-        String[] selectionArgs = new String[] {Integer.toString(channelId)};
+        String[] selectionArgs = {Long.toString(channel.getId())};
 
-        long rowsDeleted = delete(selection, selectionArgs);
-        return rowsDeleted == 1;
+        String[] projection = {ChannelEntry.COLUMN_PINNED};
+        Cursor channelCursor = query(projection, selection, selectionArgs, null);
+        channelCursor.moveToFirst();
+        int currentPinnedStatus = channelCursor.getInt(channelCursor.getColumnIndex(ChannelEntry.COLUMN_PINNED));
+        channelCursor.close();
+
+        if (currentPinnedStatus == ChannelEntry.IS_PINNED) {
+            values.put(ChannelEntry.COLUMN_PINNED, ChannelEntry.IS_NOT_PINNED);
+        } else {
+            values.put(ChannelEntry.COLUMN_PINNED, ChannelEntry.IS_PINNED);
+        }
+
+        update(values, selection, selectionArgs);
     }
 
     public long deleteAllChannels() {

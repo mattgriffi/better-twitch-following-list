@@ -139,6 +139,7 @@
     </RelativeLayout>
 
     <!-- Channel options menu -->
+    <!-- TODO turn this into a pin icon -->
     <ImageView
         android:id="@+id/channel_options_icon"
         android:layout_width="wrap_content"
@@ -149,7 +150,7 @@
         android:paddingLeft="8dp"
         android:paddingRight="2dp"
         android:paddingTop="8dp"
-        android:src="@drawable/ic_more_vert_black_24dp"
+        android:src="@drawable/pin"
         tools:ignore="RtlHardcoded" />
 
 </LinearLayout>

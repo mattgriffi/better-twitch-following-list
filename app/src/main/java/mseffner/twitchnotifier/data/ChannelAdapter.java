@@ -69,6 +69,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
         private TextView viewerCount;
         private TextView uptime;
         private TextView vodcastTag;
+        private ImageView pinIcon;
 
         ChannelViewHolder(View itemView) {
             super(itemView);
@@ -82,6 +83,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             vodcastTag = itemView.findViewById(R.id.vodcast_tag);
             viewerCount = itemView.findViewById(R.id.viewer_count);
             uptime = itemView.findViewById(R.id.uptime);
+            pinIcon = itemView.findViewById(R.id.channel_options_icon);
         }
 
         void bind(int index) {
@@ -110,6 +112,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             streamInfo.setVisibility(View.INVISIBLE);
             streamTitle.setVisibility(View.INVISIBLE);
             vodcastTag.setVisibility(View.INVISIBLE);
+            pinIcon.setVisibility(View.INVISIBLE);
 
             itemView.setOnClickListener(null);
         }
@@ -129,6 +132,14 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                 }
             });
 
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    new ChannelDb(view.getContext()).toggleChannelPin(channel);
+                    return true;
+                }
+            });
+
             offlineText.setVisibility(View.INVISIBLE);
             currentGame.setVisibility(View.VISIBLE);
             streamTitle.setVisibility(View.VISIBLE);
@@ -144,6 +155,12 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                 vodcastTag.setVisibility(View.VISIBLE);
             } else {
                 vodcastTag.setVisibility(View.INVISIBLE);
+            }
+
+            if (channel.getPinned() == ChannelContract.ChannelEntry.IS_PINNED) {
+                pinIcon.setVisibility(View.VISIBLE);
+            } else {
+                pinIcon.setVisibility(View.INVISIBLE);
             }
         }
 
