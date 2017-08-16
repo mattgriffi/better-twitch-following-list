@@ -77,6 +77,10 @@ public class ChannelDb {
                 " WHEN " + ChannelEntry.STREAM_TYPE_VODCAST + " THEN 1" +
                 " ELSE 0" +
             " END DESC, " +
+            "CASE " + ChannelEntry.COLUMN_PINNED + // Show pinned streams first
+                " WHEN " + ChannelEntry.IS_PINNED + " THEN 0" +
+                " WHEN " + ChannelEntry.IS_NOT_PINNED + " THEN 1 " +
+            " END, " +
             ChannelEntry.COLUMN_VIEWERS + " DESC, " +  // Sort by viewer count (offline streams have 0)
             ChannelEntry.COLUMN_DISPLAY_NAME + " COLLATE NOCASE";  // Break ties by display_name
 
