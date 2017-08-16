@@ -1,5 +1,8 @@
 package mseffner.twitchnotifier.data;
 
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -106,10 +110,22 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             streamInfo.setVisibility(View.INVISIBLE);
             streamTitle.setVisibility(View.INVISIBLE);
             vodcastTag.setVisibility(View.INVISIBLE);
+
+            itemView.setOnClickListener(null);
         }
 
-        private void bindOnlineStream(Channel channel) {
+        private void bindOnlineStream(final Channel channel) {
             Stream stream = channel.getStream();
+
+            // Click listener to open the stream
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Uri channelPage = Uri.parse(channel.getStreamUrl());
+                    Intent intent = new Intent(Intent.ACTION_VIEW, channelPage);
+                    view.getContext().startActivity(intent);
+                }
+            });
 
             offlineText.setVisibility(View.INVISIBLE);
             currentGame.setVisibility(View.VISIBLE);
