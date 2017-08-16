@@ -16,7 +16,7 @@ public class Channel implements Comparable<Channel> {
 
     private Stream stream;
 
-    public Channel(int id, String displayName, String name, String logoUrl, String streamUrl) {
+    public Channel(int id, String displayName, String name, String logoUrl, String streamUrl, int pinned) {
         this.id = id;
         this.displayName = displayName;
         this.name = name;
@@ -24,7 +24,7 @@ public class Channel implements Comparable<Channel> {
         this.streamUrl = streamUrl;
         this.bmp = null;
         this.stream = null;
-        this.pinned = ChannelContract.ChannelEntry.IS_NOT_PINNED;
+        this.pinned = pinned;
     }
 
     public void setStream(Stream stream) {

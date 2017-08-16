@@ -118,6 +118,8 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             Stream stream = channel.getStream();
 
             // Click listener to open the stream
+            /* TODO check if Twitch app is installed and open stream there, otherwise
+            check if a browser is installed and open it there, otherwise do nothing? */
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

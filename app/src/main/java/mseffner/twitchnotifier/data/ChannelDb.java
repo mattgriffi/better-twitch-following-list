@@ -98,7 +98,7 @@ public class ChannelDb {
             long createdAt = cursor.getInt(cursor.getColumnIndex(ChannelEntry.COLUMN_CREATED_AT));
 
             // Build the Channel object from the data
-            Channel channel = new Channel(id, displayName, name, logoUrl, channelUrl);
+            Channel channel = new Channel(id, displayName, name, logoUrl, channelUrl, pinned);
             if (streamType != ChannelEntry.STREAM_TYPE_OFFLINE)
                 channel.setStream(new Stream(id, game, viewers, status, createdAt, streamType));
             channel.setLogoBmp(getBitmapFromByteArray(logoByteArray));

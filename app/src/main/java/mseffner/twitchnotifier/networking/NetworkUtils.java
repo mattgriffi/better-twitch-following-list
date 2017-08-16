@@ -23,6 +23,7 @@ import java.util.Scanner;
 import javax.net.ssl.HttpsURLConnection;
 
 import mseffner.twitchnotifier.data.Channel;
+import mseffner.twitchnotifier.data.ChannelContract;
 import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.data.Stream;
 
@@ -211,26 +212,6 @@ public final class NetworkUtils {
         return response;
     }
 
-    private static Bitmap getLogoBitmap(URL url) {
-
-        HttpsURLConnection connection = openHttpConnection(url);
-        if (connection == null)
-            return null;
-
-        InputStream inputStream = getInputStreamFromConnection(connection);
-        if (inputStream == null) {
-            closeConnections(connection, null);
-            return null;
-        }
-
-        // TODO return a byte array instead of a Bitmap
-        Bitmap bmp = getBitmapFromInputStream(inputStream);
-
-        closeConnections(connection, inputStream);
-
-        return bmp;
-    }
-
     private static HttpsURLConnection openHttpConnection(URL url) {
 
         HttpsURLConnection urlConnection = null;
@@ -320,16 +301,6 @@ public final class NetworkUtils {
         return url;
     }
 
-    private static URL buildChannelLogoQueryURL(String logoUrl) {
-        URL url = null;
-        try {
-            url = new URL(logoUrl);
-        } catch (MalformedURLException e) {
-            Log.e(LOG_TAG, e.toString());
-        }
-        return url;
-    }
-
     private static Uri buildStreamQueryUri(String channelName) {
         return Uri.parse(TWITCH_API_BASE_URL).buildUpon()
                 .appendPath(PATH_STREAMS)
@@ -407,7 +378,8 @@ public final class NetworkUtils {
             String logoUrl = channelData.getString("logo");
             String streamUrl = channelData.getString("url");
 
-            return new Channel(id, displayName, name, logoUrl, streamUrl);
+            return new Channel(id, displayName, name, logoUrl, streamUrl,
+                    ChannelContract.ChannelEntry.IS_NOT_PINNED);
 
         }catch (JSONException e) {
             Log.e(LOG_TAG, e.toString());
