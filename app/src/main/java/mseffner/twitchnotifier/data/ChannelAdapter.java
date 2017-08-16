@@ -88,9 +88,14 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
 
         void bind(int index) {
 
-            Channel channel = channelList.get(index);
+            final Channel channel = channelList.get(index);
 
             channelName.setText(channel.getDisplayName());
+            if (channel.getPinned() == ChannelContract.ChannelEntry.IS_PINNED) {
+                pinIcon.setVisibility(View.VISIBLE);
+            } else {
+                pinIcon.setVisibility(View.INVISIBLE);
+            }
 
             Picasso.with(itemView.getContext())
                     .load(channel.getLogoUrl())
@@ -102,6 +107,17 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             } else {
                 bindOnlineStream(channel);
             }
+
+            // LongClickListener to toggle pin
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    new ChannelDb(view.getContext()).toggleChannelPin(channel);
+                    channel.togglePinned();
+                    updatePinIcon(channel, pinIcon);
+                    return true;
+                }
+            });
         }
 
         private void bindOfflineStream() {
@@ -112,7 +128,6 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             streamInfo.setVisibility(View.INVISIBLE);
             streamTitle.setVisibility(View.INVISIBLE);
             vodcastTag.setVisibility(View.INVISIBLE);
-            pinIcon.setVisibility(View.INVISIBLE);
 
             itemView.setOnClickListener(null);
         }
@@ -132,14 +147,6 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                 }
             });
 
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    new ChannelDb(view.getContext()).toggleChannelPin(channel);
-                    return true;
-                }
-            });
-
             offlineText.setVisibility(View.INVISIBLE);
             currentGame.setVisibility(View.VISIBLE);
             streamTitle.setVisibility(View.VISIBLE);
@@ -156,9 +163,11 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             } else {
                 vodcastTag.setVisibility(View.INVISIBLE);
             }
+        }
 
+        private void updatePinIcon(Channel channel, View pinIconView) {
             if (channel.getPinned() == ChannelContract.ChannelEntry.IS_PINNED) {
-                pinIcon.setVisibility(View.VISIBLE);
+                pinIconView.setVisibility(View.VISIBLE);
             } else {
                 pinIcon.setVisibility(View.INVISIBLE);
             }

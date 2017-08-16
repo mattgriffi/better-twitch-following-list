@@ -67,6 +67,14 @@ public class Channel implements Comparable<Channel> {
         return pinned;
     }
 
+    public void togglePinned() {
+        if (pinned == ChannelContract.ChannelEntry.IS_PINNED) {
+            pinned = ChannelContract.ChannelEntry.IS_NOT_PINNED;
+        } else {
+            pinned = ChannelContract.ChannelEntry.IS_PINNED;
+        }
+    }
+
     @Override
     public int compareTo(@NonNull Channel channel) {
 
