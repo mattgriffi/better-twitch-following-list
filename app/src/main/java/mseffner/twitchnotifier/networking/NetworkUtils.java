@@ -101,7 +101,7 @@ public final class NetworkUtils {
 
             offsetMultiplier++;
 
-        } while (offsetMultiplier < totalFollowedChannels / chunkSize);
+        } while (offsetMultiplier < (totalFollowedChannels / chunkSize) + 1);
     }
 
     public static void updateStreamData(ChannelDb database) {
