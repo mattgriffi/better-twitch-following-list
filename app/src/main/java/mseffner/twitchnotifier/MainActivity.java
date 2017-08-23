@@ -1,14 +1,17 @@
 package mseffner.twitchnotifier;
 
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 
 import java.util.List;
 
@@ -21,7 +24,6 @@ import mseffner.twitchnotifier.networking.NetworkUtils;
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView followingList;
-    private static final String USER_NAME = "holokraft";
     private ChannelAdapter channelAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
 
@@ -74,9 +76,28 @@ public class MainActivity extends AppCompatActivity {
                 new UpdateStreamsAsyncTask().execute();
                 return true;
 
-            case R.id.action_user_follow:
-                // TODO add way for user to input their twitch name
-                new ChangeUserAsyncTask().execute(USER_NAME);
+            case R.id.action_change_user:
+
+                AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+                alert.setTitle(R.string.change_user);
+                alert.setMessage(R.string.enter_username_prompt);
+
+                final EditText input = new EditText(getApplicationContext());
+                alert.setView(input);
+
+                alert.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        String username = input.getText().toString();
+                        new ChangeUserAsyncTask().execute(username);
+                    }
+                });
+
+                alert.setNegativeButton(R.string.cancel, null);
+
+                alert.show();
+
                 return true;
         }
         return super.onOptionsItemSelected(item);

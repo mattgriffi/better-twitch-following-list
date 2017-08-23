@@ -3,4 +3,8 @@
     <string name="pin_icon">Channel pin icon</string>
     <string name="offline">Offline</string>
     <string name="vodcast">vodcast</string>
+    <string name="change_user">Change user</string>
+    <string name="enter_username_prompt">Please enter your Twitch username.</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
 </resources>

@@ -10,7 +10,7 @@
         app:showAsAction="never"/>
 
     <item
-        android:id="@+id/action_user_follow"
+        android:id="@+id/action_change_user"
         android:title="Change User"
         app:showAsAction="never"/>
 
