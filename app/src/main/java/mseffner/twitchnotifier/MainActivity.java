@@ -1,7 +1,10 @@
 package mseffner.twitchnotifier;
 
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
+import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
@@ -63,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        ChannelDb database = new ChannelDb(this);
+        final ChannelDb database = new ChannelDb(this);
 
         switch (item.getItemId()) {
 
@@ -78,19 +81,28 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.action_change_user:
 
+                final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+                String username = preferences.getString("username", "");
+
                 AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
                 alert.setTitle(R.string.change_user);
                 alert.setMessage(R.string.enter_username_prompt);
 
                 final EditText input = new EditText(getApplicationContext());
+                input.setText(username);
+
                 alert.setView(input);
 
                 alert.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        String username = input.getText().toString();
-                        new ChangeUserAsyncTask().execute(username);
+                        String newUsername = input.getText().toString();
+
+                        preferences.edit().putString("username", newUsername).apply();
+
+                        database.deleteAllChannels();
+                        new ChangeUserAsyncTask().execute(newUsername);
                     }
                 });
 
