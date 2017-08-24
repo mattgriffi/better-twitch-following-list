@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_change_user:
 
                 final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-                String username = preferences.getString("username", "");
+                String username = preferences.getString(getString(R.string.preferences_username), "");
 
                 AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         String newUsername = input.getText().toString();
 
-                        preferences.edit().putString("username", newUsername).apply();
+                        preferences.edit().putString(getString(R.string.preferences_username), newUsername).apply();
 
                         database.deleteAllChannels();
                         new ChangeUserAsyncTask().execute(newUsername);
