@@ -108,8 +108,6 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                     .placeholder(R.drawable.default_logo_300x300)
                     .into(channelLogo);
 
-            Log.e(vodcastSetting, itemView.getResources().getString(R.string.pref_vodcast_offline));
-
             if (channel.getStream() == null || // Or vodcast and vodcast is set to offline
                     (channel.getStream().getStreamType() == ChannelContract.ChannelEntry.STREAM_TYPE_VODCAST &&
                     vodcastSetting.equals(itemView.getResources().getString(R.string.pref_vodcast_offline)))) {
