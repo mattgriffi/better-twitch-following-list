@@ -92,27 +92,13 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        final ChannelDb database = new ChannelDb(this);
-
         switch (item.getItemId()) {
-
-            case R.id.action_empty_database:
-                database.deleteAllChannels();
-                new UpdateAdapterAsyncTask().execute();
-                return true;
-
-            case R.id.action_update_stream_data:
-                new UpdateStreamsAsyncTask().execute();
-                return true;
-
-            case R.id.action_change_user:
-                return true;
-
             case R.id.action_settings:
                 Intent startSettingsActivity = new Intent(this, SettingsActivity.class);
                 startActivity(startSettingsActivity);
                 return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
