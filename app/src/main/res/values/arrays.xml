@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="pref_vodcast_options">
+        <item>@string/pref_label_vodcast_online</item>
+        <item>@string/pref_label_vodcast_online_tag</item>
+        <item>@string/pref_label_vodcast_offline</item>
+    </string-array>
+
+    <string-array name="pref_vodcast_values">
+        <item>@string/pref_vodcast_online</item>
+        <item>@string/pref_vodcast_online_tag</item>
+        <item>@string/pref_vodcast_offline</item>
+    </string-array>
+</resources>

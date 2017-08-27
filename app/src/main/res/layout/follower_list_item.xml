@@ -131,7 +131,7 @@
                 android:background="@drawable/vodcast_tag_background"
                 android:paddingRight="4dp"
                 android:paddingLeft="4dp"
-                android:text="@string/vodcast"
+                android:text="@string/vodcast_tag"
                 android:textAllCaps="true"
                 android:textSize="12sp"
                 android:textColor="@color/colorAccent"
