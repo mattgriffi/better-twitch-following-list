@@ -3,18 +3,20 @@ package mseffner.twitchnotifier;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.preference.CheckBoxPreference;
-import android.support.v7.preference.ListPreference;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceFragmentCompat;
-import android.support.v7.preference.PreferenceScreen;
+import android.preference.CheckBoxPreference;
+import android.preference.ListPreference;
+import android.preference.Preference;
+import android.preference.PreferenceFragment;
+import android.preference.PreferenceScreen;
+import android.support.annotation.Nullable;
 
 
-public class SettingsFragment extends PreferenceFragmentCompat implements
+public class SettingsFragment extends PreferenceFragment implements
         SharedPreferences.OnSharedPreferenceChangeListener {
 
     @Override
-    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.settings);
 
         // Show the current setting
@@ -53,7 +55,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
 
     private void setPreferenceSummary(Preference preference, Object value) {
         String valueString = value.toString();
-        String key = preference.getKey();
 
         if (preference instanceof ListPreference) {
             ListPreference listPreference = (ListPreference) preference;

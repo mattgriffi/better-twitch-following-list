@@ -6,6 +6,7 @@
     <EditTextPreference
         android:inputType="text"
         android:key="@string/pref_username_key"
+        android:selectAllOnFocus="true"
         android:singleLine="true"
         android:title="@string/twitch_name"/>
 
