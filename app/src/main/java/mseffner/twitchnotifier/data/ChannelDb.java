@@ -176,6 +176,17 @@ public class ChannelDb {
         update(values, selection, selectionArgs);
     }
 
+    public void removeAllPins() {
+
+        ContentValues values = new ContentValues();
+        values.put(ChannelEntry.COLUMN_PINNED, ChannelEntry.IS_NOT_PINNED);
+
+        String selection = ChannelEntry.COLUMN_PINNED + "=?";
+        String[] selectionArgs = {Integer.toString(ChannelEntry.IS_PINNED)};
+
+        update(values, selection, selectionArgs);
+    }
+
     public long deleteAllChannels() {
 
         return delete(null, null);
