@@ -1,6 +1,7 @@
 package mseffner.twitchnotifier;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -107,9 +108,12 @@ public class MainActivity extends AppCompatActivity {
                 });
 
                 alert.setNegativeButton(R.string.cancel, null);
-
                 alert.show();
+                return true;
 
+            case R.id.action_settings:
+                Intent startSettingsActivity = new Intent(this, SettingsActivity.class);
+                startActivity(startSettingsActivity);
                 return true;
         }
         return super.onOptionsItemSelected(item);
