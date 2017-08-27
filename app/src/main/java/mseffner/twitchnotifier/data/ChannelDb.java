@@ -2,12 +2,15 @@ package mseffner.twitchnotifier.data;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
@@ -16,37 +19,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import mseffner.twitchnotifier.R;
 import mseffner.twitchnotifier.data.ChannelContract.ChannelEntry;
 
 
 public class ChannelDb {
 
-    private static final String TABLE = ChannelEntry.TABLE_NAME;
+    private final Resources resources;
+    private final SharedPreferences preferences;
     private ChannelDbHelper dbHelper;
 
 
     public ChannelDb(Context context) {
         dbHelper = ChannelDbHelper.getInstance(context);
-    }
-
-    public Set<Integer> getOfflineIdSet() {
-
-        String[] projection = new String[] {ChannelEntry._ID};
-        String selection = ChannelEntry.COLUMN_STREAM_TYPE + "=?";
-        String[] selectionArgs = new String[] {Integer.toString(ChannelEntry.STREAM_TYPE_OFFLINE)};
-
-        Cursor cursor = query(projection, selection, selectionArgs, null);
-
-        Set<Integer> idSet = new HashSet<>();
-        int idColumnIndex = cursor.getColumnIndex(ChannelEntry._ID);
-
-        while (cursor.moveToNext()) {
-            idSet.add(cursor.getInt(idColumnIndex));
-        }
-
-        cursor.close();
-
-        return idSet;
+        resources = context.getResources();
+        preferences = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
     public int[] getAllChannelIds() {
@@ -68,20 +55,23 @@ public class ChannelDb {
 
     public List<Channel> getAllChannels() {
 
+        String vodcastSetting = preferences.getString(resources.getString(R.string.pref_vodcast_key), "");
+        String vodcastOffline = resources.getString(R.string.pref_vodcast_offline);
+        boolean vodcastOnline = !vodcastSetting.equals(vodcastOffline);
+
         List<Channel> channelList = new ArrayList<>();
 
         String sortOrder =
             "CASE " + ChannelEntry.COLUMN_STREAM_TYPE +  // Show online streams first
-                " WHEN " + ChannelEntry.STREAM_TYPE_LIVE + " THEN 1" +
-                " WHEN " + ChannelEntry.STREAM_TYPE_PLAYLIST + " THEN 1" +
-                " WHEN " + ChannelEntry.STREAM_TYPE_VODCAST + " THEN 1" +
-                " ELSE 0" +
-            " END DESC, " +
+                " WHEN " + ChannelEntry.STREAM_TYPE_LIVE + " THEN 0" +
+                (vodcastOnline ? " WHEN " + ChannelEntry.STREAM_TYPE_VODCAST + " THEN 0" : "") +
+                " ELSE 1" +
+            " END, " +
             "CASE " + ChannelEntry.COLUMN_PINNED + // Show pinned streams first
                 " WHEN " + ChannelEntry.IS_PINNED + " THEN 0" +
                 " WHEN " + ChannelEntry.IS_NOT_PINNED + " THEN 1 " +
             " END, " +
-            ChannelEntry.COLUMN_VIEWERS + " DESC, " +  // Sort by viewer count (offline streams have 0)
+            ChannelEntry.COLUMN_VIEWERS + " DESC, " +
             ChannelEntry.COLUMN_DISPLAY_NAME + " COLLATE NOCASE";  // Break ties by display_name
 
         Cursor cursor = query(null, null, null, sortOrder);
@@ -248,24 +238,24 @@ public class ChannelDb {
                         String sortOrder) {
 
         SQLiteDatabase database = dbHelper.getReadableDatabase();
-        return database.query(TABLE, projection, selection, selectionArgs, null, null, sortOrder);
+        return database.query(ChannelEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
     }
 
     private long insert(ContentValues contentValues) {
 
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        return database.insert(TABLE, null, contentValues);
+        return database.insert(ChannelEntry.TABLE_NAME, null, contentValues);
     }
 
     private long update(ContentValues contentValues, String selection, String[] selectionArgs) {
 
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        return database.update(TABLE, contentValues, selection, selectionArgs);
+        return database.update(ChannelEntry.TABLE_NAME, contentValues, selection, selectionArgs);
     }
 
     private long delete(String selection, String[] selectionArgs) {
 
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        return database.delete(TABLE, selection, selectionArgs);
+        return database.delete(ChannelEntry.TABLE_NAME, selection, selectionArgs);
     }
 }
