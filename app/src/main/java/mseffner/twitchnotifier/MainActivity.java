@@ -3,6 +3,7 @@ package mseffner.twitchnotifier;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.content.res.ResourcesCompat;
@@ -118,16 +119,21 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         protected void onPostExecute(List<Channel> channelList) {
-
             swipeRefreshLayout.setRefreshing(false);
 
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            Resources resources = followingList.getResources();
+            String vodcastSetting = preferences.getString(resources.getString(R.string.pref_vodcast_key), "");
+
             if (channelAdapter == null) {
-                channelAdapter = new ChannelAdapter(channelList);
+                channelAdapter = new ChannelAdapter(channelList, vodcastSetting);
                 followingList.setAdapter(channelAdapter);
             } else {
                 channelAdapter.clear();
                 channelAdapter.addAll(channelList);
+                channelAdapter.updateVodcastSetting(vodcastSetting);
             }
+
             swipeRefreshLayout.setRefreshing(false);
         }
     }
