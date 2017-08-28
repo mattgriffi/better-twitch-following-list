@@ -1,8 +1,10 @@
 package mseffner.twitchnotifier.data;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,9 +22,15 @@ import mseffner.twitchnotifier.R;
 public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelViewHolder> {
 
     private final List<Channel> channelList;
+    private String vodcastSetting;
 
-    public ChannelAdapter(List<Channel> channelList) {
+    public ChannelAdapter(List<Channel> channelList, String vodcastSetting) {
         this.channelList = channelList;
+        this.vodcastSetting = vodcastSetting;
+    }
+
+    public void updateVodcastSetting(String newSetting) {
+        vodcastSetting = newSetting;
     }
 
     public void clear() {
@@ -100,7 +108,9 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                     .placeholder(R.drawable.default_logo_300x300)
                     .into(channelLogo);
 
-            if (channel.getStream() == null) {
+            if (channel.getStream() == null || // Or vodcast and vodcast is set to offline
+                    (channel.getStream().getStreamType() == ChannelContract.ChannelEntry.STREAM_TYPE_VODCAST &&
+                    vodcastSetting.equals(itemView.getResources().getString(R.string.pref_vodcast_offline)))) {
                 bindOfflineStream();
             } else {
                 bindOnlineStream(channel);
@@ -134,8 +144,6 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             Stream stream = channel.getStream();
 
             // Click listener to open the stream
-            /* TODO check if Twitch app is installed and open stream there, otherwise
-            check if a browser is installed and open it there, otherwise do nothing? */
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -156,7 +164,8 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
 
             uptime.setText(getUptime(stream.getCreatedAt()));
 
-            if (stream.getStreamType() == ChannelContract.ChannelEntry.STREAM_TYPE_VODCAST) {
+            if (stream.getStreamType() == ChannelContract.ChannelEntry.STREAM_TYPE_VODCAST &&
+                    vodcastSetting.equals(itemView.getResources().getString(R.string.pref_vodcast_online_tag))) {
                 vodcastTag.setVisibility(View.VISIBLE);
             } else {
                 vodcastTag.setVisibility(View.INVISIBLE);

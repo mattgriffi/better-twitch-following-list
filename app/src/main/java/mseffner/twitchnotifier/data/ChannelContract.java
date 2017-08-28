@@ -1,5 +1,7 @@
 package mseffner.twitchnotifier.data;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.provider.BaseColumns;
 
 public final class ChannelContract {

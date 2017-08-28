@@ -5,18 +5,9 @@
     tools:context=".MainActivity">
 
     <item
-        android:id="@+id/action_empty_database"
-        android:title="Clear Data"
-        app:showAsAction="never"/>
-
-    <item
-        android:id="@+id/action_change_user"
-        android:title="Change User"
-        app:showAsAction="never"/>
-
-    <item
-        android:id="@+id/action_update_stream_data"
-        android:title="Refresh Streams"
-        app:showAsAction="never"/>
+        android:id="@+id/action_settings"
+        android:title="@string/settings"
+        android:icon="@drawable/ic_settings_white_24dp"
+        app:showAsAction="always"/>
 
 </menu>

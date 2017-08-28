@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <mseffner.twitchnotifier.TrimmedEditTextPreference
+        android:inputType="text"
+        android:key="@string/pref_username_key"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/twitch_name"/>
+
+    <ListPreference
+        android:defaultValue="@string/pref_vodcast_online_tag"
+        android:entries="@array/pref_vodcast_options"
+        android:entryValues="@array/pref_vodcast_values"
+        android:key="@string/pref_vodcast_key"
+        android:title="@string/vodcast_display"/>
+
+    <mseffner.twitchnotifier.ClearPinsDialogPreference
+        android:title="@string/delete_pins_title"
+        android:dialogTitle="@string/delete_pins_title"
+        android:dialogMessage="@string/delete_pin_warning"
+        android:negativeButtonText="@string/cancel"
+        android:positiveButtonText="@string/delete_pins"/>
+
+</PreferenceScreen>

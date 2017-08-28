@@ -1,7 +1,5 @@
 package mseffner.twitchnotifier.networking;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -37,7 +35,6 @@ public final class NetworkUtils {
 
     private static final int QUERY_TYPE_CHANNEL = 0;
     private static final int QUERY_TYPE_STREAM = 1;
-    private static final int QUERY_TYPE_USER_FOLLOWS = 2;
     private static final int QUERY_TYPE_STREAM_MULTIPLE = 3;
     private static final int QUERY_TYPE_USER_ID = 4;
 
@@ -57,7 +54,6 @@ public final class NetworkUtils {
     private static final String PARAM_LOGIN = "login";
 
     private static final String LIMIT_MAX = "100";
-    private static final String STREAM_TYPE_ALL = "all";
     private static final String STREAM_TYPE_LIVE = "live";
     private static final String API_VERSION = "5";
 
@@ -81,6 +77,7 @@ public final class NetworkUtils {
 
             try {
 
+                // TODO fix  java.lang.NullPointerException: Attempt to invoke virtual method 'int java.lang.String.length()' on a null object reference
                 JSONObject responseObject = new JSONObject(followsJsonResponse);
                 totalFollowedChannels = responseObject.getInt("_total");
                 JSONArray followsJsonArray = responseObject.getJSONArray("follows");
@@ -418,6 +415,7 @@ public final class NetworkUtils {
 
         try {
 
+            // TODO fix java.lang.NullPointerException: Attempt to invoke virtual method 'int java.lang.String.length()' on a null object reference
             JSONObject resultJson = new JSONObject(jsonResponse);
             return resultJson.getJSONArray("users").getJSONObject(0).getLong("_id");
 
@@ -426,10 +424,6 @@ public final class NetworkUtils {
         }
 
         return 0;
-    }
-
-    private static Bitmap getBitmapFromInputStream(InputStream inputStream) {
-        return BitmapFactory.decodeStream(inputStream);
     }
 
 }

@@ -2,10 +2,23 @@
     <string name="app_name">Twitch Notifier</string>
     <string name="pin_icon">Channel pin icon</string>
     <string name="offline">Offline</string>
-    <string name="vodcast">vodcast</string>
+    <string name="vodcast_tag">vodcast</string>
     <string name="change_user">Change user</string>
+    <string name="settings">Settings</string>
     <string name="enter_username_prompt">Please enter your Twitch username.</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
-    <string name="preferences_username">username</string>
+    <string name="twitch_name">Twitch name</string>
+    <string name="vodcast_display">Vodcast display</string>
+    <string name="pref_username_key">username</string>
+    <string name="pref_label_vodcast_online">Online</string>
+    <string name="pref_label_vodcast_online_tag">Online with tag</string>
+    <string name="pref_label_vodcast_offline">Offline</string>
+    <string name="pref_vodcast_key">vodcast</string>
+    <string name="pref_vodcast_online">online</string>
+    <string name="pref_vodcast_online_tag">tag</string>
+    <string name="pref_vodcast_offline">offline</string>
+    <string name="delete_pin_warning">WARNING: This will remove all set pins. This action cannot be undone.</string>
+    <string name="delete_pins">Delete pins</string>
+    <string name="delete_pins_title">Delete all pins</string>
 </resources>

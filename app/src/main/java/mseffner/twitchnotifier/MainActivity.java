@@ -1,20 +1,18 @@
 package mseffner.twitchnotifier;
 
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
-import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.EditText;
 
 import java.util.List;
 
@@ -24,11 +22,14 @@ import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.networking.NetworkUtils;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements SharedPreferences.OnSharedPreferenceChangeListener{
 
     private RecyclerView followingList;
     private ChannelAdapter channelAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
+
+    private boolean usernameChanged = false;
 
 
     @Override
@@ -54,7 +55,22 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
+
         new UpdateAdapterAsyncTask().execute();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if (usernameChanged) {
+            new ChannelDb(this).deleteAllChannels();
+            new ChangeUserAsyncTask().execute();
+            usernameChanged = false;
+        } else {
+            new UpdateStreamsAsyncTask().execute();
+        }
     }
 
     @Override
@@ -64,54 +80,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        // This will cause onStart to reload the following list
+        if (key.equals(getString(R.string.pref_username_key))) {
+            usernameChanged = true;
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        final ChannelDb database = new ChannelDb(this);
-
         switch (item.getItemId()) {
-
-            case R.id.action_empty_database:
-                database.deleteAllChannels();
-                new UpdateAdapterAsyncTask().execute();
-                return true;
-
-            case R.id.action_update_stream_data:
-                new UpdateStreamsAsyncTask().execute();
-                return true;
-
-            case R.id.action_change_user:
-
-                final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-                String username = preferences.getString(getString(R.string.preferences_username), "");
-
-                AlertDialog.Builder alert = new AlertDialog.Builder(this);
-
-                alert.setTitle(R.string.change_user);
-                alert.setMessage(R.string.enter_username_prompt);
-
-                final EditText input = new EditText(getApplicationContext());
-                input.setText(username);
-
-                alert.setView(input);
-
-                alert.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        String newUsername = input.getText().toString();
-
-                        preferences.edit().putString(getString(R.string.preferences_username), newUsername).apply();
-
-                        database.deleteAllChannels();
-                        new ChangeUserAsyncTask().execute(newUsername);
-                    }
-                });
-
-                alert.setNegativeButton(R.string.cancel, null);
-
-                alert.show();
-
+            case R.id.action_settings:
+                Intent startSettingsActivity = new Intent(this, SettingsActivity.class);
+                startActivity(startSettingsActivity);
                 return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -131,16 +116,21 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(List<Channel> channelList) {
-
             swipeRefreshLayout.setRefreshing(false);
 
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            Resources resources = followingList.getResources();
+            String vodcastSetting = preferences.getString(resources.getString(R.string.pref_vodcast_key), "");
+
             if (channelAdapter == null) {
-                channelAdapter = new ChannelAdapter(channelList);
+                channelAdapter = new ChannelAdapter(channelList, vodcastSetting);
                 followingList.setAdapter(channelAdapter);
             } else {
                 channelAdapter.clear();
                 channelAdapter.addAll(channelList);
+                channelAdapter.updateVodcastSetting(vodcastSetting);
             }
+
             swipeRefreshLayout.setRefreshing(false);
         }
     }
@@ -166,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class ChangeUserAsyncTask extends AsyncTask<String, Void, Void> {
+    private class ChangeUserAsyncTask extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected void onPreExecute() {
@@ -174,15 +164,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected Void doInBackground(String... strings) {
-            NetworkUtils.populateUserFollowedChannels(strings[0], new ChannelDb(getApplicationContext()));
+        protected Void doInBackground(Void... strings) {
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            String newUsername = sharedPreferences.getString(getString(R.string.pref_username_key), "");
+            NetworkUtils.populateUserFollowedChannels(newUsername, new ChannelDb(getApplicationContext()));
             return null;
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
             new UpdateStreamsAsyncTask().execute();
-            new UpdateAdapterAsyncTask().execute();
         }
     }
 }
