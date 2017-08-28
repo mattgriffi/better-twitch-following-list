@@ -17,4 +17,11 @@
         android:key="@string/pref_vodcast_key"
         android:title="@string/vodcast_display"/>
 
+    <mseffner.twitchnotifier.ClearPinsDialogPreference
+        android:title="@string/delete_pins_title"
+        android:dialogTitle="@string/delete_pins_title"
+        android:dialogMessage="@string/delete_pin_warning"
+        android:negativeButtonText="@string/cancel"
+        android:positiveButtonText="@string/delete_pins"/>
+
 </PreferenceScreen>
