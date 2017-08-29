@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.AsyncTask;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -11,8 +12,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -24,6 +27,9 @@ import mseffner.twitchnotifier.networking.NetworkUtils;
 
 public class MainActivity extends AppCompatActivity
         implements SharedPreferences.OnSharedPreferenceChangeListener{
+
+    private static final String LOG_TAG_ERROR = "Error";
+    private static final int MAX_ALLOWED_ERROR_COUNT = 3;
 
     private RecyclerView followingList;
     private ChannelAdapter channelAdapter;
@@ -56,8 +62,6 @@ public class MainActivity extends AppCompatActivity
         });
 
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
-
-        new UpdateAdapterAsyncTask().execute();
     }
 
     @Override
@@ -135,7 +139,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private class UpdateStreamsAsyncTask extends AsyncTask<Void, Void, Void> {
+    private class UpdateStreamsAsyncTask extends AsyncTask<Void, Void, Boolean> {
 
         @Override
         protected void onPreExecute() {
@@ -143,20 +147,58 @@ public class MainActivity extends AppCompatActivity
         }
 
         @Override
-        protected Void doInBackground(Void... voids) {
+        protected Boolean doInBackground(Void... voids) {
             ChannelDb database = new ChannelDb(getApplicationContext());
-            database.resetAllStreamData();
-            NetworkUtils.updateStreamData(database);
-            return null;
+
+            // Try a few times, silently retrying if it fails
+            int errorCount = 0;
+            while (errorCount < MAX_ALLOWED_ERROR_COUNT) {
+                boolean successful = tryUpdateStreamDataSilently(database);
+                if (successful) {
+                    return true;
+                }
+                errorCount ++;
+            }
+
+            // Try one last time, and raise errors if it fails
+            return tryUpdateStreamDataWithErrors(database);
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
+        protected void onPostExecute(Boolean success) {
+            if (!success) {
+                Toast.makeText(getApplicationContext(), "A network error has occurred", Toast.LENGTH_LONG).show();
+            }
             new UpdateAdapterAsyncTask().execute();
+        }
+
+        private boolean tryUpdateStreamDataSilently(ChannelDb database) {
+            try {
+                NetworkUtils.updateStreamData(database);
+            } catch (NetworkUtils.NetworkException e) {
+                Log.e(LOG_TAG_ERROR, "tryUpdateStreamDataSilently has caught NetworkException");
+                SystemClock.sleep(1000); // Wait before the next retry
+                return false;
+            }
+            return true;
+        }
+
+        private boolean tryUpdateStreamDataWithErrors(ChannelDb database) {
+            try {
+                NetworkUtils.updateStreamData(database);
+            } catch (NetworkUtils.NetworkException e) {
+                Log.e(LOG_TAG_ERROR, "tryUpdateStreamDataWithErrors has caught NetworkException");
+                return false;
+            }
+            return true;
         }
     }
 
-    private class ChangeUserAsyncTask extends AsyncTask<Void, Void, Void> {
+    private class ChangeUserAsyncTask extends AsyncTask<Void, Void, Integer> {
+
+        private static final int SUCCESS = 0;
+        private static final int NETWORK_ERROR = 1;
+        private static final int INVALID_USERNAME_ERROR = 2;
 
         @Override
         protected void onPreExecute() {
@@ -164,16 +206,60 @@ public class MainActivity extends AppCompatActivity
         }
 
         @Override
-        protected Void doInBackground(Void... strings) {
+        protected Integer doInBackground(Void... strings) {
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             String newUsername = sharedPreferences.getString(getString(R.string.pref_username_key), "");
-            NetworkUtils.populateUserFollowedChannels(newUsername, new ChannelDb(getApplicationContext()));
-            return null;
+
+            // Try a few times, silently retrying if it fails
+            int errorCount = 0;
+            while (errorCount < MAX_ALLOWED_ERROR_COUNT) {
+                boolean successful = tryPopulateUserFollowedChannelsSilently(newUsername);
+                if (successful) {
+                    return SUCCESS;
+                }
+                errorCount ++;
+            }
+
+            // Try one last time, and raise errors if it fails
+            return tryPopulateUserFollowedChannelsWithErrors(newUsername);
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-            new UpdateStreamsAsyncTask().execute();
+        protected void onPostExecute(Integer result) {
+            if (result == NETWORK_ERROR) {
+                Toast.makeText(getApplicationContext(), "A network error has occurred", Toast.LENGTH_LONG).show();
+            } else if (result == INVALID_USERNAME_ERROR) {
+                Toast.makeText(getApplicationContext(), "Invalid username", Toast.LENGTH_LONG).show();
+            } else if (result == SUCCESS) {
+                new UpdateStreamsAsyncTask().execute();
+                return;
+            }
+            swipeRefreshLayout.setRefreshing(false);
+
+        }
+
+        private boolean tryPopulateUserFollowedChannelsSilently(String newUsername) {
+            try {
+                NetworkUtils.populateUserFollowedChannels(newUsername, new ChannelDb(getApplicationContext()));
+            } catch (NetworkUtils.NetworkException | NetworkUtils.InvalidUsernameException e) {
+                Log.e(LOG_TAG_ERROR, "tryPopulateUserFollowedChannelsWithErrors has caught " + e.getClass().getSimpleName());
+                SystemClock.sleep(1000); // Wait before the next retry
+                return false;
+            }
+            return true;
+        }
+
+        private int tryPopulateUserFollowedChannelsWithErrors(String newUsername) {
+            try {
+                NetworkUtils.populateUserFollowedChannels(newUsername, new ChannelDb(getApplicationContext()));
+            } catch (NetworkUtils.NetworkException e) {
+                Log.e(LOG_TAG_ERROR, "tryPopulateUserFollowedChannelsWithErrors has caught NetworkException");
+                return NETWORK_ERROR;
+            } catch (NetworkUtils.InvalidUsernameException e) {
+                Log.e(LOG_TAG_ERROR, "tryPopulateUserFollowedChannelsWithErrors has caught InvalidUsernameException");
+                return INVALID_USERNAME_ERROR;
+            }
+            return SUCCESS;
         }
     }
 }
