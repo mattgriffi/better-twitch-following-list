@@ -58,9 +58,14 @@ public final class NetworkUtils {
     private static final String API_VERSION = "5";
 
 
+    public static class NetworkException extends Exception {}
+
+    public static class InvalidUsernameException extends Exception {}
+
     private NetworkUtils() {}
 
-    public static void populateUserFollowedChannels(String userName, ChannelDb database) {
+    public static void populateUserFollowedChannels(String userName, ChannelDb database)
+            throws NetworkException, InvalidUsernameException {
 
         String userId = Long.toString(getTwitchUserId(userName));
         int chunkSize = Integer.parseInt(LIMIT_MAX);
@@ -77,7 +82,6 @@ public final class NetworkUtils {
 
             try {
 
-                // TODO fix  java.lang.NullPointerException: Attempt to invoke virtual method 'int java.lang.String.length()' on a null object reference
                 JSONObject responseObject = new JSONObject(followsJsonResponse);
                 totalFollowedChannels = responseObject.getInt("_total");
                 JSONArray followsJsonArray = responseObject.getJSONArray("follows");
@@ -101,7 +105,7 @@ public final class NetworkUtils {
         } while (offsetMultiplier < (totalFollowedChannels / chunkSize) + 1);
     }
 
-    public static void updateStreamData(ChannelDb database) {
+    public static void updateStreamData(ChannelDb database) throws NetworkException {
 
         int[] channelIds = database.getAllChannelIds();
         String[] commaSeparatedIdLists = getCommaSeparatedIdsArray(channelIds);
@@ -114,7 +118,8 @@ public final class NetworkUtils {
     }
 
     @NonNull
-    private static List<Stream> getStreamsFromCommaSeparatedIds(String[] commaSeparatedIdLists) {
+    private static List<Stream> getStreamsFromCommaSeparatedIds(String[] commaSeparatedIdLists)
+            throws NetworkException {
 
         List<Stream> streamList = new ArrayList<>();
 
@@ -181,25 +186,26 @@ public final class NetworkUtils {
         return commaSeparatedIdList;
     }
 
-    private static long getTwitchUserId(String userName) {
+    private static long getTwitchUserId(String userName) throws NetworkException, InvalidUsernameException {
 
         URL userIdQueryUrl = buildUrl(userName, QUERY_TYPE_USER_ID);
         String response = makeTwitchQuery(userIdQueryUrl);
         return getUserIdFromJson(response);
     }
 
-    private static String makeTwitchQuery(URL url) {
+    private static String makeTwitchQuery(URL url) throws NetworkException {
 
         String response;
 
         HttpsURLConnection urlConnection = openHttpConnection(url);
-        if (urlConnection == null)
-            return null;
+        if (urlConnection == null) {
+            throw new NetworkException();
+        }
 
         InputStream inputStream = getInputStreamFromConnection(urlConnection);
         if (inputStream == null) {
             closeConnections(urlConnection, null);
-            return null;
+            throw new NetworkException();
         }
 
         response = readStringFromInputStream(inputStream);
@@ -411,19 +417,15 @@ public final class NetworkUtils {
         return null;
     }
 
-    private static long getUserIdFromJson(String jsonResponse) {
+    private static long getUserIdFromJson(String jsonResponse) throws InvalidUsernameException {
 
         try {
-
-            // TODO fix java.lang.NullPointerException: Attempt to invoke virtual method 'int java.lang.String.length()' on a null object reference
             JSONObject resultJson = new JSONObject(jsonResponse);
             return resultJson.getJSONArray("users").getJSONObject(0).getLong("_id");
-
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.toString());
+            throw new InvalidUsernameException();
         }
-
-        return 0;
     }
 
 }
