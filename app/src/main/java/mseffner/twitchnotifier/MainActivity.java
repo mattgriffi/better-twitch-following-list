@@ -149,7 +149,6 @@ public class MainActivity extends AppCompatActivity
         @Override
         protected Boolean doInBackground(Void... voids) {
             ChannelDb database = new ChannelDb(getApplicationContext());
-            database.resetAllStreamData();
 
             // Try a few times, silently retrying if it fails
             int errorCount = 0;

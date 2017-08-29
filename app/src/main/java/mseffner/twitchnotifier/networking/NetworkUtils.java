@@ -112,6 +112,8 @@ public final class NetworkUtils {
 
         List<Stream> streamList = getStreamsFromCommaSeparatedIds(commaSeparatedIdLists);
 
+        database.resetAllStreamData();
+
         for (Stream stream : streamList) {
             database.updateStreamData(stream);
         }
