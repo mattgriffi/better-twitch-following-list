@@ -64,6 +64,7 @@ public class ChannelDb {
         String sortOrder =
             "CASE " + ChannelEntry.COLUMN_STREAM_TYPE +  // Show online streams first
                 " WHEN " + ChannelEntry.STREAM_TYPE_LIVE + " THEN 0" +
+                // Show vodcasts as online depending on the setting
                 (vodcastOnline ? " WHEN " + ChannelEntry.STREAM_TYPE_VODCAST + " THEN 0" : "") +
                 " ELSE 1" +
             " END, " +
@@ -84,7 +85,6 @@ public class ChannelDb {
             String displayName = cursor.getString(cursor.getColumnIndex(ChannelEntry.COLUMN_DISPLAY_NAME));
             String channelUrl = cursor.getString(cursor.getColumnIndex(ChannelEntry.COLUMN_CHANNEL_URL));
             String logoUrl = cursor.getString(cursor.getColumnIndex(ChannelEntry.COLUMN_LOGO_URL));
-            byte[] logoByteArray = cursor.getBlob(cursor.getColumnIndex(ChannelEntry.COLUMN_LOGO_BMP));
             int pinned = cursor.getInt(cursor.getColumnIndex(ChannelEntry.COLUMN_PINNED));
             int streamType = cursor.getInt(cursor.getColumnIndex(ChannelEntry.COLUMN_STREAM_TYPE));
             String status = cursor.getString(cursor.getColumnIndex(ChannelEntry.COLUMN_STATUS));
@@ -96,7 +96,6 @@ public class ChannelDb {
             Channel channel = new Channel(id, displayName, name, logoUrl, channelUrl, pinned);
             if (streamType != ChannelEntry.STREAM_TYPE_OFFLINE)
                 channel.setStream(new Stream(id, game, viewers, status, createdAt, streamType));
-            channel.setLogoBmp(getBitmapFromByteArray(logoByteArray));
 
             channelList.add(channel);
         }
@@ -119,7 +118,6 @@ public class ChannelDb {
         values.put(ChannelEntry.COLUMN_LOGO_URL, channel.getLogoUrl());
         values.put(ChannelEntry.COLUMN_CHANNEL_URL, channel.getStreamUrl());
         values.put(ChannelEntry.COLUMN_PINNED, channel.getPinned());
-        values.put(ChannelEntry.COLUMN_LOGO_BMP, getByteArrayFromBitmap(channel.getLogoBmp()));
 
         Stream stream = channel.getStream();
         if (stream != null) {
@@ -214,35 +212,6 @@ public class ChannelDb {
         values.put(ChannelEntry.COLUMN_CREATED_AT, 0);
 
         update(values, null, null);
-    }
-
-    private byte[] getByteArrayFromBitmap(Bitmap bmp) {
-
-        if (bmp == null)
-            return null;
-
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-
-        Bitmap newBitmap = bmp;
-        if (bmp.hasAlpha()) {
-            // Draw the bmp onto a white background, otherwise transparent backgrounds may turn black
-            newBitmap = Bitmap.createBitmap(bmp.getWidth(), bmp.getHeight(), bmp.getConfig());
-            Canvas canvas = new Canvas(newBitmap);
-            // TODO use a color resource to ensure consistency with other API versions
-            canvas.drawColor(Color.parseColor("#FAFAFA"));
-            canvas.drawBitmap(bmp, 0, 0, null);
-            bmp.recycle();
-        }
-
-        newBitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);  // Compress it to save space
-        newBitmap.recycle();
-        return stream.toByteArray();
-    }
-
-    private Bitmap getBitmapFromByteArray(byte[] bytes) {
-        if (bytes == null)
-            return null;
-        return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
     }
 
     private Cursor query(String[] projection, String selection, String[] selectionArgs,

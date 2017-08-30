@@ -40,7 +40,6 @@ public class ChannelDbHelper extends SQLiteOpenHelper {
             ChannelEntry.COLUMN_DISPLAY_NAME + " TEXT NOT NULL DEFAULT \"unknown_name\", " +
             ChannelEntry.COLUMN_CHANNEL_URL + " TEXT NOT NULL, " +
             ChannelEntry.COLUMN_LOGO_URL + " TEXT NOT NULL DEFAULT " + DEFAULT_LOGO_URL +  ", " +
-            ChannelEntry.COLUMN_LOGO_BMP + " BLOB, " +
             ChannelEntry.COLUMN_PINNED + " INTEGER NOT NULL DEFAULT " + ChannelEntry.IS_NOT_PINNED + ", " +
             ChannelEntry.COLUMN_STREAM_TYPE + " INTEGER NOT NULL DEFAULT " + ChannelEntry.STREAM_TYPE_OFFLINE + ", " +
             ChannelEntry.COLUMN_STATUS + " TEXT NOT NULL DEFAULT \"\", " +
