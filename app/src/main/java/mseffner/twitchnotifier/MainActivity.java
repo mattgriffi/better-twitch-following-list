@@ -210,17 +210,15 @@ public class MainActivity extends AppCompatActivity
             ChannelDb database = new ChannelDb(getApplicationContext());
 
             // Try a few times, silently retrying if it fails
-            int errorCount = 0;
-            while (errorCount < MAX_ALLOWED_ERROR_COUNT) {
-                boolean successful = tryUpdateStreamDataSilently(database);
-                if (successful) {
+            for (int errorCount = 0; errorCount < MAX_ALLOWED_ERROR_COUNT; errorCount++) {
+                boolean success = tryUpdateStreamData(database);
+                if (success)
                     return true;
-                }
-                errorCount ++;
+                SystemClock.sleep(1000);
             }
 
             // Try one last time, and raise errors if it fails
-            return tryUpdateStreamDataWithErrors(database);
+            return tryUpdateStreamData(database);
         }
 
         @Override
@@ -231,22 +229,11 @@ public class MainActivity extends AppCompatActivity
             new UpdateAdapterAsyncTask().execute();
         }
 
-        private boolean tryUpdateStreamDataSilently(ChannelDb database) {
+        private boolean tryUpdateStreamData(ChannelDb database) {
             try {
                 NetworkUtils.updateStreamData(database);
             } catch (NetworkUtils.NetworkException e) {
-                Log.e(LOG_TAG_ERROR, "tryUpdateStreamDataSilently has caught NetworkException");
-                SystemClock.sleep(1000); // Wait before the next retry
-                return false;
-            }
-            return true;
-        }
-
-        private boolean tryUpdateStreamDataWithErrors(ChannelDb database) {
-            try {
-                NetworkUtils.updateStreamData(database);
-            } catch (NetworkUtils.NetworkException e) {
-                Log.e(LOG_TAG_ERROR, "tryUpdateStreamDataWithErrors has caught NetworkException");
+                Log.e(LOG_TAG_ERROR, "tryUpdateStreamData has caught NetworkException");
                 return false;
             }
             return true;
@@ -270,17 +257,15 @@ public class MainActivity extends AppCompatActivity
             String newUsername = sharedPreferences.getString(getString(R.string.pref_username_key), "");
 
             // Try a few times, silently retrying if it fails
-            int errorCount = 0;
-            while (errorCount < MAX_ALLOWED_ERROR_COUNT) {
-                boolean successful = tryPopulateUserFollowedChannelsSilently(newUsername);
-                if (successful) {
+            for (int errorCount = 0; errorCount < MAX_ALLOWED_ERROR_COUNT; errorCount++) {
+                int result = tryPopulateUserFollowedChannels(newUsername);
+                if (result == SUCCESS)
                     return SUCCESS;
-                }
-                errorCount ++;
+                SystemClock.sleep(1000);
             }
 
             // Try one last time, and raise errors if it fails
-            return tryPopulateUserFollowedChannelsWithErrors(newUsername);
+            return tryPopulateUserFollowedChannels(newUsername);
         }
 
         @Override
@@ -297,25 +282,14 @@ public class MainActivity extends AppCompatActivity
 
         }
 
-        private boolean tryPopulateUserFollowedChannelsSilently(String newUsername) {
-            try {
-                NetworkUtils.populateUserFollowedChannels(newUsername, new ChannelDb(getApplicationContext()));
-            } catch (NetworkUtils.NetworkException | NetworkUtils.InvalidUsernameException e) {
-                Log.e(LOG_TAG_ERROR, "tryPopulateUserFollowedChannelsSilently has caught " + e.getClass().getSimpleName());
-                SystemClock.sleep(1000); // Wait before the next retry
-                return false;
-            }
-            return true;
-        }
-
-        private int tryPopulateUserFollowedChannelsWithErrors(String newUsername) {
+        private int tryPopulateUserFollowedChannels(String newUsername) {
             try {
                 NetworkUtils.populateUserFollowedChannels(newUsername, new ChannelDb(getApplicationContext()));
             } catch (NetworkUtils.NetworkException e) {
-                Log.e(LOG_TAG_ERROR, "tryPopulateUserFollowedChannelsWithErrors has caught NetworkException");
+                Log.e(LOG_TAG_ERROR, "tryPopulateUserFollowedChannels has caught NetworkException");
                 return NETWORK_ERROR;
             } catch (NetworkUtils.InvalidUsernameException e) {
-                Log.e(LOG_TAG_ERROR, "tryPopulateUserFollowedChannelsWithErrors has caught InvalidUsernameException");
+                Log.e(LOG_TAG_ERROR, "tryPopulateUserFollowedChannels has caught InvalidUsernameException");
                 return INVALID_USERNAME_ERROR;
             }
             return SUCCESS;
