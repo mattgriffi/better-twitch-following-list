@@ -6,6 +6,7 @@ import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +16,9 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
 import java.util.List;
@@ -34,6 +38,7 @@ public class MainActivity extends AppCompatActivity
     private RecyclerView followingList;
     private ChannelAdapter channelAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private FloatingActionButton scrollTopButton;
 
     private boolean usernameChanged = false;
 
@@ -43,21 +48,75 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Get the views
         followingList = (RecyclerView) findViewById(R.id.following_list);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
+        scrollTopButton = (FloatingActionButton) findViewById(R.id.scroll_top_fab);
 
+        // Start the refresh animation (will be disabled when UpdateAdapterAsyncTask completes)
         swipeRefreshLayout.setRefreshing(true);
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        // Set up scroll button animations
+        final Animation animScaleUp = AnimationUtils.loadAnimation(this, R.anim.scale_up);
+        final Animation animScaleDown = AnimationUtils.loadAnimation(this, R.anim.scale_down);
+        animScaleUp.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                scrollTopButton.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {}
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
+        animScaleDown.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {}
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                scrollTopButton.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
+
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         followingList.setLayoutManager(layoutManager);
         followingList.setHasFixedSize(true);
 
         swipeRefreshLayout.setColorSchemeColors(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null));
-
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 new UpdateStreamsAsyncTask().execute();
+            }
+        });
+
+        // Animate the scroll button
+        followingList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (layoutManager.findFirstVisibleItemPosition() == 0 &&
+                        scrollTopButton.getVisibility() == View.VISIBLE &&
+                        scrollTopButton.getAnimation() == null) {
+                    scrollTopButton.startAnimation(animScaleDown);
+                } else if (layoutManager.findFirstVisibleItemPosition() != 0 &&
+                        scrollTopButton.getAnimation() == null &&
+                        scrollTopButton.getVisibility() == View.INVISIBLE &&
+                        scrollTopButton.getAnimation() == null){
+                    scrollTopButton.startAnimation(animScaleUp);
+                }
+            }
+        });
+
+        scrollTopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                layoutManager.smoothScrollToPosition(followingList, null, 0);
             }
         });
 
@@ -242,7 +301,7 @@ public class MainActivity extends AppCompatActivity
             try {
                 NetworkUtils.populateUserFollowedChannels(newUsername, new ChannelDb(getApplicationContext()));
             } catch (NetworkUtils.NetworkException | NetworkUtils.InvalidUsernameException e) {
-                Log.e(LOG_TAG_ERROR, "tryPopulateUserFollowedChannelsWithErrors has caught " + e.getClass().getSimpleName());
+                Log.e(LOG_TAG_ERROR, "tryPopulateUserFollowedChannelsSilently has caught " + e.getClass().getSimpleName());
                 SystemClock.sleep(1000); // Wait before the next retry
                 return false;
             }
