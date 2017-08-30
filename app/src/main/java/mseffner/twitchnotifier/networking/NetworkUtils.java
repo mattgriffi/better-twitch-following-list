@@ -278,14 +278,20 @@ public final class NetworkUtils {
     private static URL buildUrl(String query, int queryType) {
 
         Uri uri = Uri.EMPTY;
-        if (queryType == QUERY_TYPE_CHANNEL)
-            uri = buildChannelQueryUri(query);
-        else if (queryType == QUERY_TYPE_STREAM)
-            uri = buildStreamQueryUri(query);
-        else if (queryType == QUERY_TYPE_STREAM_MULTIPLE)
-            uri = buildMultiStreamQueryUri(query);
-        else if (queryType == QUERY_TYPE_USER_ID)
-            uri = buildUserIdQueryUri(query);
+        switch (queryType) {
+            case QUERY_TYPE_CHANNEL:
+                uri = buildChannelQueryUri(query);
+                break;
+            case QUERY_TYPE_STREAM:
+                uri = buildStreamQueryUri(query);
+                break;
+            case QUERY_TYPE_STREAM_MULTIPLE:
+                uri = buildMultiStreamQueryUri(query);
+                break;
+            case QUERY_TYPE_USER_ID:
+                uri = buildUserIdQueryUri(query);
+                break;
+        }
 
         return getUrlFromUri(uri);
     }
