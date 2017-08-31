@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.util.List;
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity
     private ChannelAdapter channelAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private FloatingActionButton scrollTopButton;
+    private RelativeLayout startMessage;
 
     private boolean usernameChanged = false;
 
@@ -52,6 +54,7 @@ public class MainActivity extends AppCompatActivity
         followingList = (RecyclerView) findViewById(R.id.following_list);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
         scrollTopButton = (FloatingActionButton) findViewById(R.id.scroll_top_fab);
+        startMessage = (RelativeLayout)findViewById(R.id.get_started_message);
 
         // Start the refresh animation (will be disabled when UpdateAdapterAsyncTask completes)
         swipeRefreshLayout.setRefreshing(true);
