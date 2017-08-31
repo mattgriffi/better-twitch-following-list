@@ -15,6 +15,8 @@ import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,6 +36,39 @@ public class ChannelDb {
         dbHelper = ChannelDbHelper.getInstance(context);
         resources = context.getResources();
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
+    }
+
+    public void updateNewChannelData(List<Channel> channelList) {
+
+        // Get the ids already in the database
+        int[] existingIds = getAllChannelIds();
+        Set<Integer> existingIdSet = new HashSet<>(existingIds.length);
+        for (int id : existingIds) {
+            existingIdSet.add(id);
+        }
+
+        // Get the ids of the new Channel list
+        Set<Integer> newIdSet = new HashSet<>(channelList.size());
+        for (Channel channel : channelList) {
+            newIdSet.add(channel.getId());
+        }
+
+        // Delete any channel from the database that isn't in the new list
+        // (This means that the channel was unfollowed)
+        for (int existingId : existingIds) {
+            if (!newIdSet.contains(existingId)) {
+                deleteChannel(existingId);
+            }
+        }
+
+        // Add any channels that aren't in the database
+        // (This means that the channel was newly followed)
+        for (Channel channel : channelList) {
+            if (!existingIdSet.contains(channel.getId())) {
+                insertChannel(channel);
+            }
+        }
+
     }
 
     public int[] getAllChannelIds() {
@@ -190,18 +225,6 @@ public class ChannelDb {
         return delete(null, null);
     }
 
-    /**
-     * This method will set all of the Stream data for every row to their default values:
-     *      stream_type = 0
-     *      status = ""
-     *      game = ""
-     *      viewers = 0
-     *      created_at = 0
-     *
-     * This method should be called before updating the database with fresh Stream data. For the
-     * purpose of making notifications, be sure to call this method AFTER getting the old data to
-     * compare against (use getOfflineIdSet).
-     */
     public void resetAllStreamData() {
 
         ContentValues values = new ContentValues();
@@ -212,6 +235,13 @@ public class ChannelDb {
         values.put(ChannelEntry.COLUMN_CREATED_AT, 0);
 
         update(values, null, null);
+    }
+
+    private void deleteChannel(int id) {
+
+        String selection = ChannelEntry._ID + "=?";
+        String[] selectionArgs = {Integer.toString(id)};
+        delete(selection, selectionArgs);
     }
 
     private Cursor query(String[] projection, String selection, String[] selectionArgs,

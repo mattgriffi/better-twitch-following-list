@@ -74,6 +74,8 @@ public final class NetworkUtils {
         // after I have gotten the first response
         int totalFollowedChannels = 0;
 
+        List<Channel> channelList = new ArrayList<>(chunkSize);
+
         do {
             // The API will only return 100 channels in a single response, so I have to use an
             // offset in order to get all of the channels in chunks of 100
@@ -93,8 +95,7 @@ public final class NetworkUtils {
                     String channelJsonString = followsJsonArray.getJSONObject(i)
                             .getJSONObject("channel").toString();
 
-                    // Insert each channel into the database
-                    database.insertChannel(getChannelFromJson(channelJsonString));
+                    channelList.add(getChannelFromJson(channelJsonString));
                 }
             } catch (JSONException e) {
                 Log.e(LOG_TAG, e.toString());
@@ -103,6 +104,8 @@ public final class NetworkUtils {
             offsetMultiplier++;
 
         } while (offsetMultiplier < (totalFollowedChannels / chunkSize) + 1);
+
+        database.updateNewChannelData(channelList);
     }
 
     public static void updateStreamData(ChannelDb database) throws NetworkException {
