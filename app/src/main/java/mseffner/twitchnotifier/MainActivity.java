@@ -197,6 +197,12 @@ public class MainActivity extends AppCompatActivity
                 channelAdapter.updateVodcastSetting(vodcastSetting);
             }
 
+            if (channelAdapter.getItemCount() == 0) {
+                startMessage.setVisibility(View.VISIBLE);
+            } else {
+                startMessage.setVisibility(View.GONE);
+            }
+
             swipeRefreshLayout.setRefreshing(false);
         }
     }
