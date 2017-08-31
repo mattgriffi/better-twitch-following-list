@@ -53,5 +53,5 @@ public class ChannelDbHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase database, int i, int i1) {}
+    public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {}
 }
