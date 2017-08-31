@@ -21,4 +21,6 @@
     <string name="delete_pin_warning">WARNING: This will remove all set pins. This action cannot be undone.</string>
     <string name="delete_pins">Delete pins</string>
     <string name="delete_pins_title">Delete all pins</string>
+    <string name="get_started_message_main">There\'s nothing here!</string>
+    <string name="get_started_message_sub">Tap the gear to enter your Twitch name. Don\'t forget to follow some channels on Twitch!</string>
 </resources>
