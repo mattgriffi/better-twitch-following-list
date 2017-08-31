@@ -29,6 +29,8 @@ import mseffner.twitchnotifier.data.ChannelAdapter;
 import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.networking.NetworkUtils;
 
+import static android.R.attr.key;
+
 
 public class MainActivity extends AppCompatActivity
         implements SharedPreferences.OnSharedPreferenceChangeListener{
@@ -43,6 +45,7 @@ public class MainActivity extends AppCompatActivity
     private RelativeLayout startMessage;
 
     private boolean usernameChanged = false;
+    private boolean startup = true;
 
 
     @Override
@@ -130,11 +133,17 @@ public class MainActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
 
-        if (usernameChanged) {
+        if (startup) {
+            // When the app is restarted, update the following list
+            new ChangeUserAsyncTask().execute();
+            startup = false;
+        } else if (usernameChanged) {
+            // If the user changes their username, empty the database and fetch the new list
             new ChannelDb(this).deleteAllChannels();
             new ChangeUserAsyncTask().execute();
             usernameChanged = false;
         } else {
+            // Otherwise, just refresh the stream data
             new UpdateStreamsAsyncTask().execute();
         }
     }
@@ -254,6 +263,7 @@ public class MainActivity extends AppCompatActivity
         private static final int SUCCESS = 0;
         private static final int NETWORK_ERROR = 1;
         private static final int INVALID_USERNAME_ERROR = 2;
+        private static final int ABORT = 3;
 
         @Override
         protected void onPreExecute() {
@@ -264,6 +274,9 @@ public class MainActivity extends AppCompatActivity
         protected Integer doInBackground(Void... strings) {
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             String newUsername = sharedPreferences.getString(getString(R.string.pref_username_key), "");
+            if (newUsername.equals("")) {
+                return ABORT;
+            }
 
             // Try a few times, silently retrying if it fails
             for (int errorCount = 0; errorCount < MAX_ALLOWED_ERROR_COUNT; errorCount++) {
@@ -285,6 +298,9 @@ public class MainActivity extends AppCompatActivity
                 Toast.makeText(getApplicationContext(), "Invalid username", Toast.LENGTH_LONG).show();
             } else if (result == SUCCESS) {
                 new UpdateStreamsAsyncTask().execute();
+                return;
+            } else if (result == ABORT) {
+                new UpdateAdapterAsyncTask().execute();
                 return;
             }
             swipeRefreshLayout.setRefreshing(false);
