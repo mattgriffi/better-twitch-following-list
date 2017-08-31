@@ -15,7 +15,6 @@ public final class ChannelContract {
         public static final String COLUMN_LOGO_URL = "logo_url";
         public static final String COLUMN_CHANNEL_URL = "channel_url";
         public static final String COLUMN_PINNED = "pinned";
-        public static final String COLUMN_DELETE = "delete";
 
         // Stream data
         public static final String COLUMN_GAME = "game";
@@ -31,8 +30,5 @@ public final class ChannelContract {
 
         public static final int IS_NOT_PINNED = 0;
         public static final int IS_PINNED = 1;
-
-        public static final int NOT_MARKED_FOR_DELETION = 0;
-        public static final int MARKED_FOR_DELETION = 1;
     }
 }

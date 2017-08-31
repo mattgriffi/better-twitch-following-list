@@ -46,8 +46,7 @@ public class ChannelDbHelper extends SQLiteOpenHelper {
                 ChannelEntry.COLUMN_GAME + " TEXT NOT NULL DEFAULT \"\", " +
                 ChannelEntry.COLUMN_VIEWERS + " INTEGER NOT NULL DEFAULT 0, " +
                 // CREATED_AT will be a Unix timestamp showing when the stream went live.
-                ChannelEntry.COLUMN_CREATED_AT + " INTEGER NOT NULL DEFAULT 0, " +
-                ChannelEntry.COLUMN_DELETE + " INTEGER NOT NULL DEFAULT " + ChannelEntry.NOT_MARKED_FOR_DELETION +
+                ChannelEntry.COLUMN_CREATED_AT + " INTEGER NOT NULL DEFAULT 0" +
             ");";
 
         database.execSQL(CREATE_CHANNELS_TABLE);
