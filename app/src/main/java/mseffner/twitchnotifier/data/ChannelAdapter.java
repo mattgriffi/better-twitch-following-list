@@ -1,7 +1,6 @@
 package mseffner.twitchnotifier.data;
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,6 +14,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+import java.util.Locale;
 
 import mseffner.twitchnotifier.R;
 
@@ -64,6 +64,8 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
 
     class ChannelViewHolder extends RecyclerView.ViewHolder {
 
+        private final String LOG_TAG = this.getClass().getSimpleName();
+
         private View itemView;
 
         private ImageView channelLogo;
@@ -96,6 +98,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
 
             final Channel channel = channelList.get(index);
 
+            // Set the channel name and pin icon
             channelName.setText(channel.getDisplayName());
             if (channel.getPinned() == ChannelContract.ChannelEntry.IS_PINNED) {
                 pinIcon.setVisibility(View.VISIBLE);
@@ -103,18 +106,11 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                 pinIcon.setVisibility(View.INVISIBLE);
             }
 
+            // Set up Picasso to load the channel logo
             Picasso.with(itemView.getContext())
                     .load(channel.getLogoUrl())
                     .placeholder(R.drawable.default_logo_300x300)
                     .into(channelLogo);
-
-            if (channel.getStream() == null || // Or vodcast and vodcast is set to offline
-                    (channel.getStream().getStreamType() == ChannelContract.ChannelEntry.STREAM_TYPE_VODCAST &&
-                    vodcastSetting.equals(itemView.getResources().getString(R.string.pref_vodcast_offline)))) {
-                bindOfflineStream();
-            } else {
-                bindOnlineStream(channel);
-            }
 
             // LongClickListener to toggle pin
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
@@ -126,6 +122,15 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                     return true;
                 }
             });
+
+            // Determine whether to treat stream as online or offline, and finish binding there
+            if (channel.getStream() == null ||
+                    (channel.getStream().getStreamType() == ChannelContract.ChannelEntry.STREAM_TYPE_VODCAST &&
+                    vodcastSetting.equals(itemView.getResources().getString(R.string.pref_vodcast_offline)))) {
+                bindOfflineStream();
+            } else {
+                bindOnlineStream(channel);
+            }
         }
 
         private void bindOfflineStream() {
@@ -143,17 +148,23 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
         private void bindOnlineStream(final Channel channel) {
             Stream stream = channel.getStream();
 
-            // Click listener to open the stream
+            // OnClickListener to open the stream
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Uri channelPage = Uri.parse(channel.getStreamUrl());
                     Intent intent = new Intent(Intent.ACTION_VIEW, channelPage);
-                    view.getContext().startActivity(intent);
+                    // Start intent to open stream
+                    if (intent.resolveActivity(view.getContext().getPackageManager()) != null) {
+                        view.getContext().startActivity(intent);
+                    } else {
+                        Log.e(LOG_TAG, "No app can handle intent");
+                    }
                 }
             });
 
             offlineText.setVisibility(View.INVISIBLE);
+
             currentGame.setVisibility(View.VISIBLE);
             streamTitle.setVisibility(View.VISIBLE);
             streamInfo.setVisibility(View.VISIBLE);
@@ -161,9 +172,9 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             currentGame.setText(stream.getCurrentGame());
             streamTitle.setText(stream.getStatus());
             viewerCount.setText(Integer.toString(stream.getCurrentViewers()));
-
             uptime.setText(getUptime(stream.getCreatedAt()));
 
+            // Display vodcast tag depending on setting
             if (stream.getStreamType() == ChannelContract.ChannelEntry.STREAM_TYPE_VODCAST &&
                     vodcastSetting.equals(itemView.getResources().getString(R.string.pref_vodcast_online_tag))) {
                 vodcastTag.setVisibility(View.VISIBLE);
@@ -173,6 +184,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
         }
 
         private void updatePinIcon(Channel channel, View pinIconView) {
+            // This is used to visually toggle the pin icon without refreshing the whole list
             if (channel.getPinned() == ChannelContract.ChannelEntry.IS_PINNED) {
                 pinIconView.setVisibility(View.VISIBLE);
             } else {
@@ -181,6 +193,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
         }
 
         private String getUptime(long createdAt) {
+            // Uptime is stored as a unix timestamp; this will convert it to a more readable format
             long currentTime = System.currentTimeMillis() / 1000;
             int uptimeInSeconds = (int) (currentTime - createdAt);
 
@@ -188,7 +201,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             uptimeInSeconds %= 3600;
             int minutes = uptimeInSeconds / 60;
 
-            return String.format("%d:%02d", hours, minutes);
+            return String.format(Locale.US,"%d:%02d", hours, minutes);
 
         }
     }

@@ -7,7 +7,7 @@
     <item
         android:id="@+id/action_settings"
         android:title="@string/settings"
-        android:icon="@drawable/ic_settings_white_24dp"
+        android:icon="@drawable/ic_gear_24dp"
         app:showAsAction="always"/>
 
 </menu>

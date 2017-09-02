@@ -36,7 +36,6 @@ public class ChannelDbHelper extends SQLiteOpenHelper {
                 // The ID will be the ID returned by the Twitch API, which allows me to use it
                 // to specify channels in future API requests.
                 ChannelEntry._ID + " INTEGER PRIMARY KEY, " +
-                ChannelEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                 ChannelEntry.COLUMN_DISPLAY_NAME + " TEXT NOT NULL DEFAULT \"unknown_name\", " +
                 ChannelEntry.COLUMN_CHANNEL_URL + " TEXT NOT NULL, " +
                 ChannelEntry.COLUMN_LOGO_URL + " TEXT NOT NULL DEFAULT " + DEFAULT_LOGO_URL +  ", " +

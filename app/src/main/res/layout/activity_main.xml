@@ -7,11 +7,13 @@
     android:layout_height="match_parent"
     tools:context="mseffner.twitchnotifier.MainActivity">
 
+    <!-- The start message telling the user how to get started -->
     <RelativeLayout
         android:id="@+id/get_started_message"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone">
+        android:visibility="invisible"
+        tools:visibility="visible">
 
         <TextView
             android:id="@+id/get_started_message_sub"
@@ -33,11 +35,12 @@
             android:layout_centerHorizontal="true"
             android:text="@string/get_started_message_main"
             android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textSize="24sp"
             android:textColor="@color/colorPrimaryDark"/>
 
     </RelativeLayout>
 
+    <!-- The following list -->
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh"
         android:layout_width="match_parent"
@@ -50,6 +53,7 @@
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
+    <!-- The scroll-to-top button -->
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/scroll_top_fab"
         android:layout_width="wrap_content"
@@ -57,7 +61,7 @@
         android:layout_gravity="bottom|center"
         android:layout_margin="8dp"
         android:alpha="0.5"
-        android:src="@drawable/ic_keyboard_arrow_up_white_24dp"
+        android:src="@drawable/ic_up_arrow_24dp"
         android:visibility="invisible"
         app:fabSize="mini"
         tools:visibility="visible"/>

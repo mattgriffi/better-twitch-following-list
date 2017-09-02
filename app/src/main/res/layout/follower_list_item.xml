@@ -5,9 +5,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="?android:attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
-    android:background="?android:attr/selectableItemBackground"
     android:orientation="horizontal"
     android:padding="8dp">
 
@@ -18,7 +18,7 @@
         android:layout_height="64dp"
         android:scaleType="centerCrop"
         tools:ignore="ContentDescription"
-        tools:src="@drawable/cirno_tv_profile_image"/>
+        tools:src="@drawable/default_logo_300x300"/>
 
     <!-- Channel information -->
     <RelativeLayout
@@ -96,7 +96,7 @@
                 android:layout_height="16dp"
                 android:layout_gravity="center_vertical"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_person_black_24dp"
+                android:src="@drawable/ic_person_24dp"
                 tools:ignore="ContentDescription" />
 
             <TextView
@@ -113,7 +113,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginRight="2dp"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_access_time_black_24dp"
+                android:src="@drawable/ic_clock_24dp"
                 tools:ignore="ContentDescription,RtlHardcoded" />
 
             <TextView
@@ -129,12 +129,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/vodcast_tag_background"
-                android:paddingRight="4dp"
                 android:paddingLeft="4dp"
+                android:paddingRight="4dp"
                 android:text="@string/vodcast_tag"
                 android:textAllCaps="true"
-                android:textSize="12sp"
                 android:textColor="@color/colorAccent"
+                android:textSize="12sp"
                 android:visibility="invisible"/>
 
         </LinearLayout>
@@ -150,7 +150,7 @@
         android:contentDescription="@string/pin_icon"
         android:paddingLeft="8dp"
         android:paddingRight="2dp"
-        android:src="@drawable/ic_pin_black_24dp"
+        android:src="@drawable/ic_pin_24dp"
         tools:ignore="RtlHardcoded" />
 
 </LinearLayout>

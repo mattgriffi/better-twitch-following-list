@@ -6,17 +6,9 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -90,33 +82,38 @@ public class ChannelDb {
 
     public List<Channel> getAllChannels() {
 
+        // Get the vodcast display setting
         String vodcastSetting = preferences.getString(resources.getString(R.string.pref_vodcast_key), "");
         String vodcastOffline = resources.getString(R.string.pref_vodcast_offline);
         boolean vodcastOnline = !vodcastSetting.equals(vodcastOffline);
 
-        List<Channel> channelList = new ArrayList<>();
-
         String sortOrder =
-            "CASE " + ChannelEntry.COLUMN_STREAM_TYPE +  // Show online streams first
+            // Sort by online/offline first
+            "CASE " + ChannelEntry.COLUMN_STREAM_TYPE +
+                // Online channels first
                 " WHEN " + ChannelEntry.STREAM_TYPE_LIVE + " THEN 0" +
-                // Show vodcasts as online depending on the setting
+                // Show vodcasts as online or offline depending on the setting
                 (vodcastOnline ? " WHEN " + ChannelEntry.STREAM_TYPE_VODCAST + " THEN 0" : "") +
                 " ELSE 1" +
             " END, " +
-            "CASE " + ChannelEntry.COLUMN_PINNED + // Show pinned streams first
+            // Show pinned streams before unpinned
+            "CASE " + ChannelEntry.COLUMN_PINNED +
                 " WHEN " + ChannelEntry.IS_PINNED + " THEN 0" +
                 " WHEN " + ChannelEntry.IS_NOT_PINNED + " THEN 1 " +
             " END, " +
+            // Sort online channels by viewer count (offline channels have 0 viewers by default)
             ChannelEntry.COLUMN_VIEWERS + " DESC, " +
+            // Ties are broken alphabetically
             ChannelEntry.COLUMN_DISPLAY_NAME + " COLLATE NOCASE";  // Break ties by display_name
 
         Cursor cursor = query(null, null, null, sortOrder);
+
+        List<Channel> channelList = new ArrayList<>();
 
         while (cursor.moveToNext()) {
 
             // Get all the data from the cursor
             int id = cursor.getInt(cursor.getColumnIndex(ChannelEntry._ID));
-            String name = cursor.getString(cursor.getColumnIndex(ChannelEntry.COLUMN_NAME));
             String displayName = cursor.getString(cursor.getColumnIndex(ChannelEntry.COLUMN_DISPLAY_NAME));
             String channelUrl = cursor.getString(cursor.getColumnIndex(ChannelEntry.COLUMN_CHANNEL_URL));
             String logoUrl = cursor.getString(cursor.getColumnIndex(ChannelEntry.COLUMN_LOGO_URL));
@@ -128,7 +125,7 @@ public class ChannelDb {
             long createdAt = cursor.getInt(cursor.getColumnIndex(ChannelEntry.COLUMN_CREATED_AT));
 
             // Build the Channel object from the data
-            Channel channel = new Channel(id, displayName, name, logoUrl, channelUrl, pinned);
+            Channel channel = new Channel(id, displayName, logoUrl, channelUrl, pinned);
             if (streamType != ChannelEntry.STREAM_TYPE_OFFLINE)
                 channel.setStream(new Stream(id, game, viewers, status, createdAt, streamType));
 
@@ -140,37 +137,10 @@ public class ChannelDb {
         return channelList;
     }
 
-    public boolean insertChannel(Channel channel) {
-
-        if (channel == null)
-            return false;
-
-        ContentValues values = new ContentValues();
-
-        values.put(ChannelEntry._ID, channel.getId());
-        values.put(ChannelEntry.COLUMN_NAME, channel.getName());
-        values.put(ChannelEntry.COLUMN_DISPLAY_NAME, channel.getDisplayName());
-        values.put(ChannelEntry.COLUMN_LOGO_URL, channel.getLogoUrl());
-        values.put(ChannelEntry.COLUMN_CHANNEL_URL, channel.getStreamUrl());
-        values.put(ChannelEntry.COLUMN_PINNED, channel.getPinned());
-
-        Stream stream = channel.getStream();
-        if (stream != null) {
-            values.put(ChannelEntry.COLUMN_GAME, stream.getCurrentGame());
-            values.put(ChannelEntry.COLUMN_VIEWERS, stream.getCurrentViewers());
-            values.put(ChannelEntry.COLUMN_STATUS, stream.getStatus());
-            values.put(ChannelEntry.COLUMN_STREAM_TYPE, stream.getStreamType());
-            values.put(ChannelEntry.COLUMN_CREATED_AT, stream.getCreatedAt());
-        }
-
-        long numRowsInserted = insert(values);
-        return numRowsInserted == 1;
-    }
-
-    public long updateStreamData(Stream stream) {
+    public void updateStreamData(Stream stream) {
 
         if (stream == null)
-            return 0;
+            return;
 
         ContentValues values = new ContentValues();
         values.put(ChannelEntry.COLUMN_GAME, stream.getCurrentGame());
@@ -182,7 +152,7 @@ public class ChannelDb {
         String selection = ChannelEntry._ID + "=?";
         String[] selectionArgs = {Long.toString(stream.getChannelId())};
 
-        return update(values, selection, selectionArgs);
+        update(values, selection, selectionArgs);
     }
 
     public void toggleChannelPin(Channel channel) {
@@ -194,12 +164,14 @@ public class ChannelDb {
         String selection = ChannelEntry._ID + "=?";
         String[] selectionArgs = {Long.toString(channel.getId())};
 
+        // Determine the current pin status of the channel
         String[] projection = {ChannelEntry.COLUMN_PINNED};
         Cursor channelCursor = query(projection, selection, selectionArgs, null);
         channelCursor.moveToFirst();
         int currentPinnedStatus = channelCursor.getInt(channelCursor.getColumnIndex(ChannelEntry.COLUMN_PINNED));
         channelCursor.close();
 
+        // Toggle the pin status
         if (currentPinnedStatus == ChannelEntry.IS_PINNED) {
             values.put(ChannelEntry.COLUMN_PINNED, ChannelEntry.IS_NOT_PINNED);
         } else {
@@ -220,13 +192,14 @@ public class ChannelDb {
         update(values, selection, selectionArgs);
     }
 
-    public long deleteAllChannels() {
-
-        return delete(null, null);
+    public void deleteAllChannels() {
+        // This will completely empty the table
+        delete(null, null);
     }
 
     public void resetAllStreamData() {
 
+        // Sets all stream data to the default values (they appear as offline)
         ContentValues values = new ContentValues();
         values.put(ChannelEntry.COLUMN_STREAM_TYPE, ChannelEntry.STREAM_TYPE_OFFLINE);
         values.put(ChannelEntry.COLUMN_GAME, "");
@@ -235,6 +208,32 @@ public class ChannelDb {
         values.put(ChannelEntry.COLUMN_CREATED_AT, 0);
 
         update(values, null, null);
+    }
+
+    private void insertChannel(Channel channel) {
+
+        if (channel == null)
+            return;
+
+        ContentValues values = new ContentValues();
+
+        values.put(ChannelEntry._ID, channel.getId());
+        values.put(ChannelEntry.COLUMN_DISPLAY_NAME, channel.getDisplayName());
+        values.put(ChannelEntry.COLUMN_LOGO_URL, channel.getLogoUrl());
+        values.put(ChannelEntry.COLUMN_CHANNEL_URL, channel.getStreamUrl());
+        values.put(ChannelEntry.COLUMN_PINNED, channel.getPinned());
+
+        // channel will have a Stream object if it is online
+        Stream stream = channel.getStream();
+        if (stream != null) {
+            values.put(ChannelEntry.COLUMN_GAME, stream.getCurrentGame());
+            values.put(ChannelEntry.COLUMN_VIEWERS, stream.getCurrentViewers());
+            values.put(ChannelEntry.COLUMN_STATUS, stream.getStatus());
+            values.put(ChannelEntry.COLUMN_STREAM_TYPE, stream.getStreamType());
+            values.put(ChannelEntry.COLUMN_CREATED_AT, stream.getCreatedAt());
+        }
+
+        insert(values);
     }
 
     private void deleteChannel(int id) {
@@ -251,21 +250,21 @@ public class ChannelDb {
         return database.query(ChannelEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
     }
 
-    private long insert(ContentValues contentValues) {
+    private void insert(ContentValues contentValues) {
 
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        return database.insert(ChannelEntry.TABLE_NAME, null, contentValues);
+        database.insert(ChannelEntry.TABLE_NAME, null, contentValues);
     }
 
-    private long update(ContentValues contentValues, String selection, String[] selectionArgs) {
+    private void update(ContentValues contentValues, String selection, String[] selectionArgs) {
 
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        return database.update(ChannelEntry.TABLE_NAME, contentValues, selection, selectionArgs);
+        database.update(ChannelEntry.TABLE_NAME, contentValues, selection, selectionArgs);
     }
 
-    private long delete(String selection, String[] selectionArgs) {
+    private void delete(String selection, String[] selectionArgs) {
 
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        return database.delete(ChannelEntry.TABLE_NAME, selection, selectionArgs);
+        database.delete(ChannelEntry.TABLE_NAME, selection, selectionArgs);
     }
 }

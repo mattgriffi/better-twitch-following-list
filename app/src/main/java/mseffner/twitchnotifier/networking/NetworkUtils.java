@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-
 import javax.net.ssl.HttpsURLConnection;
 
 import mseffner.twitchnotifier.data.Channel;
@@ -31,6 +30,7 @@ public final class NetworkUtils {
     private static final String LOG_TAG = NetworkUtils.class.getSimpleName();
 
     // Note that this is a test client_id and is not used for release versions
+    // TODO get new client_id for release version
     private static final String CLIENT_ID = "6mmva5zc6ubb4j8zswa0fg6dv3y4xw";
 
     private static final int QUERY_TYPE_CHANNEL = 0;
@@ -68,6 +68,8 @@ public final class NetworkUtils {
             throws NetworkException, InvalidUsernameException {
 
         String userId = Long.toString(getTwitchUserId(userName));
+        // The API will only return 100 channels in a single response, so I have to use an
+        // offset in order to get all of the channels in chunks of 100
         int chunkSize = Integer.parseInt(LIMIT_MAX);
         int offsetMultiplier = 0;
         // This will be set within the loop, since I don't know how many channels there are until
@@ -77,8 +79,7 @@ public final class NetworkUtils {
         List<Channel> channelList = new ArrayList<>(chunkSize);
 
         do {
-            // The API will only return 100 channels in a single response, so I have to use an
-            // offset in order to get all of the channels in chunks of 100
+
             URL followsQueryUrl = buildUserFollowsUrl(userId, offsetMultiplier * chunkSize);
             String followsJsonResponse = makeTwitchQuery(followsQueryUrl);
 
@@ -116,6 +117,7 @@ public final class NetworkUtils {
         List<Stream> streamList = getStreamsFromCommaSeparatedIds(commaSeparatedIdLists);
 
         if (streamList.size() > 0) {
+            // Reset the stream data before updating with new data
             database.resetAllStreamData();
 
             for (Stream stream : streamList) {
@@ -143,11 +145,12 @@ public final class NetworkUtils {
     private static void fillStreamListFromJson(List<Stream> streamList, String streamQueryResponse) {
 
         if (streamQueryResponse == null || streamQueryResponse.length() == 0) {
-            Log.e(LOG_TAG, "fillStreamListFromJson called with empty String");
             return;
         }
 
         JSONArray streamArray = null;
+
+        // Get the number of streams from the response
         int numStreams = 0;
         try {
             JSONObject response = new JSONObject(streamQueryResponse);
@@ -157,6 +160,7 @@ public final class NetworkUtils {
             e.printStackTrace();
         }
 
+        // Get all of the streams
         for (int i = 0; i < numStreams; i++) {
             try {
                 streamList.add(getStreamFromJson(streamArray.getJSONObject(i).toString()));
@@ -179,12 +183,15 @@ public final class NetworkUtils {
 
         int idArrayIndex = 0;
         int stringArrayIndex = 0;
-        int totalIds = idArray.length;
-        while (idArrayIndex < totalIds) {
-            if (idArrayIndex > 0 && idArrayIndex % chunkSize == 0) {  // We have the required amount in the StringBuilder
+        // Iterate over the array of ids
+        while (idArrayIndex < idArray.length) {
+
+            // We have the required number of ids in the StringBuilder
+            if (idArrayIndex > 0 && idArrayIndex % chunkSize == 0) {
                 commaSeparatedIdList[stringArrayIndex++] = stringBuilder.toString();
                 stringBuilder.setLength(0);
             }
+
             stringBuilder.append(Integer.toString(idArray[idArrayIndex++]));
             stringBuilder.append(",");
         }
@@ -305,27 +312,6 @@ public final class NetworkUtils {
         return getUrlFromUri(uri);
     }
 
-    @Nullable
-    private static URL getUrlFromUri(Uri uri) {
-        URL url = null;
-        try {
-            url = new URL(uri.toString());
-        } catch (MalformedURLException e) {
-            Log.e(LOG_TAG, e.toString());
-        }
-
-        return url;
-    }
-
-    private static Uri buildStreamQueryUri(String channelName) {
-        return Uri.parse(TWITCH_API_BASE_URL).buildUpon()
-                .appendPath(PATH_STREAMS)
-                .appendPath(channelName)
-                .appendQueryParameter(PARAM_API_VERSION, API_VERSION)
-                .appendQueryParameter(PARAM_CLIENT_ID, CLIENT_ID)
-                .build();
-    }
-
     private static Uri buildChannelQueryUri(String channelName) {
         return Uri.parse(TWITCH_API_BASE_URL).buildUpon()
                 .appendPath(PATH_CHANNELS)
@@ -335,15 +321,12 @@ public final class NetworkUtils {
                 .build();
     }
 
-    private static Uri buildUserFollowsQueryUri(String userName, int offset) {
+    private static Uri buildStreamQueryUri(String channelName) {
         return Uri.parse(TWITCH_API_BASE_URL).buildUpon()
-                .appendPath(PATH_USERS)
-                .appendPath(userName)
-                .appendEncodedPath(PATH_FOLLOWS_CHANNELS)
+                .appendPath(PATH_STREAMS)
+                .appendPath(channelName)
                 .appendQueryParameter(PARAM_API_VERSION, API_VERSION)
                 .appendQueryParameter(PARAM_CLIENT_ID, CLIENT_ID)
-                .appendQueryParameter(PARAM_LIMIT, LIMIT_MAX)
-                .appendQueryParameter(PARAM_OFFSET, Integer.toString(offset))
                 .build();
     }
 
@@ -365,6 +348,30 @@ public final class NetworkUtils {
                 .appendQueryParameter(PARAM_CLIENT_ID, CLIENT_ID)
                 .appendQueryParameter(PARAM_LOGIN, userName)
                 .build();
+    }
+
+    private static Uri buildUserFollowsQueryUri(String userName, int offset) {
+        return Uri.parse(TWITCH_API_BASE_URL).buildUpon()
+                .appendPath(PATH_USERS)
+                .appendPath(userName)
+                .appendEncodedPath(PATH_FOLLOWS_CHANNELS)
+                .appendQueryParameter(PARAM_API_VERSION, API_VERSION)
+                .appendQueryParameter(PARAM_CLIENT_ID, CLIENT_ID)
+                .appendQueryParameter(PARAM_LIMIT, LIMIT_MAX)
+                .appendQueryParameter(PARAM_OFFSET, Integer.toString(offset))
+                .build();
+    }
+
+    @Nullable
+    private static URL getUrlFromUri(Uri uri) {
+        URL url = null;
+        try {
+            url = new URL(uri.toString());
+        } catch (MalformedURLException e) {
+            Log.e(LOG_TAG, e.toString());
+        }
+
+        return url;
     }
 
     private static String readStringFromInputStream(InputStream inputStream) {
@@ -390,11 +397,10 @@ public final class NetworkUtils {
 
             int id = channelData.getInt("_id");
             String displayName = channelData.getString("display_name");
-            String name = channelData.getString("name");
             String logoUrl = channelData.getString("logo");
             String streamUrl = channelData.getString("url");
 
-            return new Channel(id, displayName, name, logoUrl, streamUrl,
+            return new Channel(id, displayName, logoUrl, streamUrl,
                     ChannelContract.ChannelEntry.IS_NOT_PINNED);
 
         }catch (JSONException e) {

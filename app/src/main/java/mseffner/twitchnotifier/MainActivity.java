@@ -4,13 +4,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -29,11 +29,9 @@ import mseffner.twitchnotifier.data.ChannelAdapter;
 import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.networking.NetworkUtils;
 
-import static android.R.attr.key;
-
 
 public class MainActivity extends AppCompatActivity
-        implements SharedPreferences.OnSharedPreferenceChangeListener{
+        implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String LOG_TAG_ERROR = "Error";
     private static final int MAX_ALLOWED_ERROR_COUNT = 3;
@@ -90,10 +88,12 @@ public class MainActivity extends AppCompatActivity
             public void onAnimationRepeat(Animation animation) {}
         });
 
+        // Set up the layout manager
         final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         followingList.setLayoutManager(layoutManager);
         followingList.setHasFixedSize(true);
 
+        // Set up the swipe refresh
         swipeRefreshLayout.setColorSchemeColors(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null));
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -119,6 +119,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        // Make the scroll button actually do something
         scrollTopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -126,6 +127,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        // Register as shared preference listener
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
     }
 
@@ -156,7 +158,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        // This will cause onStart to reload the following list
+        // This will cause onStart to delete all data and run ChangeUserAsyncTask
         if (key.equals(getString(R.string.pref_username_key))) {
             usernameChanged = true;
         }
@@ -191,12 +193,12 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         protected void onPostExecute(List<Channel> channelList) {
-            swipeRefreshLayout.setRefreshing(false);
 
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             Resources resources = followingList.getResources();
             String vodcastSetting = preferences.getString(resources.getString(R.string.pref_vodcast_key), "");
 
+            // Reset adapter if it exists, else create a new one
             if (channelAdapter == null) {
                 channelAdapter = new ChannelAdapter(channelList, vodcastSetting);
                 followingList.setAdapter(channelAdapter);
@@ -206,12 +208,14 @@ public class MainActivity extends AppCompatActivity
                 channelAdapter.updateVodcastSetting(vodcastSetting);
             }
 
+            // Show startMessage if adapter is empty, else hide it
             if (channelAdapter.getItemCount() == 0) {
                 startMessage.setVisibility(View.VISIBLE);
             } else {
                 startMessage.setVisibility(View.GONE);
             }
 
+            // Disable the refreshing animation
             swipeRefreshLayout.setRefreshing(false);
         }
     }
