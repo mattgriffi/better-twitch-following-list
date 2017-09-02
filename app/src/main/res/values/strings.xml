@@ -22,11 +22,11 @@
     <!-- Settings option to change how vodcasts are displayed -->
     <string name="vodcast_display">Vodcast display</string>
     <!-- Settings option to delete all of the user's set pins, also used for the positive confirmation button -->
-    <string name="delete_pins">Delete pins</string>
+    <string name="delete_pins">Remove pins</string>
     <!-- Title of the delete pins confirmation dialog -->
-    <string name="delete_pins_title">Delete all pins</string>
+    <string name="delete_pins_title">Remove all pins</string>
     <!-- Warning message when deleting pins -->
-    <string name="delete_pin_warning">WARNING: This will remove all set pins. This action cannot be undone.</string>
+    <string name="delete_pin_warning">Are you sure you want to remove all pins?</string>
     <!-- Prompt to change user's name -->
     <string name="enter_username_prompt">Please enter your Twitch username.</string>
     <!-- Positive button for changing the user's name -->
