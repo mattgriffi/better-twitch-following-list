@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Twitch Notifier</string>
+    <string name="app_name">Better Twitch Following List</string>
     <string name="pin_icon">Channel pin icon</string>
     <string name="offline">Offline</string>
     <string name="vodcast_tag">vodcast</string>
