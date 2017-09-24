@@ -2,6 +2,10 @@
 
     <string name="app_name">Better Twitch Following List</string>
 
+    <!-- Tabs -->
+    <string name="following_tab">Following</string>
+    <string name="top_tab">Top</string>
+
     <!-- Following list -->
     <!-- contentDescription for the pin icon -->
     <string name="pin_icon">Channel pin icon</string>
