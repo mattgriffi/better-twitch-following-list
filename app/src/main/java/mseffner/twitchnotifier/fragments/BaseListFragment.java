@@ -1,5 +1,6 @@
 package mseffner.twitchnotifier.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -24,6 +25,7 @@ public abstract class BaseListFragment extends Fragment {
     protected SwipeRefreshLayout swipeRefreshLayout;
     protected FloatingActionButton scrollTopButton;
     protected RelativeLayout startMessage;
+    protected Context context;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -116,6 +118,20 @@ public abstract class BaseListFragment extends Fragment {
     public void onStop() {
         super.onStop();
         cancelAsyncTasks();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.context = context;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        // This is needed to support API versions below 23
+        // because the support library is a mess
+        super.onAttach(activity);
+        this.context = activity.getApplicationContext();
     }
 
     protected abstract void refreshList();

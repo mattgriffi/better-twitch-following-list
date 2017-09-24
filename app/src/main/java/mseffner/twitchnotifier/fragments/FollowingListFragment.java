@@ -28,7 +28,6 @@ public class FollowingListFragment extends BaseListFragment
     private static final String LOG_TAG_ERROR = "Error";
     private static final int MAX_ALLOWED_ERROR_COUNT = 3;
 
-    private Context context;
     private ChannelAdapter channelAdapter;
 
     private UpdateAdapterAsyncTask updateAdapterAsyncTask;
@@ -70,12 +69,6 @@ public class FollowingListFragment extends BaseListFragment
             updateStreamsAsyncTask.cancel(true);
         if (updateFollowingListAsyncTask != null)
             updateFollowingListAsyncTask.cancel(true);
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        this.context = context.getApplicationContext();
     }
 
     private void runUpdateAdapterAsyncTask() {

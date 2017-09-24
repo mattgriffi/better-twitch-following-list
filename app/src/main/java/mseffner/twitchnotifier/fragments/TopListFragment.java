@@ -22,7 +22,6 @@ public class TopListFragment extends BaseListFragment {
     private static final int MAX_ALLOWED_ERROR_COUNT = 3;
 
     private ChannelAdapter channelAdapter;
-    private Context context;
 
     private UpdateTopStreamsAsyncTask updateTopStreamsAsyncTask;
 
@@ -35,12 +34,6 @@ public class TopListFragment extends BaseListFragment {
     public void onStart() {
         super.onStart();
         runUpdateTopStreamsAsyncTask();
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        this.context = context.getApplicationContext();
     }
 
     @Override
