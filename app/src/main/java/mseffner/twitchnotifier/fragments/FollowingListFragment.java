@@ -1,6 +1,5 @@
 package mseffner.twitchnotifier.fragments;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.AsyncTask;
