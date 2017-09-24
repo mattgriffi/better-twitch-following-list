@@ -16,7 +16,7 @@
     <!-- This line is displayed in large, purple text -->
     <string name="get_started_message_main">There\'s nothing here!</string>
     <!-- This message is displayed in smaller text below the main one -->
-    <string name="get_started_message_sub">Tap the gear to enter your Twitch name. Don\'t forget to follow some channels on Twitch!</string>
+    <string name="get_started_message_sub">Enter your Twitch name in the settings. Don\'t forget to follow some channels on Twitch!</string>
 
     <!-- Settings screen -->
     <!-- Action bar button -->
