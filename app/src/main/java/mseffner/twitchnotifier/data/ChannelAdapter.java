@@ -104,7 +104,11 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             channelName.setText(channel.getDisplayName());
             if (channel.getPinned() == ChannelContract.ChannelEntry.IS_PINNED) {
                 pinIcon.setVisibility(View.VISIBLE);
+            } else if (!allowLongClick){
+                // If pins are disabled, remove the pin icon space
+                pinIcon.setVisibility(View.GONE);
             } else {
+                // If pins are enabled, leave the pin icon space
                 pinIcon.setVisibility(View.INVISIBLE);
             }
 
