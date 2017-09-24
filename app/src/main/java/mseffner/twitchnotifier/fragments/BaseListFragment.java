@@ -129,6 +129,7 @@ public abstract class BaseListFragment extends Fragment {
         this.context = context;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onAttach(Activity activity) {
         // This is needed to support API versions below 23
