@@ -1,4 +1,4 @@
-package mseffner.twitchnotifier;
+package mseffner.twitchnotifier.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -15,6 +15,8 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.RelativeLayout;
+
+import mseffner.twitchnotifier.R;
 
 public abstract class BaseListFragment extends Fragment {
 

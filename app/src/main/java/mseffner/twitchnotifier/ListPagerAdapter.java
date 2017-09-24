@@ -4,7 +4,9 @@ import android.content.Context;
 import android.app.FragmentManager;
 import android.support.v13.app.FragmentPagerAdapter;
 
-import mseffner.twitchnotifier.settings.SettingsFragment;
+import mseffner.twitchnotifier.fragments.FollowingListFragment;
+import mseffner.twitchnotifier.fragments.TopListFragment;
+import mseffner.twitchnotifier.fragments.SettingsFragment;
 
 public class ListPagerAdapter extends FragmentPagerAdapter {
 

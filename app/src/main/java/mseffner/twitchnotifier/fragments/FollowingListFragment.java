@@ -1,4 +1,4 @@
-package mseffner.twitchnotifier;
+package mseffner.twitchnotifier.fragments;
 
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -15,9 +15,11 @@ import android.widget.Toast;
 
 import java.util.List;
 
+import mseffner.twitchnotifier.R;
 import mseffner.twitchnotifier.data.Channel;
 import mseffner.twitchnotifier.data.ChannelAdapter;
 import mseffner.twitchnotifier.data.ChannelDb;
+import mseffner.twitchnotifier.fragments.BaseListFragment;
 import mseffner.twitchnotifier.networking.NetworkUtils;
 
 public class FollowingListFragment extends BaseListFragment

@@ -1,4 +1,4 @@
-package mseffner.twitchnotifier.settings;
+package mseffner.twitchnotifier.fragments;
 
 
 import android.content.SharedPreferences;
