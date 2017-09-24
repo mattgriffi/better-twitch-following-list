@@ -54,6 +54,7 @@ public final class NetworkUtils {
     private static final String PARAM_LOGIN = "login";
 
     private static final String LIMIT_MAX = "100";
+    private static final String LIMIT_MED = "25";
     private static final String STREAM_TYPE_LIVE = "live";
     private static final String API_VERSION = "5";
 
@@ -124,6 +125,33 @@ public final class NetworkUtils {
                 database.updateStreamData(stream);
             }
         }
+    }
+
+    public static List<Channel> getTopStreams() throws NetworkException {
+        List<Channel> list = new ArrayList<>();
+
+        URL topStreamsQueryUrl = buildTopStreamsUrl();
+        String topStreamsJsonResponse = makeTwitchQuery(topStreamsQueryUrl);
+
+        try {
+            JSONObject responseObject = new JSONObject(topStreamsJsonResponse);
+            JSONArray streamsArray = responseObject.getJSONArray("streams");
+
+            for (int i = 0; i < streamsArray.length(); i++) {
+                JSONObject streamObject = streamsArray.getJSONObject(i);
+                Channel channel = getChannelFromJson(streamObject.getJSONObject("channel").toString());
+                Stream stream = getStreamFromJson(streamObject.toString());
+
+                assert channel != null;
+                channel.setStream(stream);
+                list.add(channel);
+            }
+
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, e.toString());
+        }
+
+        return list;
     }
 
     @NonNull
@@ -312,6 +340,11 @@ public final class NetworkUtils {
         return getUrlFromUri(uri);
     }
 
+    private static URL buildTopStreamsUrl() {
+        Uri uri = buildTopStreamsUri();
+        return getUrlFromUri(uri);
+    }
+
     private static Uri buildChannelQueryUri(String channelName) {
         return Uri.parse(TWITCH_API_BASE_URL).buildUpon()
                 .appendPath(PATH_CHANNELS)
@@ -359,6 +392,15 @@ public final class NetworkUtils {
                 .appendQueryParameter(PARAM_CLIENT_ID, CLIENT_ID)
                 .appendQueryParameter(PARAM_LIMIT, LIMIT_MAX)
                 .appendQueryParameter(PARAM_OFFSET, Integer.toString(offset))
+                .build();
+    }
+
+    private static Uri buildTopStreamsUri() {
+        return Uri.parse(TWITCH_API_BASE_URL).buildUpon()
+                .appendPath(PATH_STREAMS)
+                .appendQueryParameter(PARAM_API_VERSION, API_VERSION)
+                .appendQueryParameter(PARAM_CLIENT_ID, CLIENT_ID)
+                .appendQueryParameter(PARAM_LIMIT, LIMIT_MED)
                 .build();
     }
 
