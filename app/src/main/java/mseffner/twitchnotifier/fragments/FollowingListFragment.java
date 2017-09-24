@@ -31,6 +31,10 @@ public class FollowingListFragment extends BaseListFragment
     private Context context;
     private ChannelAdapter channelAdapter;
 
+    private UpdateAdapterAsyncTask updateAdapterAsyncTask;
+    private UpdateFollowingListAsyncTask updateFollowingListAsyncTask;
+    private UpdateStreamsAsyncTask updateStreamsAsyncTask;
+
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -40,7 +44,7 @@ public class FollowingListFragment extends BaseListFragment
 
     @Override
     protected void refreshList() {
-        new UpdateStreamsAsyncTask().execute();
+        runUpdateStreamsAsyncTask();
     }
 
     @Override
@@ -55,13 +59,44 @@ public class FollowingListFragment extends BaseListFragment
         super.onStart();
         // On start, we want to recheck the whole following list in case the user has
         // followed or unfollowed any channels
-        new UpdateFollowingListAsyncTask().execute();
+        runUpdateFollowingListAsyncTask();
+    }
+
+    @Override
+    protected void cancelAsyncTasks() {
+        if (updateAdapterAsyncTask != null)
+            updateAdapterAsyncTask.cancel(true);
+        if (updateStreamsAsyncTask != null)
+            updateStreamsAsyncTask.cancel(true);
+        if (updateFollowingListAsyncTask != null)
+            updateFollowingListAsyncTask.cancel(true);
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         this.context = context.getApplicationContext();
+    }
+
+    private void runUpdateAdapterAsyncTask() {
+        if (updateAdapterAsyncTask == null) {
+            updateAdapterAsyncTask = new UpdateAdapterAsyncTask();
+            updateAdapterAsyncTask.execute();
+        }
+    }
+
+    private void runUpdateStreamsAsyncTask() {
+        if (updateStreamsAsyncTask == null) {
+            updateStreamsAsyncTask = new UpdateStreamsAsyncTask();
+            updateStreamsAsyncTask.execute();
+        }
+    }
+
+    private void runUpdateFollowingListAsyncTask() {
+        if (updateFollowingListAsyncTask == null) {
+            updateFollowingListAsyncTask = new UpdateFollowingListAsyncTask();
+            updateFollowingListAsyncTask.execute();
+        }
     }
 
     private class UpdateAdapterAsyncTask extends AsyncTask<Void, Void, List<Channel>> {
@@ -80,6 +115,10 @@ public class FollowingListFragment extends BaseListFragment
 
         @Override
         protected void onPostExecute(List<Channel> channelList) {
+            updateAdapterAsyncTask = null;
+
+            if (!isAdded() || isCancelled())
+                return;
 
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
             Resources resources = recyclerView.getResources();
@@ -121,6 +160,8 @@ public class FollowingListFragment extends BaseListFragment
 
             // Try a few times, silently retrying if it fails
             for (int errorCount = 0; errorCount < MAX_ALLOWED_ERROR_COUNT; errorCount++) {
+                if (isCancelled())
+                    return false;
                 boolean success = tryUpdateStreamData(database);
                 if (success)
                     return true;
@@ -133,10 +174,15 @@ public class FollowingListFragment extends BaseListFragment
 
         @Override
         protected void onPostExecute(Boolean success) {
+            updateStreamsAsyncTask = null;
+
+            if (!isAdded() || isCancelled())
+                return;
+
             if (!success) {
                 Toast.makeText(context, "A network error has occurred", Toast.LENGTH_LONG).show();
             }
-            new UpdateAdapterAsyncTask().execute();
+            runUpdateAdapterAsyncTask();
         }
 
         private boolean tryUpdateStreamData(ChannelDb database) {
@@ -177,6 +223,8 @@ public class FollowingListFragment extends BaseListFragment
 
             // Try a few times, silently retrying if it fails
             for (int errorCount = 0; errorCount < MAX_ALLOWED_ERROR_COUNT; errorCount++) {
+                if (isCancelled())
+                    return ABORT;
                 int result = tryPopulateUserFollowedChannels(username);
                 if (result == SUCCESS)
                     return SUCCESS;
@@ -189,17 +237,28 @@ public class FollowingListFragment extends BaseListFragment
 
         @Override
         protected void onPostExecute(Integer result) {
-            if (result == NETWORK_ERROR) {
-                Toast.makeText(context, "A network error has occurred", Toast.LENGTH_LONG).show();
-            } else if (result == INVALID_USERNAME_ERROR) {
-                Toast.makeText(context, "Invalid username", Toast.LENGTH_LONG).show();
-            } else if (result == SUCCESS) {
-                new UpdateStreamsAsyncTask().execute();
+            updateFollowingListAsyncTask = null;
+
+            if (!isAdded() || isCancelled())
                 return;
-            } else if (result == ABORT) {
-                new UpdateAdapterAsyncTask().execute();
-                return;
+
+            switch (result) {
+                case NETWORK_ERROR:
+                    Toast.makeText(context, "A network error has occurred", Toast.LENGTH_LONG).show();
+                    runUpdateAdapterAsyncTask();
+                    return;
+                case INVALID_USERNAME_ERROR:
+                    Toast.makeText(context, "Invalid username", Toast.LENGTH_LONG).show();
+                    runUpdateAdapterAsyncTask();
+                    return;
+                case SUCCESS:
+                    runUpdateStreamsAsyncTask();
+                    return;
+                case ABORT:
+                    runUpdateAdapterAsyncTask();
+                    return;
             }
+
             swipeRefreshLayout.setRefreshing(false);
 
         }

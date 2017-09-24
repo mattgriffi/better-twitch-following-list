@@ -112,5 +112,12 @@ public abstract class BaseListFragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        cancelAsyncTasks();
+    }
+
     protected abstract void refreshList();
+    protected abstract void cancelAsyncTasks();
 }

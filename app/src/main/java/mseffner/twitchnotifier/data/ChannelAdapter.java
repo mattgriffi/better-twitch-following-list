@@ -43,7 +43,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
     }
 
     public void addAll(List<Channel> list) {
-        if (channelList != null) {
+        if (channelList != null && list != null) {
             channelList.addAll(list);
             notifyDataSetChanged();
         }

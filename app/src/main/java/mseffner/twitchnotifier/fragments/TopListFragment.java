@@ -24,21 +24,36 @@ public class TopListFragment extends BaseListFragment {
     private ChannelAdapter channelAdapter;
     private Context context;
 
+    private UpdateTopStreamsAsyncTask updateTopStreamsAsyncTask;
+
     @Override
     protected void refreshList() {
-        onStart();
+        runUpdateTopStreamsAsyncTask();
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        new UpdateTopStreamsAsyncTask().execute();
+        runUpdateTopStreamsAsyncTask();
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         this.context = context.getApplicationContext();
+    }
+
+    @Override
+    protected void cancelAsyncTasks() {
+        if (updateTopStreamsAsyncTask != null)
+            updateTopStreamsAsyncTask.cancel(true);
+    }
+
+    private void runUpdateTopStreamsAsyncTask() {
+        if (updateTopStreamsAsyncTask == null) {
+            updateTopStreamsAsyncTask = new UpdateTopStreamsAsyncTask();
+            updateTopStreamsAsyncTask.execute();
+        }
     }
 
     private class UpdateTopStreamsAsyncTask extends AsyncTask<Void, Void, List<Channel>> {
@@ -55,6 +70,8 @@ public class TopListFragment extends BaseListFragment {
 
             // Try a few times, silently retrying if it fails
             for (int errorCount = 0; errorCount < MAX_ALLOWED_ERROR_COUNT; errorCount++) {
+                if (isCancelled())
+                    return null;
                 channelList = tryGetTopStreams();
                 if (channelList != null)
                     return channelList;
@@ -76,6 +93,11 @@ public class TopListFragment extends BaseListFragment {
 
         @Override
         protected void onPostExecute(List<Channel> channelList) {
+            updateTopStreamsAsyncTask = null;
+
+            if (!isAdded() || isCancelled()) {
+                return;
+            }
 
             if (channelList == null) {
                 Toast.makeText(context, "A network error has occurred", Toast.LENGTH_LONG).show();
