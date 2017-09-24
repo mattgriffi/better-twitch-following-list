@@ -1,70 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="mseffner.twitchnotifier.MainActivity">
 
-    <!-- The start message telling the user how to get started -->
-    <RelativeLayout
-        android:id="@+id/get_started_message"
+    <android.support.design.widget.TabLayout
+        android:id="@+id/tabs"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="invisible"
-        tools:visibility="visible">
-
-        <TextView
-            android:id="@+id/get_started_message_sub"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_gravity="center"
-            android:layout_marginLeft="36dp"
-            android:layout_marginRight="36dp"
-            android:layout_marginTop="16dp"
-            android:text="@string/get_started_message_sub"
-            android:textAlignment="center"/>
-
-        <TextView
-            android:id="@+id/get_started_message_main"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@id/get_started_message_sub"
-            android:layout_centerHorizontal="true"
-            android:text="@string/get_started_message_main"
-            android:textAlignment="center"
-            android:textSize="24sp"
-            android:textColor="@color/colorPrimaryDark"/>
-
-    </RelativeLayout>
-
-    <!-- The following list -->
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swipe_refresh"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/following_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-
-    </android.support.v4.widget.SwipeRefreshLayout>
-
-    <!-- The scroll-to-top button -->
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/scroll_top_fab"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center"
-        android:layout_margin="8dp"
-        android:alpha="0.5"
-        android:src="@drawable/ic_up_arrow_24dp"
-        android:visibility="invisible"
-        app:fabSize="mini"
-        tools:visibility="visible"/>
+        style="@style/Tab"/>
 
-</android.support.design.widget.CoordinatorLayout>
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
+</LinearLayout>
