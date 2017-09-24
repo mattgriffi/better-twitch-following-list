@@ -8,7 +8,9 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabLayout;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -51,104 +53,36 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Get the views
-        followingList = (RecyclerView) findViewById(R.id.following_list);
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
-        scrollTopButton = (FloatingActionButton) findViewById(R.id.scroll_top_fab);
-        startMessage = (RelativeLayout)findViewById(R.id.get_started_message);
+        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
 
-        // Start the refresh animation (will be disabled when UpdateAdapterAsyncTask completes)
-        swipeRefreshLayout.setRefreshing(true);
+        ListPagerAdapter adapter = new ListPagerAdapter(this, getFragmentManager());
 
-        // Set up scroll button animations
-        final Animation animScaleUp = AnimationUtils.loadAnimation(this, R.anim.scale_up);
-        final Animation animScaleDown = AnimationUtils.loadAnimation(this, R.anim.scale_down);
-        animScaleUp.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                scrollTopButton.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {}
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {}
-        });
-        animScaleDown.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {}
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                scrollTopButton.setVisibility(View.INVISIBLE);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {}
-        });
-
-        // Set up the layout manager
-        final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        followingList.setLayoutManager(layoutManager);
-        followingList.setHasFixedSize(true);
-
-        // Set up the swipe refresh
-        swipeRefreshLayout.setColorSchemeColors(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null));
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                new UpdateStreamsAsyncTask().execute();
-            }
-        });
-
-        // Animate the scroll button
-        followingList.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if (layoutManager.findFirstVisibleItemPosition() == 0 &&
-                        scrollTopButton.getVisibility() == View.VISIBLE &&
-                        scrollTopButton.getAnimation() == null) {
-                    scrollTopButton.startAnimation(animScaleDown);
-                } else if (layoutManager.findFirstVisibleItemPosition() != 0 &&
-                        scrollTopButton.getAnimation() == null &&
-                        scrollTopButton.getVisibility() == View.INVISIBLE &&
-                        scrollTopButton.getAnimation() == null){
-                    scrollTopButton.startAnimation(animScaleUp);
-                }
-            }
-        });
-
-        // Make the scroll button actually do something
-        scrollTopButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                layoutManager.smoothScrollToPosition(followingList, null, 0);
-            }
-        });
+        viewPager.setAdapter(adapter);
+        tabLayout.setupWithViewPager(viewPager);
 
         // Register as shared preference listener
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        if (startup) {
-            // When the app is restarted, update the following list
-            new ChangeUserAsyncTask().execute();
-            startup = false;
-        } else if (usernameChanged) {
-            // If the user changes their username, empty the database and fetch the new list
-            new ChannelDb(this).deleteAllChannels();
-            new ChangeUserAsyncTask().execute();
-            usernameChanged = false;
-        } else {
-            // Otherwise, just refresh the stream data
-            new UpdateStreamsAsyncTask().execute();
-        }
-    }
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//
+//        if (startup) {
+//            // When the app is restarted, update the following list
+//            new ChangeUserAsyncTask().execute();
+//            startup = false;
+//        } else if (usernameChanged) {
+//            // If the user changes their username, empty the database and fetch the new list
+//            new ChannelDb(this).deleteAllChannels();
+//            new ChangeUserAsyncTask().execute();
+//            usernameChanged = false;
+//        } else {
+//            // Otherwise, just refresh the stream data
+//            new UpdateStreamsAsyncTask().execute();
+//        }
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

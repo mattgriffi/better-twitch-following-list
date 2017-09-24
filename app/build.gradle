@@ -30,6 +30,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:26.+'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.android.support:support-v4:26.+'
+    compile 'com.android.support:support-v13:26.+'
     compile 'com.android.support:design:26.+'
 
     testCompile 'junit:junit:4.12'
