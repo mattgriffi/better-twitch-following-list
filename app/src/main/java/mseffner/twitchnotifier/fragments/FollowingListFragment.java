@@ -45,7 +45,7 @@ public class FollowingListFragment extends BaseListFragment
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(context.getString(R.string.pref_username_key)))
+        if (context != null && key.equals(context.getString(R.string.pref_username_key)))
             // If the username is changed, empty the database
             new ChannelDb(getActivity()).deleteAllChannels();
     }
