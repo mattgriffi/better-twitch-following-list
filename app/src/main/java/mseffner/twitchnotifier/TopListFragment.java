@@ -8,7 +8,7 @@ public class TopListFragment extends BaseListFragment {
     }
 
     @Override
-    protected void updateList() {
+    protected void refreshList() {
 
     }
 }

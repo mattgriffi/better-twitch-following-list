@@ -16,21 +16,12 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.RelativeLayout;
 
-import mseffner.twitchnotifier.data.ChannelAdapter;
-
 public abstract class BaseListFragment extends Fragment {
 
-    private static final String LOG_TAG_ERROR = "Error";
-    private static final int MAX_ALLOWED_ERROR_COUNT = 3;
-
-    private RecyclerView followingList;
-    private ChannelAdapter channelAdapter;
-    private SwipeRefreshLayout swipeRefreshLayout;
-    private FloatingActionButton scrollTopButton;
-    private RelativeLayout startMessage;
-
-    private boolean usernameChanged = false;
-    private boolean startup = true;
+    protected RecyclerView recyclerView;
+    protected SwipeRefreshLayout swipeRefreshLayout;
+    protected FloatingActionButton scrollTopButton;
+    protected RelativeLayout startMessage;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -39,10 +30,8 @@ public abstract class BaseListFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_list, container, false);
         Context context = getActivity().getApplicationContext();
 
-        initializeData();
-
         // Get the views
-        followingList = rootView.findViewById(R.id.list_recyclerview);
+        recyclerView = rootView.findViewById(R.id.list_recyclerview);
         swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh);
         scrollTopButton = rootView.findViewById(R.id.scroll_top_fab);
         startMessage = rootView.findViewById(R.id.get_started_message);
@@ -80,20 +69,20 @@ public abstract class BaseListFragment extends Fragment {
 
         // Set up the layout manager
         final LinearLayoutManager layoutManager = new LinearLayoutManager(context);
-        followingList.setLayoutManager(layoutManager);
-        followingList.setHasFixedSize(true);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setHasFixedSize(true);
 
         // Set up the swipe refresh
         swipeRefreshLayout.setColorSchemeColors(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null));
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                updateList();
+                refreshList();
             }
         });
 
         // Animate the scroll button
-        followingList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 if (layoutManager.findFirstVisibleItemPosition() == 0 &&
@@ -113,13 +102,12 @@ public abstract class BaseListFragment extends Fragment {
         scrollTopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                layoutManager.smoothScrollToPosition(followingList, null, 0);
+                layoutManager.smoothScrollToPosition(recyclerView, null, 0);
             }
         });
 
         return rootView;
     }
 
-    protected abstract void initializeData();
-    protected abstract void updateList();
+    protected abstract void refreshList();
 }
