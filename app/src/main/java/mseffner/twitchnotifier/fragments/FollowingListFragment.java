@@ -33,7 +33,7 @@ public class FollowingListFragment extends BaseListFragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         prefs.registerOnSharedPreferenceChangeListener(this);
         return super.onCreateView(inflater, container, savedInstanceState);
     }
@@ -47,7 +47,7 @@ public class FollowingListFragment extends BaseListFragment
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (context != null && key.equals(context.getString(R.string.pref_username_key)))
             // If the username is changed, empty the database
-            new ChannelDb(getActivity()).deleteAllChannels();
+            new ChannelDb(context).deleteAllChannels();
     }
 
     @Override
@@ -74,14 +74,14 @@ public class FollowingListFragment extends BaseListFragment
         @Override
         protected List<Channel> doInBackground(Void... voids) {
 
-            ChannelDb database = new ChannelDb(getActivity());
+            ChannelDb database = new ChannelDb(context);
             return database.getAllChannels();
         }
 
         @Override
         protected void onPostExecute(List<Channel> channelList) {
 
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
             Resources resources = recyclerView.getResources();
             String vodcastSetting = preferences.getString(resources.getString(R.string.pref_vodcast_key), "");
 
@@ -117,7 +117,7 @@ public class FollowingListFragment extends BaseListFragment
 
         @Override
         protected Boolean doInBackground(Void... voids) {
-            ChannelDb database = new ChannelDb(getActivity());
+            ChannelDb database = new ChannelDb(context);
 
             // Try a few times, silently retrying if it fails
             for (int errorCount = 0; errorCount < MAX_ALLOWED_ERROR_COUNT; errorCount++) {
@@ -134,7 +134,7 @@ public class FollowingListFragment extends BaseListFragment
         @Override
         protected void onPostExecute(Boolean success) {
             if (!success) {
-                Toast.makeText(getActivity(), "A network error has occurred", Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "A network error has occurred", Toast.LENGTH_LONG).show();
             }
             new UpdateAdapterAsyncTask().execute();
         }
@@ -164,7 +164,12 @@ public class FollowingListFragment extends BaseListFragment
 
         @Override
         protected Integer doInBackground(Void... strings) {
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+            if (!isAdded()) {
+                return ABORT;
+            }
+
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
             String username = sharedPreferences.getString(getString(R.string.pref_username_key), "");
             if (username.equals("")) {
                 return ABORT;
@@ -185,9 +190,9 @@ public class FollowingListFragment extends BaseListFragment
         @Override
         protected void onPostExecute(Integer result) {
             if (result == NETWORK_ERROR) {
-                Toast.makeText(getActivity(), "A network error has occurred", Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "A network error has occurred", Toast.LENGTH_LONG).show();
             } else if (result == INVALID_USERNAME_ERROR) {
-                Toast.makeText(getActivity(), "Invalid username", Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "Invalid username", Toast.LENGTH_LONG).show();
             } else if (result == SUCCESS) {
                 new UpdateStreamsAsyncTask().execute();
                 return;
@@ -201,7 +206,7 @@ public class FollowingListFragment extends BaseListFragment
 
         private int tryPopulateUserFollowedChannels(String newUsername) {
             try {
-                NetworkUtils.populateUserFollowedChannels(newUsername, new ChannelDb(getActivity()));
+                NetworkUtils.populateUserFollowedChannels(newUsername, new ChannelDb(context));
             } catch (NetworkUtils.NetworkException e) {
                 Log.e(LOG_TAG_ERROR, "tryPopulateUserFollowedChannels has caught NetworkException");
                 return NETWORK_ERROR;

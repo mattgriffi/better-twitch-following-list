@@ -1,11 +1,13 @@
 package mseffner.twitchnotifier.fragments;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -20,6 +22,7 @@ public class TopListFragment extends BaseListFragment {
     private static final int MAX_ALLOWED_ERROR_COUNT = 3;
 
     private ChannelAdapter channelAdapter;
+    private Context context;
 
     @Override
     protected void refreshList() {
@@ -30,6 +33,12 @@ public class TopListFragment extends BaseListFragment {
     public void onStart() {
         super.onStart();
         new UpdateTopStreamsAsyncTask().execute();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.context = context.getApplicationContext();
     }
 
     private class UpdateTopStreamsAsyncTask extends AsyncTask<Void, Void, List<Channel>> {
@@ -68,7 +77,11 @@ public class TopListFragment extends BaseListFragment {
         @Override
         protected void onPostExecute(List<Channel> channelList) {
 
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            if (channelList == null) {
+                Toast.makeText(context, "A network error has occurred", Toast.LENGTH_LONG).show();
+            }
+
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
             Resources resources = recyclerView.getResources();
             String vodcastSetting = preferences.getString(resources.getString(R.string.pref_vodcast_key), "");
 

@@ -30,13 +30,14 @@ public abstract class BaseListFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         View rootView = inflater.inflate(R.layout.fragment_list, container, false);
-        Context context = getActivity().getApplicationContext();
 
         // Get the views
         recyclerView = rootView.findViewById(R.id.list_recyclerview);
         swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh);
         scrollTopButton = rootView.findViewById(R.id.scroll_top_fab);
         startMessage = rootView.findViewById(R.id.get_started_message);
+
+        Context context = recyclerView.getContext();
 
         // Start the refresh animation (will be disabled when UpdateAdapterAsyncTask completes)
         swipeRefreshLayout.setRefreshing(true);

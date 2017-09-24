@@ -36,13 +36,17 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
     }
 
     public void clear() {
-        channelList.clear();
-        notifyDataSetChanged();
+        if (channelList != null) {
+            channelList.clear();
+            notifyDataSetChanged();
+        }
     }
 
     public void addAll(List<Channel> list) {
-        channelList.addAll(list);
-        notifyDataSetChanged();
+        if (channelList != null) {
+            channelList.addAll(list);
+            notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -61,7 +65,11 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
 
     @Override
     public int getItemCount() {
-        return channelList.size();
+        if (channelList != null) {
+            return channelList.size();
+        } else {
+            return 0;
+        }
     }
 
     class ChannelViewHolder extends RecyclerView.ViewHolder {
