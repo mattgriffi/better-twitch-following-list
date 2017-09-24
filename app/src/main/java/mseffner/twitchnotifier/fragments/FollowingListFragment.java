@@ -1,5 +1,6 @@
 package mseffner.twitchnotifier.fragments;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.AsyncTask;
@@ -19,7 +20,6 @@ import mseffner.twitchnotifier.R;
 import mseffner.twitchnotifier.data.Channel;
 import mseffner.twitchnotifier.data.ChannelAdapter;
 import mseffner.twitchnotifier.data.ChannelDb;
-import mseffner.twitchnotifier.fragments.BaseListFragment;
 import mseffner.twitchnotifier.networking.NetworkUtils;
 
 public class FollowingListFragment extends BaseListFragment
@@ -28,6 +28,7 @@ public class FollowingListFragment extends BaseListFragment
     private static final String LOG_TAG_ERROR = "Error";
     private static final int MAX_ALLOWED_ERROR_COUNT = 3;
 
+    private Context context;
     private ChannelAdapter channelAdapter;
 
     @Override
@@ -44,7 +45,7 @@ public class FollowingListFragment extends BaseListFragment
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(getActivity().getString(R.string.pref_username_key)))
+        if (key.equals(context.getString(R.string.pref_username_key)))
             // If the username is changed, empty the database
             new ChannelDb(getActivity()).deleteAllChannels();
     }
@@ -55,6 +56,12 @@ public class FollowingListFragment extends BaseListFragment
         // On start, we want to recheck the whole following list in case the user has
         // followed or unfollowed any channels
         new UpdateFollowingListAsyncTask().execute();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.context = context.getApplicationContext();
     }
 
     private class UpdateAdapterAsyncTask extends AsyncTask<Void, Void, List<Channel>> {
