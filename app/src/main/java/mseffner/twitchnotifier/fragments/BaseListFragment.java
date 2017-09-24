@@ -27,6 +27,9 @@ public abstract class BaseListFragment extends Fragment {
     protected RelativeLayout startMessage;
     protected Context context;
 
+    protected abstract void refreshList();
+    protected abstract void cancelAsyncTasks();
+
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -41,7 +44,7 @@ public abstract class BaseListFragment extends Fragment {
 
         Context context = recyclerView.getContext();
 
-        // Start the refresh animation (will be disabled when UpdateAdapterAsyncTask completes)
+        // Start the refresh animation (will be stopped when child classes finish their stuff)
         swipeRefreshLayout.setRefreshing(true);
 
         // Set up scroll button animations
@@ -133,7 +136,4 @@ public abstract class BaseListFragment extends Fragment {
         super.onAttach(activity);
         this.context = activity.getApplicationContext();
     }
-
-    protected abstract void refreshList();
-    protected abstract void cancelAsyncTasks();
 }
