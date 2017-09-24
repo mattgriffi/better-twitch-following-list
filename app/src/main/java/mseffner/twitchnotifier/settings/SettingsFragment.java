@@ -1,4 +1,4 @@
-package mseffner.twitchnotifier;
+package mseffner.twitchnotifier.settings;
 
 
 import android.content.SharedPreferences;
@@ -9,6 +9,8 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.support.annotation.Nullable;
+
+import mseffner.twitchnotifier.R;
 
 
 public class SettingsFragment extends PreferenceFragment implements

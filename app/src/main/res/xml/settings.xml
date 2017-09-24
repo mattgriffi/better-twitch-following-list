@@ -4,7 +4,7 @@
     android:layout_height="match_parent">
 
     <!-- Change user setting -->
-    <mseffner.twitchnotifier.TrimmedEditTextPreference
+    <mseffner.twitchnotifier.settings.TrimmedEditTextPreference
         android:inputType="text"
         android:key="@string/pref_username_key"
         android:selectAllOnFocus="true"
@@ -20,7 +20,7 @@
         android:title="@string/vodcast_display"/>
 
     <!-- Clear pins button (not actually a preference) -->
-    <mseffner.twitchnotifier.ClearPinsDialogPreference
+    <mseffner.twitchnotifier.settings.ClearPinsDialogPreference
         android:title="@string/delete_pins_title"
         android:dialogTitle="@string/delete_pins_title"
         android:dialogMessage="@string/delete_pin_warning"

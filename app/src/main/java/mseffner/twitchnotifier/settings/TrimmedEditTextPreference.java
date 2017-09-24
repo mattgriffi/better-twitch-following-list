@@ -1,4 +1,4 @@
-package mseffner.twitchnotifier;
+package mseffner.twitchnotifier.settings;
 
 import android.content.Context;
 import android.preference.EditTextPreference;
