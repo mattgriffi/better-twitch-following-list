@@ -266,8 +266,8 @@ public final class NetworkUtils {
     private static HttpsURLConnection setupHttpsURLConnection(URL url) throws IOException {
         HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
         urlConnection.setRequestMethod("GET");
-        urlConnection.setReadTimeout(10_000);
-        urlConnection.setConnectTimeout(15_000);
+        urlConnection.setReadTimeout(5_000);
+        urlConnection.setConnectTimeout(5_000);
         return urlConnection;
     }
 
