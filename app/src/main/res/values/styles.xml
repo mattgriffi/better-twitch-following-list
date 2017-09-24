@@ -5,12 +5,6 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="actionBarStyle">@style/AppBar</item>
-    </style>
-
-    <!-- App bar style -->
-    <style name="AppBar" parent="style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="elevation">0dp</item>
     </style>
 
     <!-- Tab style -->
