@@ -87,7 +87,7 @@ public class FollowingListFragment extends BaseListFragment
 
             // Reset adapter if it exists, else create a new one
             if (channelAdapter == null) {
-                channelAdapter = new ChannelAdapter(channelList, vodcastSetting);
+                channelAdapter = new ChannelAdapter(channelList, vodcastSetting, true);
             } else {
                 channelAdapter.clear();
                 channelAdapter.addAll(channelList);

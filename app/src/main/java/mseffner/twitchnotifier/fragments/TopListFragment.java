@@ -74,7 +74,7 @@ public class TopListFragment extends BaseListFragment {
 
             // Reset adapter if it exists, else create a new one
             if (channelAdapter == null) {
-                channelAdapter = new ChannelAdapter(channelList, vodcastSetting);
+                channelAdapter = new ChannelAdapter(channelList, vodcastSetting, false);
             } else {
                 channelAdapter.clear();
                 channelAdapter.addAll(channelList);

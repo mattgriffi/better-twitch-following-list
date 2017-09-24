@@ -23,10 +23,12 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
 
     private final List<Channel> channelList;
     private String vodcastSetting;
+    private Boolean allowLongClick;
 
-    public ChannelAdapter(List<Channel> channelList, String vodcastSetting) {
+    public ChannelAdapter(List<Channel> channelList, String vodcastSetting, Boolean allowLongClick) {
         this.channelList = channelList;
         this.vodcastSetting = vodcastSetting;
+        this.allowLongClick = allowLongClick;
     }
 
     public void updateVodcastSetting(String newSetting) {
@@ -112,16 +114,18 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                     .placeholder(R.drawable.default_logo_300x300)
                     .into(channelLogo);
 
-            // LongClickListener to toggle pin
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    new ChannelDb(view.getContext()).toggleChannelPin(channel);
-                    channel.togglePinned();
-                    updatePinIcon(channel, pinIcon);
-                    return true;
-                }
-            });
+            // LongClickListener to toggle pin (does not apply to top streams list)
+            if (allowLongClick) {
+                itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        new ChannelDb(view.getContext()).toggleChannelPin(channel);
+                        channel.togglePinned();
+                        updatePinIcon(channel, pinIcon);
+                        return true;
+                    }
+                });
+            }
 
             // Determine whether to treat stream as online or offline, and finish binding there
             if (channel.getStream() == null ||
