@@ -85,12 +85,6 @@ public class MainActivity extends AppCompatActivity
 //    }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_following_list, menu);
-        return true;
-    }
-
-    @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         // This will cause onStart to delete all data and run ChangeUserAsyncTask
         if (key.equals(getString(R.string.pref_username_key))) {
