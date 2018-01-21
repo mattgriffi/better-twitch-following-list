@@ -11,6 +11,7 @@ public class Stream {
     public static final String STREAM_TYPE_LIVE = "live";
     public static final String STREAM_TYPE_PLAYLIST = "playlist";
     public static final String STREAM_TYPE_VODCAST = "watch_party";
+    public static final String STREAM_TYPE_RERUN = "rerun";
 
     private long id;
     private String currentGame;
@@ -37,9 +38,8 @@ public class Stream {
                 streamTypeInt = ChannelContract.ChannelEntry.STREAM_TYPE_LIVE;
                 break;
             case STREAM_TYPE_PLAYLIST:
-                streamTypeInt = ChannelContract.ChannelEntry.STREAM_TYPE_PLAYLIST;
-                break;
             case STREAM_TYPE_VODCAST:
+            case STREAM_TYPE_RERUN:
                 streamTypeInt = ChannelContract.ChannelEntry.STREAM_TYPE_RERUN;
                 break;
         }
