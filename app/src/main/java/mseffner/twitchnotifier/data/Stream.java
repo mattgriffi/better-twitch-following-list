@@ -9,9 +9,6 @@ import java.util.TimeZone;
 public class Stream {
 
     public static final String STREAM_TYPE_LIVE = "live";
-    public static final String STREAM_TYPE_PLAYLIST = "playlist";
-    public static final String STREAM_TYPE_VODCAST = "watch_party";
-    public static final String STREAM_TYPE_RERUN = "rerun";
 
     private long id;
     private String currentGame;
@@ -32,14 +29,14 @@ public class Stream {
         this(channelId, currentGame, currentViewers, status);
         this.createdAt = getUnixTimestampFromUTC(createdAt);
 
-        int streamTypeInt = ChannelContract.ChannelEntry.STREAM_TYPE_OFFLINE;
+        int streamTypeInt;
         switch (streamType) {
+            // If the channel is offline, then a Stream object will never be created, so it's either
+            // live or it's a rerun.
             case STREAM_TYPE_LIVE:
                 streamTypeInt = ChannelContract.ChannelEntry.STREAM_TYPE_LIVE;
                 break;
-            case STREAM_TYPE_PLAYLIST:
-            case STREAM_TYPE_VODCAST:
-            case STREAM_TYPE_RERUN:
+            default:
                 streamTypeInt = ChannelContract.ChannelEntry.STREAM_TYPE_RERUN;
                 break;
         }
