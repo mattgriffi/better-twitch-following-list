@@ -141,7 +141,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
 
             // Determine whether to treat stream as online or offline, and finish binding there
             if (channel.getStream() == null ||
-                    (channel.getStream().getStreamType() == ChannelContract.ChannelEntry.STREAM_TYPE_VODCAST &&
+                    (channel.getStream().getStreamType() == ChannelContract.ChannelEntry.STREAM_TYPE_RERUN &&
                     vodcastSetting.equals(itemView.getResources().getString(R.string.pref_vodcast_offline)))) {
                 bindOfflineStream();
             } else {
@@ -191,7 +191,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             uptime.setText(getUptime(stream.getCreatedAt()));
 
             // Display vodcast tag depending on setting
-            if (stream.getStreamType() == ChannelContract.ChannelEntry.STREAM_TYPE_VODCAST &&
+            if (stream.getStreamType() == ChannelContract.ChannelEntry.STREAM_TYPE_RERUN &&
                     vodcastSetting.equals(itemView.getResources().getString(R.string.pref_vodcast_online_tag))) {
                 vodcastTag.setVisibility(View.VISIBLE);
             } else {

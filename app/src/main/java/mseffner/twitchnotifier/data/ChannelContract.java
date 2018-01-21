@@ -25,7 +25,7 @@ public final class ChannelContract {
         // Values
         public static final int STREAM_TYPE_OFFLINE = 0;
         public static final int STREAM_TYPE_LIVE = 1;
-        public static final int STREAM_TYPE_VODCAST = 2;
+        public static final int STREAM_TYPE_RERUN = 2;
         public static final int STREAM_TYPE_PLAYLIST = 3;
         public static final int IS_NOT_PINNED = 0;
         public static final int IS_PINNED = 1;

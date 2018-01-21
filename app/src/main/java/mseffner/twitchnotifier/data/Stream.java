@@ -40,7 +40,7 @@ public class Stream {
                 streamTypeInt = ChannelContract.ChannelEntry.STREAM_TYPE_PLAYLIST;
                 break;
             case STREAM_TYPE_VODCAST:
-                streamTypeInt = ChannelContract.ChannelEntry.STREAM_TYPE_VODCAST;
+                streamTypeInt = ChannelContract.ChannelEntry.STREAM_TYPE_RERUN;
                 break;
         }
         this.streamType = streamTypeInt;

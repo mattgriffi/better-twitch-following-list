@@ -93,7 +93,7 @@ public class ChannelDb {
                 // Online channels first
                 " WHEN " + ChannelEntry.STREAM_TYPE_LIVE + " THEN 0" +
                 // Show vodcasts as online or offline depending on the setting
-                (vodcastOnline ? " WHEN " + ChannelEntry.STREAM_TYPE_VODCAST + " THEN 0" : "") +
+                (vodcastOnline ? " WHEN " + ChannelEntry.STREAM_TYPE_RERUN + " THEN 0" : "") +
                 " ELSE 1" +
             " END, " +
             // Show pinned streams before unpinned
