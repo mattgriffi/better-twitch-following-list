@@ -10,7 +10,7 @@
     <!-- contentDescription for the pin icon -->
     <string name="pin_icon">Channel pin icon</string>
     <string name="offline">Offline</string>
-    <string name="vodcast_tag">vodcast</string>
+    <string name="vodcast_tag">rerun</string>
 
     <!-- Starting message -->
     <!-- This line is displayed in large, purple text -->
