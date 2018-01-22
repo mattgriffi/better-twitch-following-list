@@ -8,17 +8,20 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import mseffner.twitchnotifier.R;
 import mseffner.twitchnotifier.data.Channel;
 import mseffner.twitchnotifier.data.ChannelAdapter;
+import mseffner.twitchnotifier.data.ChannelContract;
 import mseffner.twitchnotifier.networking.NetworkUtils;
 
 public class TopListFragment extends BaseListFragment {
 
     private static final String LOG_TAG_ERROR = "Error";
     private static final int MAX_ALLOWED_ERROR_COUNT = 3;
+    private static final int NUM_TOP_STREAMS = 25;
 
     private ChannelAdapter channelAdapter;
 
@@ -99,6 +102,16 @@ public class TopListFragment extends BaseListFragment {
             Resources resources = recyclerView.getResources();
             String vodcastSetting = preferences.getString(resources.getString(R.string.pref_vodcast_key), "");
 
+            // If vodcasts are set to be shown as offline, remove them from the top list entirely
+            if (vodcastSetting.equals(resources.getString(R.string.pref_vodcast_offline))) {
+                channelList = removeNonliveChannels(channelList);
+            }
+
+            // Limit list size to NUM_TOP_STREAMS
+            if (channelList != null && channelList.size() > NUM_TOP_STREAMS) {
+                channelList = channelList.subList(0, NUM_TOP_STREAMS);
+            }
+
             // Reset adapter if it exists, else create a new one
             if (channelAdapter == null) {
                 channelAdapter = new ChannelAdapter(channelList, vodcastSetting, false);
@@ -112,6 +125,20 @@ public class TopListFragment extends BaseListFragment {
 
             // Disable the refreshing animation
             swipeRefreshLayout.setRefreshing(false);
+        }
+
+        private List<Channel> removeNonliveChannels(List<Channel> list) {
+
+            if (list == null)
+                return null;
+
+            List<Channel> newList = new ArrayList<>();
+            for (Channel channel : list) {
+                if (channel.getStream().getStreamType() == ChannelContract.ChannelEntry.STREAM_TYPE_LIVE) {
+                    newList.add(channel);
+                }
+            }
+            return newList;
         }
     }
 }
