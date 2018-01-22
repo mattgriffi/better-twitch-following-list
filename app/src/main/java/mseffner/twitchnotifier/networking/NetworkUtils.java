@@ -400,7 +400,7 @@ public final class NetworkUtils {
                 .appendPath(PATH_STREAMS)
                 .appendQueryParameter(PARAM_API_VERSION, API_VERSION)
                 .appendQueryParameter(PARAM_CLIENT_ID, CLIENT_ID)
-                .appendQueryParameter(PARAM_LIMIT, LIMIT_MED)
+                .appendQueryParameter(PARAM_LIMIT, LIMIT_MAX)
                 .build();
     }
 
