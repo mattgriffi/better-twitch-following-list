@@ -24,7 +24,7 @@
     <!-- Settings option to change user's name -->
     <string name="twitch_name">Twitch name</string>
     <!-- Settings option to change how vodcasts are displayed -->
-    <string name="vodcast_display">Vodcast display</string>
+    <string name="vodcast_display">Rerun display</string>
     <!-- Settings option to delete all of the user's set pins, also used for the positive confirmation button -->
     <string name="delete_pins">Remove pins</string>
     <!-- Title of the delete pins confirmation dialog -->
