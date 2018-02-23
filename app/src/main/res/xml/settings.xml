@@ -3,12 +3,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Toggle dark mode -->
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="@string/pref_dark_mode"
+        android:title="@string/dark_mode"/>
+
     <!-- Change user setting -->
+    <!-- For some reason EditTextPreference does not honor the textColor
+        of the current theme when the theme is changed at runtime, so it
+        needs to be a single color for both themes. Purple works. -->
     <mseffner.twitchnotifier.settings.TrimmedEditTextPreference
+        android:id="@+id/edit_text"
         android:inputType="text"
         android:key="@string/pref_username_key"
         android:selectAllOnFocus="true"
         android:singleLine="true"
+        android:textColor="?colorPrimary"
         android:title="@string/twitch_name"/>
 
     <!-- Vodcast display setting -->
@@ -21,10 +32,10 @@
 
     <!-- Clear pins button (not actually a preference) -->
     <mseffner.twitchnotifier.settings.ClearPinsDialogPreference
-        android:title="@string/delete_pins_title"
-        android:dialogTitle="@string/delete_pins_title"
         android:dialogMessage="@string/delete_pin_warning"
+        android:dialogTitle="@string/delete_pins_title"
         android:negativeButtonText="@string/cancel"
-        android:positiveButtonText="@string/delete_pins"/>
+        android:positiveButtonText="@string/delete_pins"
+        android:title="@string/delete_pins_title"/>
 
 </PreferenceScreen>

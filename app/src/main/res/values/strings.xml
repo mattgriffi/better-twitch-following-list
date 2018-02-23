@@ -21,6 +21,8 @@
     <!-- Settings screen -->
     <!-- Action bar button -->
     <string name="settings">Settings</string>
+    <!-- Settings option to toggle dark mode -->
+    <string name="dark_mode">Dark mode</string>
     <!-- Settings option to change user's name -->
     <string name="twitch_name">Twitch name</string>
     <!-- Settings option to change how vodcasts are displayed -->
@@ -48,5 +50,6 @@
     <string name="pref_vodcast_online" translatable="false">online</string>
     <string name="pref_vodcast_online_tag" translatable="false">tag</string>
     <string name="pref_vodcast_offline" translatable="false">offline</string>
+    <string name="pref_dark_mode" translatable="false">dark</string>
 
 </resources>
