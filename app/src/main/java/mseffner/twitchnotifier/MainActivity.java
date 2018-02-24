@@ -1,11 +1,14 @@
 package mseffner.twitchnotifier;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+
+import java.lang.reflect.Method;
 
 
 public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -34,8 +37,26 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(getString(R.string.pref_dark_mode))) {
-            // If dark mode has been toggled, recreate activity so new theme is applied
-            recreate();
+            // recreate the activity to apply the new theme if needed
+            boolean dark = sharedPreferences.getBoolean(key, false);
+            if (dark && getThemeId() != R.style.AppTheme_Dark)
+                recreate();
+            else if (!dark && getThemeId() != R.style.AppTheme_Light)
+                recreate();
         }
+    }
+
+    private int getThemeId() {
+        // Thank you StackOverflow for helping me to work around Android's garbage API
+        try {
+            Class<?> wrapper = Context.class;
+            Method method = wrapper.getMethod("getThemeResId");
+            method.setAccessible(true);
+            return (Integer) method.invoke(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // 0 shows an invalid resource ID
+        return 0;
     }
 }
