@@ -160,18 +160,22 @@ public class ChannelDb {
         if (channel == null)
             return;
 
-        ContentValues values = new ContentValues();
+        // Determine the current pin status of the channel
         String selection = ChannelEntry._ID + "=?";
         String[] selectionArgs = {Long.toString(channel.getId())};
-
-        // Determine the current pin status of the channel
         String[] projection = {ChannelEntry.COLUMN_PINNED};
         Cursor channelCursor = query(projection, selection, selectionArgs, null);
+
+        // If the cursor is empty, then the channel somehow isn't in the db, so abort
+        if (channelCursor == null || channelCursor.getCount() == 0)
+            return;
+
         channelCursor.moveToFirst();
         int currentPinnedStatus = channelCursor.getInt(channelCursor.getColumnIndex(ChannelEntry.COLUMN_PINNED));
         channelCursor.close();
 
         // Toggle the pin status
+        ContentValues values = new ContentValues();
         if (currentPinnedStatus == ChannelEntry.IS_PINNED) {
             values.put(ChannelEntry.COLUMN_PINNED, ChannelEntry.IS_NOT_PINNED);
         } else {

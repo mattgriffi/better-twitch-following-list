@@ -26,6 +26,10 @@ public class FollowingListFragment extends BaseListFragment
 
     private static final String LOG_TAG_ERROR = "Error";
     private static final int MAX_ALLOWED_ERROR_COUNT = 3;
+    private static final int UPDATE_SUCCESS = 0;
+    private static final int UPDATE_NETWORK_ERROR = 1;
+    private static final int UPDATE_INVALID_USERNAME_ERROR = 2;
+    private static final int UPDATE_ABORT = 3;
 
     private ChannelAdapter channelAdapter;
 
@@ -71,7 +75,9 @@ public class FollowingListFragment extends BaseListFragment
     }
 
     private void runUpdateAdapterAsyncTask() {
+        Log.e("TEST", "TRYING TO RUN runUpdateAdapterAsyncTask");
         if (updateAdapterAsyncTask == null) {
+            Log.e("TEST", "RUNNING runUpdateAdapterAsyncTask");
             updateAdapterAsyncTask = new UpdateAdapterAsyncTask();
             updateAdapterAsyncTask.execute();
         }
@@ -82,6 +88,7 @@ public class FollowingListFragment extends BaseListFragment
             updateStreamsAsyncTask = new UpdateStreamsAsyncTask();
             updateStreamsAsyncTask.execute();
         }
+        runUpdateAdapterAsyncTask();
     }
 
     private void runUpdateFollowingListAsyncTask() {
@@ -89,6 +96,7 @@ public class FollowingListFragment extends BaseListFragment
             updateFollowingListAsyncTask = new UpdateFollowingListAsyncTask();
             updateFollowingListAsyncTask.execute();
         }
+        runUpdateStreamsAsyncTask();
     }
 
     private class UpdateAdapterAsyncTask extends AsyncTask<Void, Void, List<Channel>> {
@@ -107,8 +115,6 @@ public class FollowingListFragment extends BaseListFragment
 
         @Override
         protected void onPostExecute(List<Channel> channelList) {
-            updateAdapterAsyncTask = null;
-
             if (!isAdded() || isCancelled())
                 return;
 
@@ -136,6 +142,8 @@ public class FollowingListFragment extends BaseListFragment
 
             // Disable the refreshing animation
             swipeRefreshLayout.setRefreshing(false);
+
+            updateAdapterAsyncTask = null;
         }
     }
 
@@ -174,7 +182,6 @@ public class FollowingListFragment extends BaseListFragment
             if (!success) {
                 Toast.makeText(context, "A network error has occurred", Toast.LENGTH_LONG).show();
             }
-            runUpdateAdapterAsyncTask();
         }
 
         private boolean tryUpdateStreamData(ChannelDb database) {
@@ -237,22 +244,11 @@ public class FollowingListFragment extends BaseListFragment
             switch (result) {
                 case NETWORK_ERROR:
                     Toast.makeText(context, "A network error has occurred", Toast.LENGTH_LONG).show();
-                    runUpdateAdapterAsyncTask();
-                    return;
+                    break;
                 case INVALID_USERNAME_ERROR:
                     Toast.makeText(context, "Invalid username", Toast.LENGTH_LONG).show();
-                    runUpdateAdapterAsyncTask();
-                    return;
-                case SUCCESS:
-                    runUpdateStreamsAsyncTask();
-                    return;
-                case ABORT:
-                    runUpdateAdapterAsyncTask();
-                    return;
+                    break;
             }
-
-            swipeRefreshLayout.setRefreshing(false);
-
         }
 
         private int tryPopulateUserFollowedChannels(String newUsername) {
