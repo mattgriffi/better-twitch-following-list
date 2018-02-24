@@ -26,10 +26,6 @@ public class FollowingListFragment extends BaseListFragment
 
     private static final String LOG_TAG_ERROR = "Error";
     private static final int MAX_ALLOWED_ERROR_COUNT = 3;
-    private static final int UPDATE_SUCCESS = 0;
-    private static final int UPDATE_NETWORK_ERROR = 1;
-    private static final int UPDATE_INVALID_USERNAME_ERROR = 2;
-    private static final int UPDATE_ABORT = 3;
 
     private ChannelAdapter channelAdapter;
 
