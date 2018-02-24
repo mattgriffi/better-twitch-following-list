@@ -129,6 +129,7 @@ public class FollowingListFragment extends BaseListFragment
 
             // Show startMessage if adapter is empty, else hide it
             if (channelAdapter.getItemCount() == 0) {
+                swipeRefreshLayout.setVisibility(View.GONE);
                 startMessage.setVisibility(View.VISIBLE);
             } else {
                 startMessage.setVisibility(View.GONE);
