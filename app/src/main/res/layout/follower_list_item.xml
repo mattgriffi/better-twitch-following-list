@@ -106,7 +106,7 @@
                 android:id="@+id/viewer_count"
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
-                android:textColor="#FC3636"
+                android:textColor="@color/viewerRed"
                 tools:text="1512"/>
 
             <!-- Current uptime -->

@@ -38,7 +38,7 @@
 
     <!-- Text appearance for tab names -->
     <style name="TabTextAppearance" parent="TextAppearance.Design.Tab">
-        <item name="android:textColor">@android:color/primary_text_dark</item>
+        <item name="android:textColor">@color/colorLight</item>
     </style>
 
 </resources>
