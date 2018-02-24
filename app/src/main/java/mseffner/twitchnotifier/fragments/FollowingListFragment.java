@@ -177,7 +177,8 @@ public class FollowingListFragment extends BaseListFragment
                 return;
 
             if (!success) {
-                Toast.makeText(context, "A network error has occurred", Toast.LENGTH_LONG).show();
+                // Use application context to get default toast style
+                Toast.makeText(context.getApplicationContext(), "A network error has occurred", Toast.LENGTH_LONG).show();
             }
         }
 
@@ -240,10 +241,12 @@ public class FollowingListFragment extends BaseListFragment
 
             switch (result) {
                 case NETWORK_ERROR:
-                    Toast.makeText(context, "A network error has occurred", Toast.LENGTH_LONG).show();
+                    // Use application context to get default toast style
+                    Toast.makeText(context.getApplicationContext(), "A network error has occurred", Toast.LENGTH_LONG).show();
                     break;
                 case INVALID_USERNAME_ERROR:
-                    Toast.makeText(context, "Invalid username", Toast.LENGTH_LONG).show();
+                    // Use application context to get default toast style
+                    Toast.makeText(context.getApplicationContext(), "Invalid username", Toast.LENGTH_LONG).show();
                     break;
             }
         }

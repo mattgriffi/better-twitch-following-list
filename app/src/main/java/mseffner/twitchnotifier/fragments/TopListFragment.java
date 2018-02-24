@@ -95,7 +95,8 @@ public class TopListFragment extends BaseListFragment {
             }
 
             if (channelList == null) {
-                Toast.makeText(context, "A network error has occurred", Toast.LENGTH_LONG).show();
+                // Use application context to get default toast style
+                Toast.makeText(context.getApplicationContext(), "A network error has occurred", Toast.LENGTH_LONG).show();
             }
 
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
