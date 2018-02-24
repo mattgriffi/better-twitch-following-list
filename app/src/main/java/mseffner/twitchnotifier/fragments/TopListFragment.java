@@ -43,6 +43,7 @@ public class TopListFragment extends BaseListFragment {
     protected void cancelAsyncTasks() {
         if (updateTopStreamsAsyncTask != null)
             updateTopStreamsAsyncTask.cancel(true);
+        updateTopStreamsAsyncTask = null;
     }
 
     private void runUpdateTopStreamsAsyncTask() {
