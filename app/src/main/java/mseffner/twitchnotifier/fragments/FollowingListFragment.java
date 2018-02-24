@@ -72,6 +72,10 @@ public class FollowingListFragment extends BaseListFragment
             updateStreamsAsyncTask.cancel(true);
         if (updateFollowingListAsyncTask != null)
             updateFollowingListAsyncTask.cancel(true);
+
+        updateAdapterAsyncTask = null;
+        updateStreamsAsyncTask = null;
+        updateFollowingListAsyncTask = null;
     }
 
     private void runUpdateAdapterAsyncTask() {
