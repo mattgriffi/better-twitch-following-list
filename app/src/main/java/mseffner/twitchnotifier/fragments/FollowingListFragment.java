@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -71,9 +72,7 @@ public class FollowingListFragment extends BaseListFragment
     }
 
     private void runUpdateAdapterAsyncTask() {
-        Log.e("TEST", "TRYING TO RUN runUpdateAdapterAsyncTask");
         if (updateAdapterAsyncTask == null) {
-            Log.e("TEST", "RUNNING runUpdateAdapterAsyncTask");
             updateAdapterAsyncTask = new UpdateAdapterAsyncTask();
             updateAdapterAsyncTask.execute();
         }
@@ -135,7 +134,10 @@ public class FollowingListFragment extends BaseListFragment
                 startMessage.setVisibility(View.GONE);
             }
 
+            // Update recycler view while saving scroll position
+            Parcelable recyclerViewState = recyclerView.getLayoutManager().onSaveInstanceState();
             recyclerView.setAdapter(channelAdapter);
+            recyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);
 
             // Disable the refreshing animation
             swipeRefreshLayout.setRefreshing(false);

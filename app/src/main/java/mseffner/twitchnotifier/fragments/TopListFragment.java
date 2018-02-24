@@ -3,6 +3,7 @@ package mseffner.twitchnotifier.fragments;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.AsyncTask;
+import android.os.Parcelable;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -122,7 +123,10 @@ public class TopListFragment extends BaseListFragment {
                 channelAdapter.updateVodcastSetting(vodcastSetting);
             }
 
+            // Update recycler view while saving scroll position
+            Parcelable recyclerViewState = recyclerView.getLayoutManager().onSaveInstanceState();
             recyclerView.setAdapter(channelAdapter);
+            recyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);
 
             // Disable the refreshing animation
             swipeRefreshLayout.setRefreshing(false);
