@@ -25,6 +25,7 @@ import mseffner.twitchnotifier.networking.NetworkUtils;
 public class FollowingListFragment extends BaseListFragment
         implements SharedPreferences.OnSharedPreferenceChangeListener{
 
+    private static final String TAG = FollowingListFragment.class.getSimpleName();
     private static final String LOG_TAG_ERROR = "Error";
     private static final int MAX_ALLOWED_ERROR_COUNT = 3;
 
@@ -43,6 +44,7 @@ public class FollowingListFragment extends BaseListFragment
 
     @Override
     protected void refreshList() {
+        Log.i(TAG, "refreshList");
         runUpdateStreamsAsyncTask();
     }
 
@@ -56,6 +58,7 @@ public class FollowingListFragment extends BaseListFragment
     @Override
     public void onStart() {
         super.onStart();
+        Log.i(TAG, "onStart");
         // On start, we want to recheck the whole following list in case the user has
         // followed or unfollowed any channels
         runUpdateFollowingListAsyncTask();
@@ -72,26 +75,30 @@ public class FollowingListFragment extends BaseListFragment
     }
 
     private void runUpdateAdapterAsyncTask() {
+        Log.i(TAG, "runUpdateAdapterAsyncTask attempted");
         if (updateAdapterAsyncTask == null) {
+            Log.i(TAG, "runUpdateAdapterAsyncTask executing");
             updateAdapterAsyncTask = new UpdateAdapterAsyncTask();
             updateAdapterAsyncTask.execute();
         }
     }
 
     private void runUpdateStreamsAsyncTask() {
+        Log.i(TAG, "runUpdateStreamsAsyncTask attempted");
         if (updateStreamsAsyncTask == null) {
+            Log.i(TAG, "runUpdateStreamsAsyncTask executing");
             updateStreamsAsyncTask = new UpdateStreamsAsyncTask();
             updateStreamsAsyncTask.execute();
         }
-        runUpdateAdapterAsyncTask();
     }
 
     private void runUpdateFollowingListAsyncTask() {
+        Log.i(TAG, "runUpdateFollowingListAsyncTask attempted");
         if (updateFollowingListAsyncTask == null) {
+            Log.i(TAG, "runUpdateFollowingListAsyncTask executing");
             updateFollowingListAsyncTask = new UpdateFollowingListAsyncTask();
             updateFollowingListAsyncTask.execute();
         }
-        runUpdateStreamsAsyncTask();
     }
 
     private class UpdateAdapterAsyncTask extends AsyncTask<Void, Void, List<Channel>> {
@@ -103,13 +110,15 @@ public class FollowingListFragment extends BaseListFragment
 
         @Override
         protected List<Channel> doInBackground(Void... voids) {
-
+            Log.i(TAG, "UpdateAdapterAsyncTask doInBackground");
             ChannelDb database = new ChannelDb(context);
             return database.getAllChannels();
         }
 
         @Override
         protected void onPostExecute(List<Channel> channelList) {
+            Log.i(TAG, "UpdateAdapterAsyncTask onPostExecute");
+
             if (!isAdded() || isCancelled())
                 return;
 
@@ -155,6 +164,7 @@ public class FollowingListFragment extends BaseListFragment
 
         @Override
         protected Boolean doInBackground(Void... voids) {
+            Log.i(TAG, "UpdateStreamsAsyncTask doInBackground");
             ChannelDb database = new ChannelDb(context);
 
             // Try a few times, silently retrying if it fails
@@ -173,6 +183,7 @@ public class FollowingListFragment extends BaseListFragment
 
         @Override
         protected void onPostExecute(Boolean success) {
+            Log.i(TAG, "UpdateStreamsAsyncTask onPostExecute");
             updateStreamsAsyncTask = null;
 
             if (!isAdded() || isCancelled())
@@ -182,6 +193,7 @@ public class FollowingListFragment extends BaseListFragment
                 // Use application context to get default toast style
                 Toast.makeText(context.getApplicationContext(), "A network error has occurred", Toast.LENGTH_LONG).show();
             }
+            runUpdateAdapterAsyncTask();
         }
 
         private boolean tryUpdateStreamData(ChannelDb database) {
@@ -209,6 +221,7 @@ public class FollowingListFragment extends BaseListFragment
 
         @Override
         protected Integer doInBackground(Void... strings) {
+            Log.i(TAG, "UpdateFollowingListAsyncTask doInBackground");
 
             if (!isAdded()) {
                 return ABORT;
@@ -236,6 +249,7 @@ public class FollowingListFragment extends BaseListFragment
 
         @Override
         protected void onPostExecute(Integer result) {
+            Log.i(TAG, "UpdateFollowingListAsyncTask onPostExecute");
             updateFollowingListAsyncTask = null;
 
             if (!isAdded() || isCancelled())
@@ -251,6 +265,7 @@ public class FollowingListFragment extends BaseListFragment
                     Toast.makeText(context.getApplicationContext(), "Invalid username", Toast.LENGTH_LONG).show();
                     break;
             }
+            runUpdateStreamsAsyncTask();
         }
 
         private int tryPopulateUserFollowedChannels(String newUsername) {
