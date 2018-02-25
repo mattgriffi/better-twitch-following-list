@@ -15,7 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 
 import mseffner.twitchnotifier.R;
 
@@ -25,7 +25,7 @@ public abstract class BaseListFragment extends Fragment {
     protected SwipeRefreshLayout swipeRefreshLayout;
     protected FloatingActionButton scrollTopButton;
     protected FloatingActionButton refreshButton;
-    protected RelativeLayout startMessage;
+    protected LinearLayout startMessage;
     protected Context context;
 
     protected abstract void refreshList();

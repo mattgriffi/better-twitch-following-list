@@ -7,6 +7,7 @@ import android.os.Parcelable;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ public class TopListFragment extends BaseListFragment {
     @Override
     public void onStart() {
         super.onStart();
+        startMessage.setVisibility(View.GONE);
         runUpdateTopStreamsAsyncTask();
     }
 
