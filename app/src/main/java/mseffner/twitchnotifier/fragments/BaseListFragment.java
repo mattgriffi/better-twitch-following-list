@@ -3,7 +3,6 @@ package mseffner.twitchnotifier.fragments;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -42,7 +41,7 @@ public abstract class BaseListFragment extends Fragment {
         swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh);
         scrollTopButton = rootView.findViewById(R.id.scroll_top_fab);
         refreshButton = rootView.findViewById(R.id.refresh_fab);
-        startMessage = rootView.findViewById(R.id.get_started_message);
+        startMessage = rootView.findViewById(R.id.start_message);
 
         Context context = recyclerView.getContext();
 
