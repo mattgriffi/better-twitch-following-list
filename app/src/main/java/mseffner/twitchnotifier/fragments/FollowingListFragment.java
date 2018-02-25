@@ -59,6 +59,8 @@ public class FollowingListFragment extends BaseListFragment
     public void onStart() {
         super.onStart();
         Log.i(TAG, "onStart");
+        // Quickly update the adapter so the screen isn't blank
+        runUpdateAdapterAsyncTask();
         // On start, we want to recheck the whole following list in case the user has
         // followed or unfollowed any channels
         runUpdateFollowingListAsyncTask();
@@ -152,8 +154,9 @@ public class FollowingListFragment extends BaseListFragment
             recyclerView.setAdapter(channelAdapter);
             recyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);
 
-            // Disable the refreshing animation
-            swipeRefreshLayout.setRefreshing(false);
+            // Disable the refreshing animation if other tasks are not running
+            if (updateStreamsAsyncTask == null && updateFollowingListAsyncTask == null)
+                swipeRefreshLayout.setRefreshing(false);
 
             updateAdapterAsyncTask = null;
         }
