@@ -146,6 +146,7 @@ public class FollowingListFragment extends BaseListFragment
                 swipeRefreshLayout.setVisibility(View.GONE);
                 startMessage.setVisibility(View.VISIBLE);
             } else {
+                swipeRefreshLayout.setVisibility(View.VISIBLE);
                 startMessage.setVisibility(View.GONE);
             }
 
