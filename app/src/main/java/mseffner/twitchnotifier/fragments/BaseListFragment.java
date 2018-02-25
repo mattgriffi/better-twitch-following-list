@@ -24,6 +24,7 @@ public abstract class BaseListFragment extends Fragment {
     protected RecyclerView recyclerView;
     protected SwipeRefreshLayout swipeRefreshLayout;
     protected FloatingActionButton scrollTopButton;
+    protected FloatingActionButton refreshButton;
     protected RelativeLayout startMessage;
     protected Context context;
 
@@ -40,40 +41,13 @@ public abstract class BaseListFragment extends Fragment {
         recyclerView = rootView.findViewById(R.id.list_recyclerview);
         swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh);
         scrollTopButton = rootView.findViewById(R.id.scroll_top_fab);
+        refreshButton = rootView.findViewById(R.id.refresh_fab);
         startMessage = rootView.findViewById(R.id.get_started_message);
 
         Context context = recyclerView.getContext();
 
         // Start the refresh animation (will be stopped when child classes finish their stuff)
         swipeRefreshLayout.setRefreshing(true);
-
-        // Set up scroll button animations
-        final Animation animScaleUp = AnimationUtils.loadAnimation(context, R.anim.scale_up);
-        final Animation animScaleDown = AnimationUtils.loadAnimation(context, R.anim.scale_down);
-        animScaleUp.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                scrollTopButton.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {}
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {}
-        });
-        animScaleDown.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {}
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                scrollTopButton.setVisibility(View.INVISIBLE);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {}
-        });
 
         // Set up the layout manager
         final LinearLayoutManager layoutManager = new LinearLayoutManager(context);
@@ -90,19 +64,29 @@ public abstract class BaseListFragment extends Fragment {
             }
         });
 
-        // Animate the scroll button
+
+        // Set up floating action button animations
+        final Animation scrollScaleUp = getScaleAnimation(scrollTopButton, R.anim.scale_up);
+        final Animation refreshScaleUp = getScaleAnimation(refreshButton, R.anim.scale_up);
+        final Animation scrollScaleDown = getScaleAnimation(scrollTopButton, R.anim.scale_down);
+        final Animation refreshScaleDown = getScaleAnimation(refreshButton, R.anim.scale_down);
+
+        // Animate the floating action buttons
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                // Both buttons will behave the same, so only need to check the state of one
                 if (layoutManager.findFirstVisibleItemPosition() == 0 &&
                         scrollTopButton.getVisibility() == View.VISIBLE &&
                         scrollTopButton.getAnimation() == null) {
-                    scrollTopButton.startAnimation(animScaleDown);
+                    scrollTopButton.startAnimation(scrollScaleDown);
+                    refreshButton.startAnimation(refreshScaleDown);
                 } else if (layoutManager.findFirstVisibleItemPosition() != 0 &&
                         scrollTopButton.getAnimation() == null &&
                         scrollTopButton.getVisibility() == View.INVISIBLE &&
                         scrollTopButton.getAnimation() == null){
-                    scrollTopButton.startAnimation(animScaleUp);
+                    scrollTopButton.startAnimation(scrollScaleUp);
+                    refreshButton.startAnimation(refreshScaleUp);
                 }
             }
         });
@@ -112,6 +96,13 @@ public abstract class BaseListFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 layoutManager.smoothScrollToPosition(recyclerView, null, 0);
+            }
+        });
+
+        refreshButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                refreshList();
             }
         });
 
@@ -137,5 +128,45 @@ public abstract class BaseListFragment extends Fragment {
         // because the support library is a mess
         super.onAttach(activity);
         this.context = activity.getApplicationContext();
+    }
+
+    private Animation getScaleAnimation(FloatingActionButton floatingActionButton, int animResource) {
+        Animation anim;
+        if (animResource == R.anim.scale_up) {
+            anim = AnimationUtils.loadAnimation(context, R.anim.scale_up);
+            anim.setAnimationListener(new FABAnimationListener(floatingActionButton, true));
+        } else {
+            anim = AnimationUtils.loadAnimation(context, R.anim.scale_down);
+            anim.setAnimationListener(new FABAnimationListener(floatingActionButton, false));
+        }
+        return anim;
+    }
+
+    private class FABAnimationListener implements Animation.AnimationListener {
+
+        private FloatingActionButton fab;
+        private boolean up;
+
+        FABAnimationListener(FloatingActionButton floatingActionButton, boolean up) {
+            fab = floatingActionButton;
+            this.up = up;
+        }
+
+        @Override
+        public void onAnimationStart(Animation animation) {
+            if (up)
+                fab.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        public void onAnimationEnd(Animation animation) {
+            if (!up)
+                fab.setVisibility(View.INVISIBLE);
+        }
+
+        @Override
+        public void onAnimationRepeat(Animation animation) {
+
+        }
     }
 }
