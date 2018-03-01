@@ -19,11 +19,13 @@ public class SettingsManager {
 
     public interface OnSettingsChangedListener {
         /**
-         * This method is called every time a setting is changed. It is the
-         * listener's job to call SettingsManager's methods to see if a
-         * relevant setting has changed.
+         * This method is called every time a setting is changed. Use
+         * SettingsManager public constants to determine what the
+         * setting is.
+         *
+         * @param settingChanged    the setting that was changed
          */
-        void onSettingsChanged();
+        void onSettingsChanged(int settingChanged);
     }
 
     // Public constants returned by getRerunSetting
@@ -31,16 +33,25 @@ public class SettingsManager {
     public static final int RERUN_ONLINE_TAG = 1;
     public static final int RERUN_OFFLINE = 2;
 
+    // Public constants to indicate what setting has changed
+    public static final int SETTING_USERNAME = 0;
+    public static final int SETTING_RERUN = 1;
+    public static final int SETTING_DARKMODE = 2;
+
     private static SharedPreferences sharedPreferences;
     private static Resources resources;
     private static List<OnSettingsChangedListener> listeners;
     private static SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener =
             new SharedPreferences.OnSharedPreferenceChangeListener() {
         @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-            SettingsManager.onSharedPreferenceChanged();
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            SettingsManager.onSharedPreferenceChanged(key);
         }
     };
+
+    private static String usernameKey;
+    private static String rerunKey;
+    private static String darkmodeKey;
 
     private SettingsManager() {}
 
@@ -55,6 +66,9 @@ public class SettingsManager {
         SettingsManager.resources = resources;
         SettingsManager.listeners = new ArrayList<>();
         sharedPreferences.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
+        SettingsManager.usernameKey = resources.getString(R.string.pref_username_key);
+        SettingsManager.rerunKey = resources.getString(R.string.pref_vodcast_key);
+        SettingsManager.darkmodeKey = resources.getString(R.string.pref_dark_mode);
     }
 
     /**
@@ -77,8 +91,7 @@ public class SettingsManager {
      * @return the user's username, may be empty String
      */
     public static String getUsername() {
-        String key = resources.getString(R.string.pref_username_key);
-        return sharedPreferences.getString(key, "");
+        return sharedPreferences.getString(usernameKey, "");
     }
 
     /**
@@ -89,8 +102,7 @@ public class SettingsManager {
      * @return the rerun setting
      */
     public static int getRerunSetting() {
-        String key = resources.getString(R.string.pref_vodcast_key);
-        String setting = sharedPreferences.getString(key, "");
+        String setting = sharedPreferences.getString(rerunKey, "");
 
         String online = resources.getString(R.string.pref_vodcast_online);
         String onlineTag = resources.getString(R.string.pref_vodcast_online_tag);
@@ -109,17 +121,23 @@ public class SettingsManager {
      * @return true if dark mode is on, else false
      */
     public static boolean getDarkModeSetting() {
-        String key = resources.getString(R.string.pref_dark_mode);
-        return sharedPreferences.getBoolean(key, false);
+        return sharedPreferences.getBoolean(darkmodeKey, false);
     }
 
     /**
      * Called by preferenceChangeListener when a preference has changed.
      * Notifies all OnSettingsChangedListeners.
      */
-    private static void onSharedPreferenceChanged() {
-        for (OnSettingsChangedListener listener : listeners) {
-            listener.onSettingsChanged();
-        }
+    private static void onSharedPreferenceChanged(String key) {
+        int setting;
+        if (key.equals(usernameKey))
+            setting = SETTING_USERNAME;
+        else if (key.equals(rerunKey))
+            setting = SETTING_RERUN;
+        else
+            setting = SETTING_DARKMODE;
+
+        for (OnSettingsChangedListener listener : listeners)
+            listener.onSettingsChanged(setting);
     }
 }
