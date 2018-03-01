@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import java.lang.reflect.Method;
 
+import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.settings.SettingsManager;
 
 
@@ -23,6 +24,9 @@ public class MainActivity extends AppCompatActivity implements SettingsManager.O
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SettingsManager.initialize(sharedPreferences, getResources());
         SettingsManager.registerOnSettingsChangedListener(this);
+
+        // Set up database
+        ChannelDb.initialize(this);
 
         // Set the theme based on whether dark mode is on;
         boolean darkMode = SettingsManager.getDarkModeSetting();
@@ -43,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements SettingsManager.O
     protected void onDestroy() {
         super.onDestroy();
         SettingsManager.destroy();
+        ChannelDb.destroy();
     }
 
     @Override
