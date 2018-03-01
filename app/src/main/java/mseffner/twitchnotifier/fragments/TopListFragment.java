@@ -18,6 +18,7 @@ import mseffner.twitchnotifier.data.Channel;
 import mseffner.twitchnotifier.data.ChannelAdapter;
 import mseffner.twitchnotifier.data.ChannelContract;
 import mseffner.twitchnotifier.networking.NetworkUtils;
+import mseffner.twitchnotifier.settings.SettingsManager;
 
 public class TopListFragment extends BaseListFragment {
 
@@ -103,12 +104,10 @@ public class TopListFragment extends BaseListFragment {
                 Toast.makeText(context.getApplicationContext(), "A network error has occurred", Toast.LENGTH_LONG).show();
             }
 
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-            Resources resources = recyclerView.getResources();
-            String vodcastSetting = preferences.getString(resources.getString(R.string.pref_vodcast_key), "");
+            int rerunSetting = SettingsManager.getRerunSetting();
 
             // If vodcasts are set to be shown as offline, remove them from the top list entirely
-            if (vodcastSetting.equals(resources.getString(R.string.pref_vodcast_offline))) {
+            if (rerunSetting == SettingsManager.RERUN_OFFLINE) {
                 channelList = removeNonliveChannels(channelList);
             }
 
@@ -119,11 +118,11 @@ public class TopListFragment extends BaseListFragment {
 
             // Reset adapter if it exists, else create a new one
             if (channelAdapter == null) {
-                channelAdapter = new ChannelAdapter(channelList, vodcastSetting, false);
+                channelAdapter = new ChannelAdapter(channelList, rerunSetting, false);
             } else {
                 channelAdapter.clear();
                 channelAdapter.addAll(channelList);
-                channelAdapter.updateVodcastSetting(vodcastSetting);
+                channelAdapter.updateVodcastSetting(rerunSetting);
             }
 
             // Update recycler view while saving scroll position

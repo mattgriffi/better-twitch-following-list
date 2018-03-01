@@ -17,21 +17,22 @@ import java.util.List;
 import java.util.Locale;
 
 import mseffner.twitchnotifier.R;
+import mseffner.twitchnotifier.settings.SettingsManager;
 
 
 public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelViewHolder> {
 
     private final List<Channel> channelList;
-    private String vodcastSetting;
+    private int vodcastSetting;
     private Boolean allowLongClick;
 
-    public ChannelAdapter(List<Channel> channelList, String vodcastSetting, Boolean allowLongClick) {
+    public ChannelAdapter(List<Channel> channelList, int vodcastSetting, Boolean allowLongClick) {
         this.channelList = channelList;
         this.vodcastSetting = vodcastSetting;
         this.allowLongClick = allowLongClick;
     }
 
-    public void updateVodcastSetting(String newSetting) {
+    public void updateVodcastSetting(int newSetting) {
         vodcastSetting = newSetting;
     }
 
@@ -142,7 +143,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             // Determine whether to treat stream as online or offline, and finish binding there
             if (channel.getStream() == null ||
                     (channel.getStream().getStreamType() == ChannelContract.ChannelEntry.STREAM_TYPE_RERUN &&
-                    vodcastSetting.equals(itemView.getResources().getString(R.string.pref_vodcast_offline)))) {
+                    vodcastSetting == SettingsManager.RERUN_OFFLINE)) {
                 bindOfflineStream();
             } else {
                 bindOnlineStream(channel);
@@ -192,7 +193,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
 
             // Display vodcast tag depending on setting
             if (stream.getStreamType() == ChannelContract.ChannelEntry.STREAM_TYPE_RERUN &&
-                    vodcastSetting.equals(itemView.getResources().getString(R.string.pref_vodcast_online_tag))) {
+                    vodcastSetting == SettingsManager.RERUN_ONLINE_TAG) {
                 vodcastTag.setVisibility(View.VISIBLE);
             } else {
                 vodcastTag.setVisibility(View.INVISIBLE);
