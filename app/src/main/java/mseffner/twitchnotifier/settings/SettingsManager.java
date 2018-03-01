@@ -33,6 +33,9 @@ public class SettingsManager {
     public static final int RERUN_ONLINE_TAG = 1;
     public static final int RERUN_OFFLINE = 2;
 
+    // Public constant for invalid username id
+    public static final int INVALID_USERNAME_ID = -1;
+
     // Public constants to indicate what setting has changed
     public static final int SETTING_USERNAME = 0;
     public static final int SETTING_RERUN = 1;
@@ -50,6 +53,7 @@ public class SettingsManager {
     };
 
     private static String usernameKey;
+    private static String usernameIdKey;
     private static String rerunKey;
     private static String darkmodeKey;
 
@@ -67,6 +71,7 @@ public class SettingsManager {
         SettingsManager.listeners = new ArrayList<>();
         sharedPreferences.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
         SettingsManager.usernameKey = resources.getString(R.string.pref_username_key);
+        SettingsManager.usernameIdKey = resources.getString(R.string.pref_username_id_key);
         SettingsManager.rerunKey = resources.getString(R.string.pref_vodcast_key);
         SettingsManager.darkmodeKey = resources.getString(R.string.pref_dark_mode);
     }
@@ -92,6 +97,22 @@ public class SettingsManager {
      */
     public static String getUsername() {
         return sharedPreferences.getString(usernameKey, "");
+    }
+
+    /**
+     * @return  the user's id or INVALID_USERNAME_ID
+     */
+    public static long getUsernameId() {
+        return sharedPreferences.getLong(usernameIdKey, INVALID_USERNAME_ID);
+    }
+
+    /**
+     * Writes a new username id into persistent storage.
+     * @param newId the new username id
+     */
+    public static void setUsernameId(long newId) {
+        // TODO determine if getUsernameId called immediately after this will return the new id
+        sharedPreferences.edit().putLong(usernameIdKey, newId).apply();
     }
 
     /**
