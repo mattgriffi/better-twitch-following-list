@@ -1,11 +1,8 @@
 package mseffner.twitchnotifier.fragments;
 
-import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Parcelable;
 import android.os.SystemClock;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -13,7 +10,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import mseffner.twitchnotifier.R;
 import mseffner.twitchnotifier.data.Channel;
 import mseffner.twitchnotifier.data.ChannelAdapter;
 import mseffner.twitchnotifier.data.ChannelContract;
