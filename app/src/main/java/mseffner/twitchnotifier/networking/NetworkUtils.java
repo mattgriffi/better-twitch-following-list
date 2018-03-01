@@ -65,7 +65,7 @@ public final class NetworkUtils {
 
     private NetworkUtils() {}
 
-    public static void populateUserFollowedChannels(String userName, ChannelDb database)
+    public static void populateUserFollowedChannels(String userName)
             throws NetworkException, InvalidUsernameException {
 
         String userId = Long.toString(getTwitchUserId(userName));
@@ -107,22 +107,22 @@ public final class NetworkUtils {
 
         } while (offsetMultiplier < (totalFollowedChannels / chunkSize) + 1);
 
-        database.updateNewChannelData(channelList);
+        ChannelDb.updateNewChannelData(channelList);
     }
 
-    public static void updateStreamData(ChannelDb database) throws NetworkException {
+    public static void updateStreamData() throws NetworkException {
 
-        int[] channelIds = database.getAllChannelIds();
+        int[] channelIds = ChannelDb.getAllChannelIds();
         String[] commaSeparatedIdLists = getCommaSeparatedIdsArray(channelIds);
 
         List<Stream> streamList = getStreamsFromCommaSeparatedIds(commaSeparatedIdLists);
 
         if (streamList.size() > 0) {
             // Reset the stream data before updating with new data
-            database.resetAllStreamData();
+            ChannelDb.resetAllStreamData();
 
             for (Stream stream : streamList) {
-                database.updateStreamData(stream);
+                ChannelDb.updateStreamData(stream);
             }
         }
     }

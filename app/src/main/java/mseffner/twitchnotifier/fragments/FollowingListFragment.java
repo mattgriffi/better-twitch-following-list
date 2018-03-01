@@ -48,7 +48,7 @@ public class FollowingListFragment extends BaseListFragment
     public void onSettingsChanged(int settingChanged) {
         // If the username is changed, empty the database
         if (context != null && settingChanged == SettingsManager.SETTING_USERNAME)
-            new ChannelDb(context).deleteAllChannels();
+            ChannelDb.deleteAllChannels();
     }
 
     @Override
@@ -113,8 +113,7 @@ public class FollowingListFragment extends BaseListFragment
         @Override
         protected List<Channel> doInBackground(Void... voids) {
             Log.i(TAG, "UpdateAdapterAsyncTask doInBackground");
-            ChannelDb database = new ChannelDb(context);
-            return database.getAllChannels();
+            return ChannelDb.getAllChannels();
         }
 
         @Override
@@ -165,20 +164,19 @@ public class FollowingListFragment extends BaseListFragment
         @Override
         protected Boolean doInBackground(Void... voids) {
             Log.i(TAG, "UpdateStreamsAsyncTask doInBackground");
-            ChannelDb database = new ChannelDb(context);
 
             // Try a few times, silently retrying if it fails
             for (int errorCount = 0; errorCount < MAX_ALLOWED_ERROR_COUNT; errorCount++) {
                 if (isCancelled())
                     return false;
-                boolean success = tryUpdateStreamData(database);
+                boolean success = tryUpdateStreamData();
                 if (success)
                     return true;
                 SystemClock.sleep(1000);
             }
 
             // Try one last time, and raise errors if it fails
-            return tryUpdateStreamData(database);
+            return tryUpdateStreamData();
         }
 
         @Override
@@ -196,9 +194,9 @@ public class FollowingListFragment extends BaseListFragment
             runUpdateAdapterAsyncTask();
         }
 
-        private boolean tryUpdateStreamData(ChannelDb database) {
+        private boolean tryUpdateStreamData() {
             try {
-                NetworkUtils.updateStreamData(database);
+                NetworkUtils.updateStreamData();
             } catch (NetworkUtils.NetworkException e) {
                 Log.e(LOG_TAG_ERROR, "tryUpdateStreamData has caught NetworkException");
                 return false;
@@ -269,7 +267,7 @@ public class FollowingListFragment extends BaseListFragment
 
         private int tryPopulateUserFollowedChannels(String newUsername) {
             try {
-                NetworkUtils.populateUserFollowedChannels(newUsername, new ChannelDb(context));
+                NetworkUtils.populateUserFollowedChannels(newUsername);
             } catch (NetworkUtils.NetworkException e) {
                 Log.e(LOG_TAG_ERROR, "tryPopulateUserFollowedChannels has caught NetworkException");
                 return NETWORK_ERROR;

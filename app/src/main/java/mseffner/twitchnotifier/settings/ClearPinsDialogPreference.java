@@ -27,7 +27,7 @@ public class ClearPinsDialogPreference extends DialogPreference {
 
         @Override
         protected Void doInBackground(Void... strings) {
-            new ChannelDb(getContext()).removeAllPins();
+            ChannelDb.removeAllPins();
             return null;
         }
     }

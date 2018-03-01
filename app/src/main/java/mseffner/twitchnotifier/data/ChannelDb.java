@@ -2,35 +2,34 @@ package mseffner.twitchnotifier.data;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.preference.PreferenceManager;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import mseffner.twitchnotifier.R;
 import mseffner.twitchnotifier.data.ChannelContract.ChannelEntry;
+import mseffner.twitchnotifier.settings.SettingsManager;
 
 
 public class ChannelDb {
 
-    private final Resources resources;
-    private final SharedPreferences preferences;
-    private ChannelDbHelper dbHelper;
+    private static ChannelDbHelper dbHelper;
 
 
-    public ChannelDb(Context context) {
-        dbHelper = ChannelDbHelper.getInstance(context);
-        resources = context.getResources();
-        preferences = PreferenceManager.getDefaultSharedPreferences(context);
+    private ChannelDb() {}
+
+    public static void initialize(Context context) {
+        dbHelper = new ChannelDbHelper(context.getApplicationContext());
     }
 
-    public void updateNewChannelData(List<Channel> channelList) {
+    public static void destroy() {
+        dbHelper = null;
+    }
+
+    public static void updateNewChannelData(List<Channel> channelList) {
 
         // Get the ids already in the database
         int[] existingIds = getAllChannelIds();
@@ -63,7 +62,7 @@ public class ChannelDb {
 
     }
 
-    public int[] getAllChannelIds() {
+    public static int[] getAllChannelIds() {
 
         Cursor cursor = query(new String[]{ChannelEntry._ID}, null, null, null);
 
@@ -80,12 +79,10 @@ public class ChannelDb {
         return idArray;
     }
 
-    public List<Channel> getAllChannels() {
+    public static List<Channel> getAllChannels() {
 
         // Get the vodcast display setting
-        String vodcastSetting = preferences.getString(resources.getString(R.string.pref_vodcast_key), "");
-        String vodcastOffline = resources.getString(R.string.pref_vodcast_offline);
-        boolean vodcastOnline = !vodcastSetting.equals(vodcastOffline);
+        boolean vodcastOnline = SettingsManager.getRerunSetting() != SettingsManager.RERUN_OFFLINE;
 
         String sortOrder =
             // Sort by online/offline first
@@ -137,7 +134,7 @@ public class ChannelDb {
         return channelList;
     }
 
-    public void updateStreamData(Stream stream) {
+    public static void updateStreamData(Stream stream) {
 
         if (stream == null)
             return;
@@ -155,7 +152,7 @@ public class ChannelDb {
         update(values, selection, selectionArgs);
     }
 
-    public void toggleChannelPin(Channel channel) {
+    public static void toggleChannelPin(Channel channel) {
 
         if (channel == null)
             return;
@@ -185,7 +182,7 @@ public class ChannelDb {
         update(values, selection, selectionArgs);
     }
 
-    public void removeAllPins() {
+    public static void removeAllPins() {
 
         ContentValues values = new ContentValues();
         values.put(ChannelEntry.COLUMN_PINNED, ChannelEntry.IS_NOT_PINNED);
@@ -196,12 +193,12 @@ public class ChannelDb {
         update(values, selection, selectionArgs);
     }
 
-    public void deleteAllChannels() {
+    public static void deleteAllChannels() {
         // This will completely empty the table
         delete(null, null);
     }
 
-    public void resetAllStreamData() {
+    public static void resetAllStreamData() {
 
         // Sets all stream data to the default values (they appear as offline)
         ContentValues values = new ContentValues();
@@ -214,7 +211,7 @@ public class ChannelDb {
         update(values, null, null);
     }
 
-    private void insertChannel(Channel channel) {
+    private static void insertChannel(Channel channel) {
 
         if (channel == null)
             return;
@@ -240,33 +237,33 @@ public class ChannelDb {
         insert(values);
     }
 
-    private void deleteChannel(int id) {
+    private static void deleteChannel(int id) {
 
         String selection = ChannelEntry._ID + "=?";
         String[] selectionArgs = {Integer.toString(id)};
         delete(selection, selectionArgs);
     }
 
-    private Cursor query(String[] projection, String selection, String[] selectionArgs,
+    private static Cursor query(String[] projection, String selection, String[] selectionArgs,
                         String sortOrder) {
 
         SQLiteDatabase database = dbHelper.getReadableDatabase();
         return database.query(ChannelEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
     }
 
-    private void insert(ContentValues contentValues) {
+    private static void insert(ContentValues contentValues) {
 
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         database.insert(ChannelEntry.TABLE_NAME, null, contentValues);
     }
 
-    private void update(ContentValues contentValues, String selection, String[] selectionArgs) {
+    private static void update(ContentValues contentValues, String selection, String[] selectionArgs) {
 
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         database.update(ChannelEntry.TABLE_NAME, contentValues, selection, selectionArgs);
     }
 
-    private void delete(String selection, String[] selectionArgs) {
+    private static void delete(String selection, String[] selectionArgs) {
 
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         database.delete(ChannelEntry.TABLE_NAME, selection, selectionArgs);

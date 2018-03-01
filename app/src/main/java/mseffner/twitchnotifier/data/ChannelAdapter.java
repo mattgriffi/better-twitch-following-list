@@ -132,7 +132,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                 itemView.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View view) {
-                        new ChannelDb(view.getContext()).toggleChannelPin(channel);
+                        ChannelDb.toggleChannelPin(channel);
                         channel.togglePinned();
                         updatePinIcon(channel, pinIcon);
                         return true;
