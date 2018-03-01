@@ -87,9 +87,21 @@ public class SettingsManager {
         listeners = null;
     }
 
+    /**
+     * Registers listener as a listener for settings changes. onSettingsChanged will
+     * be called any time a setting is changed.
+     * @param listener  an OnSettingsChangedListener
+     */
     public static void registerOnSettingsChangedListener(OnSettingsChangedListener listener) {
         listeners.add(listener);
+    }
 
+    /**
+     * @param listener  OnSettingsChangedListener to unregister
+     */
+    @SuppressWarnings("StatementWithEmptyBody")
+    public static void unregisterOnSettingsChangedListener(OnSettingsChangedListener listener) {
+        while (listeners.remove(listener));
     }
 
     /**
