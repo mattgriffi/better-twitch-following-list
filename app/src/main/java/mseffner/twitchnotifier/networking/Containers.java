@@ -21,8 +21,13 @@ public class Containers {
             public String followed_at;
         }
 
+        public class Pagination {
+            public String cursor;
+        }
+
         public int total;
         public List<Data> data = new ArrayList<>();
+        public Pagination pagination;
     }
 
     /**
@@ -42,7 +47,7 @@ public class Containers {
             public int view_count;
         }
 
-        List<Data> data = new ArrayList<>();
+        public List<Data> data = new ArrayList<>();
     }
 
     /**
@@ -66,8 +71,8 @@ public class Containers {
             public String cursor;
         }
 
-        List<Data> data = new ArrayList<>();
-        Pagination pagination;
+        public List<Data> data = new ArrayList<>();
+        public Pagination pagination;
     }
 
     /**
@@ -75,12 +80,13 @@ public class Containers {
      * https://api.twitch.tv/helix/games
      */
     public class Games {
+
         public class Data {
             public String id;
             public String name;
             public String box_art_url;
         }
 
-        List<Data> data = new ArrayList<>();
+        public List<Data> data = new ArrayList<>();
     }
 }
