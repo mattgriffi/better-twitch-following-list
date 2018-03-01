@@ -1,12 +1,9 @@
 package mseffner.twitchnotifier.fragments;
 
-import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.SystemClock;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,14 +13,14 @@ import android.widget.Toast;
 
 import java.util.List;
 
-import mseffner.twitchnotifier.R;
 import mseffner.twitchnotifier.data.Channel;
 import mseffner.twitchnotifier.data.ChannelAdapter;
 import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.networking.NetworkUtils;
+import mseffner.twitchnotifier.settings.SettingsManager;
 
 public class FollowingListFragment extends BaseListFragment
-        implements SharedPreferences.OnSharedPreferenceChangeListener{
+        implements SettingsManager.OnSettingsChangedListener {
 
     private static final String TAG = FollowingListFragment.class.getSimpleName();
     private static final String LOG_TAG_ERROR = "Error";
@@ -36,9 +33,8 @@ public class FollowingListFragment extends BaseListFragment
     private UpdateStreamsAsyncTask updateStreamsAsyncTask;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        prefs.registerOnSharedPreferenceChangeListener(this);
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
@@ -49,9 +45,9 @@ public class FollowingListFragment extends BaseListFragment
     }
 
     @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (context != null && key.equals(context.getString(R.string.pref_username_key)))
-            // If the username is changed, empty the database
+    public void onSettingsChanged(int settingChanged) {
+        // If the username is changed, empty the database
+        if (context != null && settingChanged == SettingsManager.SETTING_USERNAME)
             new ChannelDb(context).deleteAllChannels();
     }
 
@@ -128,17 +124,15 @@ public class FollowingListFragment extends BaseListFragment
             if (!isAdded() || isCancelled())
                 return;
 
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-            Resources resources = recyclerView.getResources();
-            String vodcastSetting = preferences.getString(resources.getString(R.string.pref_vodcast_key), "");
+            int rerunSetting = SettingsManager.getRerunSetting();
 
             // Reset adapter if it exists, else create a new one
             if (channelAdapter == null) {
-                channelAdapter = new ChannelAdapter(channelList, vodcastSetting, true);
+                channelAdapter = new ChannelAdapter(channelList, rerunSetting, true);
             } else {
                 channelAdapter.clear();
                 channelAdapter.addAll(channelList);
-                channelAdapter.updateVodcastSetting(vodcastSetting);
+                channelAdapter.updateVodcastSetting(rerunSetting);
             }
 
             // Show startMessage if adapter is empty, else hide it
@@ -233,8 +227,7 @@ public class FollowingListFragment extends BaseListFragment
                 return ABORT;
             }
 
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-            String username = sharedPreferences.getString(getString(R.string.pref_username_key), "");
+            String username = SettingsManager.getUsername();
             if (username.equals("")) {
                 return ABORT;
             }
