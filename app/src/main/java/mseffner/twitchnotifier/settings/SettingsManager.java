@@ -34,7 +34,7 @@ public class SettingsManager {
     public static final int RERUN_OFFLINE = 2;
 
     // Public constant for invalid username id
-    public static final int INVALID_USERNAME_ID = -1;
+    public static final long INVALID_USERNAME_ID = -1;
 
     // Public constants to indicate what setting has changed
     public static final int SETTING_USERNAME = 0;
