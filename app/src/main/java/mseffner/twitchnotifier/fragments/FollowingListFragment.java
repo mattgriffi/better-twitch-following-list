@@ -19,8 +19,7 @@ import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.networking.NetworkUtils;
 import mseffner.twitchnotifier.settings.SettingsManager;
 
-public class FollowingListFragment extends BaseListFragment
-        implements SettingsManager.OnSettingsChangedListener {
+public class FollowingListFragment extends BaseListFragment {
 
     private static final String TAG = FollowingListFragment.class.getSimpleName();
     private static final String LOG_TAG_ERROR = "Error";
@@ -42,13 +41,6 @@ public class FollowingListFragment extends BaseListFragment
     protected void refreshList() {
         Log.i(TAG, "refreshList");
         runUpdateStreamsAsyncTask();
-    }
-
-    @Override
-    public void onSettingsChanged(int settingChanged) {
-        // If the username is changed, empty the database
-        if (context != null && settingChanged == SettingsManager.SETTING_USERNAME)
-            ChannelDb.deleteAllChannels();
     }
 
     @Override

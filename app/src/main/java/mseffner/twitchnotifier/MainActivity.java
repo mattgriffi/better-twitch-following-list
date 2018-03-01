@@ -61,6 +61,9 @@ public class MainActivity extends AppCompatActivity implements SettingsManager.O
             else if (!dark && themeID != R.style.AppTheme_Light)
                 recreate();
         }
+        // If the username is changed, empty the database
+        else if (setting == SettingsManager.SETTING_USERNAME)
+            ChannelDb.deleteAllChannels();
     }
 
     private int getThemeId() {
