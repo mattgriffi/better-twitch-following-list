@@ -127,11 +127,10 @@ public class FollowingListFragment extends BaseListFragment {
             }
 
             // Show startMessage if adapter is empty, else hide it
-            if (channelAdapter.getItemCount() == 0) {
+            if (channelAdapter.getItemCount() == 0)
                 startMessage.setVisibility(View.VISIBLE);
-            } else {
+            else
                 startMessage.setVisibility(View.GONE);
-            }
 
             // Update recycler view while saving scroll position
             Parcelable recyclerViewState = recyclerView.getLayoutManager().onSaveInstanceState();
@@ -179,9 +178,8 @@ public class FollowingListFragment extends BaseListFragment {
             if (!isAdded() || isCancelled())
                 return;
 
-            if (!success) {
+            if (!success)
                 ToastMaker.makeToastLong(ToastMaker.MESSAGE_NETWORK_ERROR);
-            }
             runUpdateAdapterAsyncTask();
         }
 
@@ -212,14 +210,12 @@ public class FollowingListFragment extends BaseListFragment {
         protected Integer doInBackground(Void... strings) {
             Log.i(TAG, "UpdateFollowingListAsyncTask doInBackground");
 
-            if (!isAdded()) {
+            if (!isAdded())
                 return ABORT;
-            }
 
             String username = SettingsManager.getUsername();
-            if (username.equals("")) {
+            if (username.equals(""))
                 return ABORT;
-            }
 
             // Try a few times, silently retrying if it fails
             for (int errorCount = 0; errorCount < MAX_ALLOWED_ERROR_COUNT; errorCount++) {

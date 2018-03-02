@@ -92,25 +92,21 @@ public class TopListFragment extends BaseListFragment {
         protected void onPostExecute(List<Channel> channelList) {
             updateTopStreamsAsyncTask = null;
 
-            if (!isAdded() || isCancelled()) {
+            if (!isAdded() || isCancelled())
                 return;
-            }
 
-            if (channelList == null) {
+            if (channelList == null)
                 ToastMaker.makeToastLong(ToastMaker.MESSAGE_NETWORK_ERROR);
-            }
 
             int rerunSetting = SettingsManager.getRerunSetting();
 
             // If vodcasts are set to be shown as offline, remove them from the top list entirely
-            if (rerunSetting == SettingsManager.RERUN_OFFLINE) {
+            if (rerunSetting == SettingsManager.RERUN_OFFLINE)
                 channelList = removeNonliveChannels(channelList);
-            }
 
             // Limit list size to NUM_TOP_STREAMS
-            if (channelList != null && channelList.size() > NUM_TOP_STREAMS) {
+            if (channelList != null && channelList.size() > NUM_TOP_STREAMS)
                 channelList = channelList.subList(0, NUM_TOP_STREAMS);
-            }
 
             // Reset adapter if it exists, else create a new one
             if (channelAdapter == null) {
@@ -136,11 +132,9 @@ public class TopListFragment extends BaseListFragment {
                 return null;
 
             List<Channel> newList = new ArrayList<>();
-            for (Channel channel : list) {
-                if (channel.getStream().getStreamType() == ChannelContract.ChannelEntry.STREAM_TYPE_LIVE) {
+            for (Channel channel : list)
+                if (channel.getStream().getStreamType() == ChannelContract.ChannelEntry.STREAM_TYPE_LIVE)
                     newList.add(channel);
-                }
-            }
             return newList;
         }
     }
