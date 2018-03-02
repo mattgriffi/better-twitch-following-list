@@ -10,10 +10,10 @@ import java.util.Map;
 import mseffner.twitchnotifier.settings.SettingsManager;
 
 /**
- * Network provides methods to run asynchronous network operations
+ * Netcode provides methods to run asynchronous network operations
  * using Volley and Gson.
  */
-public class Network {
+public class Netcode {
 
     private static final String LOG_TAG = NetworkUtils.class.getSimpleName();
 
@@ -49,7 +49,7 @@ public class Network {
     /**
      * @return  url to get the user information for the app user
      */
-    private static String getUserIdUrl() {
+    public static String getUserIdUrl() {
         String username = SettingsManager.getUsername();
         return Uri.parse(TWITCH_API_BASE_URL).buildUpon()
                 .appendPath(PATH_USERS)
@@ -60,7 +60,7 @@ public class Network {
     /**
      * @return url to get top 100 streams
      */
-    private static String getTopStreamsUrl() {
+    public static String getTopStreamsUrl() {
         return Uri.parse(TWITCH_API_BASE_URL).buildUpon()
                 .appendPath(PATH_STREAMS)
                 .appendQueryParameter(PARAM_FIRST, FIRST_MAX)
@@ -70,7 +70,7 @@ public class Network {
     /**
      * @return url to get first 100 followed channels after cursor
      */
-    private static String getFollowsUrl(@Nullable String cursor) {
+    public static String getFollowsUrl(@Nullable String cursor) {
         String userId = Long.toString(SettingsManager.getUsernameId());
         Uri.Builder builder = Uri.parse(TWITCH_API_BASE_URL).buildUpon()
                 .appendEncodedPath(PATH_FOLLOWS)
