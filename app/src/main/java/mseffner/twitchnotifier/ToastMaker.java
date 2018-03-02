@@ -11,6 +11,7 @@ public class ToastMaker {
 
     public static final String MESSAGE_INVALID_USERNAME = "Invalid username";
     public static final String MESSAGE_NETWORK_ERROR = "A network error has occurred";
+    public static final String MESSAGE_SERVER_ERROR = "A Twitch server error has occurred";
 
     private static Context appContext;
 

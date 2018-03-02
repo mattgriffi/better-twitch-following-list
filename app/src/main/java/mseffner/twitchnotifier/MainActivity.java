@@ -10,12 +10,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.android.volley.Response;
+import com.android.volley.ServerError;
 import com.android.volley.VolleyError;
 
 import java.lang.reflect.Method;
 
 import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.networking.Containers;
+import mseffner.twitchnotifier.networking.ErrorHandler;
 import mseffner.twitchnotifier.networking.Netcode;
 import mseffner.twitchnotifier.networking.URLTools;
 import mseffner.twitchnotifier.settings.SettingsManager;
@@ -100,10 +102,14 @@ public class MainActivity extends AppCompatActivity implements SettingsManager.O
                             long newId = Long.parseLong(data.id);
                             SettingsManager.setUsernameId(newId);
                         }
-                    }, new Response.ErrorListener() {
+                    }, new ErrorHandler() {
                         @Override
-                        public void onErrorResponse(VolleyError error) {
-                            ToastMaker.makeToastLong(ToastMaker.MESSAGE_INVALID_USERNAME);
+                        protected void handleServerError(ServerError error) {
+                            int code = error.networkResponse.statusCode;
+                            if (code == 400)
+                                ToastMaker.makeToastLong(ToastMaker.MESSAGE_INVALID_USERNAME);
+                            else
+                                ToastMaker.makeToastLong(ToastMaker.MESSAGE_SERVER_ERROR);
                         }
                     });
         }

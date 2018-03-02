@@ -54,6 +54,7 @@ public class Netcode {
     @SuppressWarnings("unchecked")
     public static void makeRequest(int requestType, String url, Response.Listener listener,
                                    Response.ErrorListener errorListener) {
+        Log.e(LOG_TAG, "Making request for url: " + url);
         GsonRequest request;
         switch (requestType) {
             case REQUEST_TYPE_USERS:
