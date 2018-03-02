@@ -7,14 +7,20 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+
+import com.android.volley.Response;
 
 import java.lang.reflect.Method;
 
 import mseffner.twitchnotifier.data.ChannelDb;
+import mseffner.twitchnotifier.networking.Containers;
+import mseffner.twitchnotifier.networking.Netcode;
 import mseffner.twitchnotifier.settings.SettingsManager;
 
 
-public class MainActivity extends AppCompatActivity implements SettingsManager.OnSettingsChangedListener {
+public class MainActivity extends AppCompatActivity implements SettingsManager.OnSettingsChangedListener,
+        Response.Listener<Containers.Users> {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +33,9 @@ public class MainActivity extends AppCompatActivity implements SettingsManager.O
 
         // Set up database
         ChannelDb.initialize(this);
+
+        // Set up Netcode
+        Netcode.initialize(this);
 
         // Set the theme based on whether dark mode is on;
         boolean darkMode = SettingsManager.getDarkModeSetting();
@@ -44,10 +53,19 @@ public class MainActivity extends AppCompatActivity implements SettingsManager.O
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+
+        String url = "https://api.twitch.tv/helix/users?login=takagi";
+        Netcode.makeRequest(Netcode.REQUEST_TYPE_USERS, url, this, null);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         SettingsManager.destroy();
         ChannelDb.destroy();
+        Netcode.destroy();
     }
 
     @Override
@@ -78,5 +96,13 @@ public class MainActivity extends AppCompatActivity implements SettingsManager.O
         }
         // 0 shows an invalid resource ID
         return 0;
+    }
+
+    @Override
+    public void onResponse(Containers.Users response) {
+        Containers.Users.Data data = response.data.get(0);
+        Log.e("id", data.id);
+        Log.e("login", data.login);
+        Log.e("display_name", data.display_name);
     }
 }
