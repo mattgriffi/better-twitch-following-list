@@ -101,6 +101,7 @@ public final class NetworkUtils {
                 }
             } catch (JSONException e) {
                 Log.e(LOG_TAG, e.toString());
+                throw new NetworkException();
             }
 
             offsetMultiplier++;
