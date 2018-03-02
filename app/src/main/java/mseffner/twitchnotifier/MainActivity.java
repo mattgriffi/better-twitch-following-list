@@ -10,12 +10,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.android.volley.Response;
+import com.android.volley.VolleyError;
 
 import java.lang.reflect.Method;
 
 import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.networking.Containers;
 import mseffner.twitchnotifier.networking.Netcode;
+import mseffner.twitchnotifier.networking.URLTools;
 import mseffner.twitchnotifier.settings.SettingsManager;
 
 
@@ -26,16 +28,13 @@ public class MainActivity extends AppCompatActivity implements SettingsManager.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Set up SettingsManager
+        // Set up static classes
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SettingsManager.initialize(sharedPreferences, getResources());
         SettingsManager.registerOnSettingsChangedListener(this);
-
-        // Set up database
         ChannelDb.initialize(this);
-
-        // Set up Netcode
         Netcode.initialize(this);
+        ToastMaker.initialize(this);
 
         // Set the theme based on whether dark mode is on;
         boolean darkMode = SettingsManager.getDarkModeSetting();
@@ -58,14 +57,20 @@ public class MainActivity extends AppCompatActivity implements SettingsManager.O
 
         String url = "https://api.twitch.tv/helix/users?login=takagi";
         Netcode.makeRequest(Netcode.REQUEST_TYPE_USERS, url, this, null);
+        Netcode.makeRequest(Netcode.REQUEST_TYPE_USERS, "https://api.twitch.tv/helix/users?login=holokraft", this, null);
+        Netcode.makeRequest(Netcode.REQUEST_TYPE_USERS, "https://api.twitch.tv/helix/users?login=iammetv", this, null);
+        Netcode.makeRequest(Netcode.REQUEST_TYPE_USERS, "https://api.twitch.tv/helix/users?login=cirno_tv", this, null);
+        Netcode.makeRequest(Netcode.REQUEST_TYPE_USERS, "https://api.twitch.tv/helix/users?login=thisnamedefinitelydoenotexist", this, null);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        // Destroy static classes to prevent memory leaks
         SettingsManager.destroy();
         ChannelDb.destroy();
         Netcode.destroy();
+        ToastMaker.destroy();
     }
 
     @Override
@@ -80,8 +85,28 @@ public class MainActivity extends AppCompatActivity implements SettingsManager.O
                 recreate();
         }
         // If the username is changed, empty the database
-        else if (setting == SettingsManager.SETTING_USERNAME)
+        else if (setting == SettingsManager.SETTING_USERNAME) {
             ChannelDb.deleteAllChannels();
+            Netcode.makeRequest(Netcode.REQUEST_TYPE_USERS, URLTools.getUserIdUrl(),
+                    new Response.Listener<Containers.Users>() {
+                        @Override
+                        public void onResponse(Containers.Users response) {
+                            if (response.data.isEmpty()) {
+                                ToastMaker.makeToastLong(ToastMaker.MESSAGE_INVALID_USERNAME);
+                                return;
+                            }
+                            Containers.Users.Data data = response.data.get(0);
+                            Log.e("New username", data.display_name);
+                            long newId = Long.parseLong(data.id);
+                            SettingsManager.setUsernameId(newId);
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            ToastMaker.makeToastLong(ToastMaker.MESSAGE_INVALID_USERNAME);
+                        }
+                    });
+        }
     }
 
     private int getThemeId() {
@@ -100,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements SettingsManager.O
 
     @Override
     public void onResponse(Containers.Users response) {
+        if (response.data.isEmpty()) return;
         Containers.Users.Data data = response.data.get(0);
         Log.e("id", data.id);
         Log.e("login", data.login);

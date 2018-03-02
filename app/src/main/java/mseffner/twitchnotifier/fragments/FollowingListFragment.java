@@ -9,10 +9,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import java.util.List;
 
+import mseffner.twitchnotifier.ToastMaker;
 import mseffner.twitchnotifier.data.Channel;
 import mseffner.twitchnotifier.data.ChannelAdapter;
 import mseffner.twitchnotifier.data.ChannelDb;
@@ -180,8 +180,7 @@ public class FollowingListFragment extends BaseListFragment {
                 return;
 
             if (!success) {
-                // Use application context to get default toast style
-                Toast.makeText(context.getApplicationContext(), "A network error has occurred", Toast.LENGTH_LONG).show();
+                ToastMaker.makeToastLong(ToastMaker.MESSAGE_NETWORK_ERROR);
             }
             runUpdateAdapterAsyncTask();
         }
@@ -246,12 +245,10 @@ public class FollowingListFragment extends BaseListFragment {
 
             switch (result) {
                 case NETWORK_ERROR:
-                    // Use application context to get default toast style
-                    Toast.makeText(context.getApplicationContext(), "A network error has occurred", Toast.LENGTH_LONG).show();
+                    ToastMaker.makeToastLong(ToastMaker.MESSAGE_NETWORK_ERROR);
                     break;
                 case INVALID_USERNAME_ERROR:
-                    // Use application context to get default toast style
-                    Toast.makeText(context.getApplicationContext(), "Invalid username", Toast.LENGTH_LONG).show();
+                    ToastMaker.makeToastLong(ToastMaker.MESSAGE_INVALID_USERNAME);
                     break;
             }
             runUpdateStreamsAsyncTask();

@@ -10,6 +10,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import mseffner.twitchnotifier.ToastMaker;
 import mseffner.twitchnotifier.data.Channel;
 import mseffner.twitchnotifier.data.ChannelAdapter;
 import mseffner.twitchnotifier.data.ChannelContract;
@@ -96,8 +97,7 @@ public class TopListFragment extends BaseListFragment {
             }
 
             if (channelList == null) {
-                // Use application context to get default toast style
-                Toast.makeText(context.getApplicationContext(), "A network error has occurred", Toast.LENGTH_LONG).show();
+                ToastMaker.makeToastLong(ToastMaker.MESSAGE_NETWORK_ERROR);
             }
 
             int rerunSetting = SettingsManager.getRerunSetting();
