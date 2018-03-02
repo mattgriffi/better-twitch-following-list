@@ -1,10 +1,12 @@
 package mseffner.twitchnotifier.networking;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -14,6 +16,10 @@ import java.util.Map;
 
 
 public class GsonRequest<T> extends Request<T> {
+
+    private static final int TIMEOUT_MS = 1000;
+    private static final int RETRIES = 3;
+    private static final int BACKOFF_MUL = 2;
 
     private final Gson gson = new Gson();
     private final Map<String, String> headers;
@@ -26,6 +32,7 @@ public class GsonRequest<T> extends Request<T> {
         this.headers = headers;
         this.clazz = clazz;
         this.listener = listener;
+        setRetryPolicy(new DefaultRetryPolicy(TIMEOUT_MS, RETRIES, BACKOFF_MUL));
     }
 
     @Override
@@ -45,6 +52,8 @@ public class GsonRequest<T> extends Request<T> {
             return Response.error(new ParseError(e));
         }
     }
+
+
 
     @Override
     protected void deliverResponse(T response) {
