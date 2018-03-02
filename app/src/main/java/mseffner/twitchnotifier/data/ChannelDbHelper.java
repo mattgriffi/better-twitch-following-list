@@ -10,7 +10,7 @@ import mseffner.twitchnotifier.data.ChannelContract.ChannelEntry;
 public class ChannelDbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "channels.db";
-    private static int DATABASE_VERSION = 1;
+    private static int DATABASE_VERSION = 1;  // TODO increment
 
     private static final String DEFAULT_LOGO_URL = "\"https://www-cdn.jtvnw.net/images/xarth/404_user_300x300.png\"";
 
@@ -21,6 +21,8 @@ public class ChannelDbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase database) {
 
+        // TODO add columns LOGIN_NAME and DIRTY (to track whether channel has been updated)
+        // TODO maybe remove NOT NULLs, add/remove DEFAULTs
         String CREATE_CHANNELS_TABLE =
             "CREATE TABLE " + ChannelEntry.TABLE_NAME +
             " (" +
@@ -43,5 +45,7 @@ public class ChannelDbHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {}
+    public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
+        // TODO implement
+    }
 }

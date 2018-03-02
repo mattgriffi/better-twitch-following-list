@@ -30,57 +30,46 @@ public class ChannelDb {
     }
 
     public static void updateNewChannelData(List<Channel> channelList) {
-
         // Get the ids already in the database
         int[] existingIds = getAllChannelIds();
         Set<Integer> existingIdSet = new HashSet<>(existingIds.length);
-        for (int id : existingIds) {
+
+        for (int id : existingIds)
             existingIdSet.add(id);
-        }
 
         // Get the ids of the new Channel list
         Set<Integer> newIdSet = new HashSet<>(channelList.size());
-        for (Channel channel : channelList) {
+        for (Channel channel : channelList)
             newIdSet.add(channel.getId());
-        }
 
         // Delete any channel from the database that isn't in the new list
         // (This means that the channel was unfollowed)
-        for (int existingId : existingIds) {
-            if (!newIdSet.contains(existingId)) {
+        for (int existingId : existingIds)
+            if (!newIdSet.contains(existingId))
                 deleteChannel(existingId);
-            }
-        }
 
         // Add any channels that aren't in the database
         // (This means that the channel was newly followed)
-        for (Channel channel : channelList) {
-            if (!existingIdSet.contains(channel.getId())) {
+        for (Channel channel : channelList)
+            if (!existingIdSet.contains(channel.getId()))
                 insertChannel(channel);
-            }
-        }
-
     }
 
     public static int[] getAllChannelIds() {
-
         Cursor cursor = query(new String[]{ChannelEntry._ID}, null, null, null);
 
         int[] idArray = new int[cursor.getCount()];
         int idColumnIndex = cursor.getColumnIndex(ChannelEntry._ID);
 
         int i = 0;
-        while (cursor.moveToNext()) {
+        while (cursor.moveToNext())
             idArray[i++] = cursor.getInt(idColumnIndex);
-        }
-
         cursor.close();
 
         return idArray;
     }
 
     public static List<Channel> getAllChannels() {
-
         // Get the vodcast display setting
         boolean vodcastOnline = SettingsManager.getRerunSetting() != SettingsManager.RERUN_OFFLINE;
 
@@ -108,7 +97,6 @@ public class ChannelDb {
         List<Channel> channelList = new ArrayList<>();
 
         while (cursor.moveToNext()) {
-
             // Get all the data from the cursor
             int id = cursor.getInt(cursor.getColumnIndex(ChannelEntry._ID));
             String displayName = cursor.getString(cursor.getColumnIndex(ChannelEntry.COLUMN_DISPLAY_NAME));
@@ -128,16 +116,13 @@ public class ChannelDb {
 
             channelList.add(channel);
         }
-
         cursor.close();
 
         return channelList;
     }
 
     public static void updateStreamData(Stream stream) {
-
-        if (stream == null)
-            return;
+        if (stream == null) return;
 
         ContentValues values = new ContentValues();
         values.put(ChannelEntry.COLUMN_GAME, stream.getCurrentGame());
@@ -153,9 +138,7 @@ public class ChannelDb {
     }
 
     public static void toggleChannelPin(Channel channel) {
-
-        if (channel == null)
-            return;
+        if (channel == null) return;
 
         // Determine the current pin status of the channel
         String selection = ChannelEntry._ID + "=?";
@@ -164,8 +147,7 @@ public class ChannelDb {
         Cursor channelCursor = query(projection, selection, selectionArgs, null);
 
         // If the cursor is empty, then the channel somehow isn't in the db, so abort
-        if (channelCursor == null || channelCursor.getCount() == 0)
-            return;
+        if (channelCursor == null || channelCursor.getCount() == 0) return;
 
         channelCursor.moveToFirst();
         int currentPinnedStatus = channelCursor.getInt(channelCursor.getColumnIndex(ChannelEntry.COLUMN_PINNED));
@@ -173,17 +155,15 @@ public class ChannelDb {
 
         // Toggle the pin status
         ContentValues values = new ContentValues();
-        if (currentPinnedStatus == ChannelEntry.IS_PINNED) {
+        if (currentPinnedStatus == ChannelEntry.IS_PINNED)
             values.put(ChannelEntry.COLUMN_PINNED, ChannelEntry.IS_NOT_PINNED);
-        } else {
+        else
             values.put(ChannelEntry.COLUMN_PINNED, ChannelEntry.IS_PINNED);
-        }
 
         update(values, selection, selectionArgs);
     }
 
     public static void removeAllPins() {
-
         ContentValues values = new ContentValues();
         values.put(ChannelEntry.COLUMN_PINNED, ChannelEntry.IS_NOT_PINNED);
 
@@ -199,7 +179,6 @@ public class ChannelDb {
     }
 
     public static void resetAllStreamData() {
-
         // Sets all stream data to the default values (they appear as offline)
         ContentValues values = new ContentValues();
         values.put(ChannelEntry.COLUMN_STREAM_TYPE, ChannelEntry.STREAM_TYPE_OFFLINE);
@@ -212,9 +191,7 @@ public class ChannelDb {
     }
 
     private static void insertChannel(Channel channel) {
-
-        if (channel == null)
-            return;
+        if (channel == null) return;
 
         ContentValues values = new ContentValues();
 
@@ -238,7 +215,6 @@ public class ChannelDb {
     }
 
     private static void deleteChannel(int id) {
-
         String selection = ChannelEntry._ID + "=?";
         String[] selectionArgs = {Integer.toString(id)};
         delete(selection, selectionArgs);
@@ -246,25 +222,21 @@ public class ChannelDb {
 
     private static Cursor query(String[] projection, String selection, String[] selectionArgs,
                         String sortOrder) {
-
         SQLiteDatabase database = dbHelper.getReadableDatabase();
         return database.query(ChannelEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
     }
 
     private static void insert(ContentValues contentValues) {
-
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         database.insert(ChannelEntry.TABLE_NAME, null, contentValues);
     }
 
     private static void update(ContentValues contentValues, String selection, String[] selectionArgs) {
-
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         database.update(ChannelEntry.TABLE_NAME, contentValues, selection, selectionArgs);
     }
 
     private static void delete(String selection, String[] selectionArgs) {
-
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         database.delete(ChannelEntry.TABLE_NAME, selection, selectionArgs);
     }
