@@ -46,6 +46,7 @@
 
     <!-- SharedPreferences keys and values -->
     <string name="pref_username_key" translatable="false">username</string>
+    <string name="pref_username_id_key" translatable="false">username_id</string>
     <string name="pref_vodcast_key" translatable="false">vodcast</string>
     <string name="pref_vodcast_online" translatable="false">online</string>
     <string name="pref_vodcast_online_tag" translatable="false">tag</string>
