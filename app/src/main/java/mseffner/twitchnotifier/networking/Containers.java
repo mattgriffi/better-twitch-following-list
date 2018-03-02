@@ -39,6 +39,7 @@ public class Containers {
         public class Data {
             public String id;
             public String login;
+            public String display_name;
             public String type;
             public String broadcaster_type;
             public String description;
