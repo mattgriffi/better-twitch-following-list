@@ -123,7 +123,6 @@ public class SettingsManager {
      * @param newId the new username id
      */
     public static void setUsernameId(long newId) {
-        // TODO determine if getUsernameId called immediately after this will return the new id
         sharedPreferences.edit().putLong(usernameIdKey, newId).apply();
     }
 
