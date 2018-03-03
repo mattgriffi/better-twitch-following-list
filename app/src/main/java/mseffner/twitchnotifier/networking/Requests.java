@@ -3,7 +3,6 @@ package mseffner.twitchnotifier.networking;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.android.volley.Cache;
 import com.android.volley.Network;
@@ -16,17 +15,19 @@ import com.android.volley.toolbox.HurlStack;
 /**
  * Provides methods to run asynchronous network operations using Volley and Gson.
  */
-public class Netcode {
+public class Requests {
 
     public static final int REQUEST_TYPE_USERS = 0;
     public static final int REQUEST_TYPE_STREAMS = 1;
     public static final int REQUEST_TYPE_FOLLOWS = 2;
     public static final int REQUEST_TYPE_GAMES = 3;
 
-    private static final String LOG_TAG = Netcode.class.getSimpleName();
+    private static final String LOG_TAG = Requests.class.getSimpleName();
     private static final int CACHE_SIZE = 1024 * 1024;  // in bytes
 
     private static RequestQueue queue;
+
+    private Requests() {}
 
     public static void initialize(Context context) {
         Cache cache = new DiskBasedCache(context.getCacheDir(), CACHE_SIZE);

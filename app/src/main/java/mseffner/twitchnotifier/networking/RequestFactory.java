@@ -19,16 +19,16 @@ public class RequestFactory {
                                          Response.ErrorListener errorListener) {
         GsonRequest request = null;
         switch (requestType) {
-            case Netcode.REQUEST_TYPE_USERS:
+            case Requests.REQUEST_TYPE_USERS:
                 request = getUsersRequest(url, listener, errorListener);
                 break;
-            case Netcode.REQUEST_TYPE_STREAMS:
+            case Requests.REQUEST_TYPE_STREAMS:
                 request = getStreamsRequest(url, listener, errorListener);
                 break;
-            case Netcode.REQUEST_TYPE_FOLLOWS:
+            case Requests.REQUEST_TYPE_FOLLOWS:
                 request = getFollowsRequest(url, listener, errorListener);
                 break;
-            case Netcode.REQUEST_TYPE_GAMES:
+            case Requests.REQUEST_TYPE_GAMES:
                 request = getGamesRequest(url, listener, errorListener);
                 break;
         }
