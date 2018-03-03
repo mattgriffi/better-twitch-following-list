@@ -2,6 +2,7 @@ package mseffner.twitchnotifier.networking;
 
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.android.volley.Cache;
@@ -13,8 +14,7 @@ import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HurlStack;
 
 /**
- * Netcode provides methods to run asynchronous network operations
- * using Volley and Gson.
+ * Provides methods to run asynchronous network operations using Volley and Gson.
  */
 public class Netcode {
 
@@ -40,9 +40,32 @@ public class Netcode {
         queue = null;
     }
 
+    public static void getFollows(@Nullable String cursor, Response.Listener<Containers.Follows> listener,
+                                  @Nullable Response.ErrorListener errorListener) {
+        String url = URLTools.getFollowsUrl(cursor);
+        queue.add(RequestFactory.getRequest(REQUEST_TYPE_FOLLOWS, url, listener, errorListener));
+    }
+
+    public static void getUsers(long[] ids, Response.Listener<Containers.Users> listener,
+                                @Nullable Response.ErrorListener errorListener) {
+        String url = URLTools.getUsersUrl(ids);
+        queue.add(RequestFactory.getRequest(REQUEST_TYPE_FOLLOWS, url, listener, errorListener));
+    }
+
+    public static void getGames(long[] ids, Response.Listener<Containers.Games> listener,
+                                @Nullable Response.ErrorListener errorListener) {
+        String url = URLTools.getGamesUrl(ids);
+        queue.add(RequestFactory.getRequest(REQUEST_TYPE_GAMES, url, listener, errorListener));
+    }
+
+    public static void getTopStreams(Response.Listener<Containers.Streams> listener,
+                                     @Nullable Response.ErrorListener errorListener) {
+        String url = URLTools.getTopStreamsUrl();
+        queue.add(RequestFactory.getRequest(REQUEST_TYPE_STREAMS, url, listener, errorListener));
+    }
+
     public static void makeRequest(int requestType, String url, Response.Listener listener,
-                                   Response.ErrorListener errorListener) {
-        Log.e(LOG_TAG, "Making request for url: " + url);
+                                   @Nullable Response.ErrorListener errorListener) {
         queue.add(RequestFactory.getRequest(requestType, url, listener, errorListener));
     }
 }
