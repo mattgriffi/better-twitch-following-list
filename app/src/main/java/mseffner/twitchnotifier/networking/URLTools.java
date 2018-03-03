@@ -2,7 +2,6 @@ package mseffner.twitchnotifier.networking;
 
 
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import mseffner.twitchnotifier.settings.SettingsManager;
@@ -51,33 +50,29 @@ public class URLTools {
      * @return  url to get info for games in idArray
      */
     public static String getGamesUrl(long[] idArray) {
-        Uri.Builder builder =  Uri.parse(TWITCH_API_BASE_URL).buildUpon()
-                .appendPath(PATH_GAMES);
-        for (long id : idArray)
-            builder.appendQueryParameter(PARAM_ID, Long.toString(id));
-        return builder.build().toString();
+        return getMultiParamBuilder(PATH_GAMES, PARAM_ID, idArray).build().toString();
     }
 
     /**
      * @return  url to get info for users in idArray
      */
     public static String getUsersUrl(long[] idArray) {
-        Uri.Builder builder =  Uri.parse(TWITCH_API_BASE_URL).buildUpon()
-                .appendPath(PATH_USERS);
-        for (long id : idArray)
-            builder.appendQueryParameter(PARAM_ID, Long.toString(id));
-        return builder.build().toString();
+        return getMultiParamBuilder(PATH_USERS, PARAM_ID, idArray).build().toString();
     }
 
     /**
      * @return  url to get info for streams in idArray
      */
     public static String getStreamsUrl(long[] idArray) {
+        return getMultiParamBuilder(PATH_STREAMS, PARAM_USER_ID, idArray).build().toString();
+    }
+
+    private static Uri.Builder getMultiParamBuilder(String path, String param, long[] idArray) {
         Uri.Builder builder =  Uri.parse(TWITCH_API_BASE_URL).buildUpon()
-                .appendPath(PATH_STREAMS);
+                .appendPath(path);
         for (long id : idArray)
-            builder.appendQueryParameter(PARAM_USER_ID, Long.toString(id));
-        return builder.build().toString();
+            builder.appendQueryParameter(param, Long.toString(id));
+        return builder;
     }
 
     /**
