@@ -31,20 +31,20 @@ public class ChannelDb {
 
     public static void updateNewChannelData(List<Channel> channelList) {
         // Get the ids already in the database
-        int[] existingIds = getAllChannelIds();
-        Set<Integer> existingIdSet = new HashSet<>(existingIds.length);
+        long[] existingIds = getAllChannelIds();
+        Set<Long> existingIdSet = new HashSet<>(existingIds.length);
 
-        for (int id : existingIds)
+        for (long id : existingIds)
             existingIdSet.add(id);
 
         // Get the ids of the new Channel list
-        Set<Integer> newIdSet = new HashSet<>(channelList.size());
+        Set<Long> newIdSet = new HashSet<>(channelList.size());
         for (Channel channel : channelList)
             newIdSet.add(channel.getId());
 
         // Delete any channel from the database that isn't in the new list
         // (This means that the channel was unfollowed)
-        for (int existingId : existingIds)
+        for (long existingId : existingIds)
             if (!newIdSet.contains(existingId))
                 deleteChannel(existingId);
 
@@ -55,15 +55,15 @@ public class ChannelDb {
                 insertChannel(channel);
     }
 
-    public static int[] getAllChannelIds() {
+    public static long[] getAllChannelIds() {
         Cursor cursor = query(new String[]{ChannelEntry._ID}, null, null, null);
 
-        int[] idArray = new int[cursor.getCount()];
+        long[] idArray = new long[cursor.getCount()];
         int idColumnIndex = cursor.getColumnIndex(ChannelEntry._ID);
 
         int i = 0;
         while (cursor.moveToNext())
-            idArray[i++] = cursor.getInt(idColumnIndex);
+            idArray[i++] = cursor.getLong(idColumnIndex);
         cursor.close();
 
         return idArray;
@@ -98,7 +98,7 @@ public class ChannelDb {
 
         while (cursor.moveToNext()) {
             // Get all the data from the cursor
-            int id = cursor.getInt(cursor.getColumnIndex(ChannelEntry._ID));
+            long id = cursor.getInt(cursor.getColumnIndex(ChannelEntry._ID));
             String displayName = cursor.getString(cursor.getColumnIndex(ChannelEntry.COLUMN_DISPLAY_NAME));
             String channelUrl = cursor.getString(cursor.getColumnIndex(ChannelEntry.COLUMN_CHANNEL_URL));
             String logoUrl = cursor.getString(cursor.getColumnIndex(ChannelEntry.COLUMN_LOGO_URL));
@@ -214,9 +214,9 @@ public class ChannelDb {
         insert(values);
     }
 
-    private static void deleteChannel(int id) {
+    private static void deleteChannel(long id) {
         String selection = ChannelEntry._ID + "=?";
-        String[] selectionArgs = {Integer.toString(id)};
+        String[] selectionArgs = {Long.toString(id)};
         delete(selection, selectionArgs);
     }
 

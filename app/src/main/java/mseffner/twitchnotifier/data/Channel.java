@@ -3,7 +3,7 @@ package mseffner.twitchnotifier.data;
 
 public class Channel {
 
-    private int id;
+    private long id;
     private String displayName;
     private String logoUrl;
     private String streamUrl;
@@ -11,7 +11,7 @@ public class Channel {
 
     private Stream stream;
 
-    public Channel(int id, String displayName, String logoUrl, String streamUrl, int pinned) {
+    public Channel(long id, String displayName, String logoUrl, String streamUrl, int pinned) {
         this.id = id;
         this.displayName = displayName;
         this.logoUrl = logoUrl;
@@ -40,7 +40,7 @@ public class Channel {
         return streamUrl;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
