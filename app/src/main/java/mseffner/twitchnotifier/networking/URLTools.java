@@ -111,4 +111,25 @@ public class URLTools {
                 .appendPath(channelName)
                 .build().toString();
     }
+
+    public static long[][] splitIdArray(long[] array, int chunkSize) {
+        // Get the number of chunks to split array into
+        int chunks = array.length / chunkSize + (array.length % chunkSize == 0 ? 0 : 1);
+
+        long[][] splitArray = new long[chunks][];
+
+        for (int i = 0; i < chunks; i++) {
+            // Calculate how many elements are remaining in array
+            int remaining = array.length - i * chunkSize;
+            // Determine whether we need to hold chunkSize or the leftover
+            int tempSize = remaining < chunkSize ? remaining : chunkSize;
+            long[] temp = new long[tempSize];
+
+            for (int j = 0; j < tempSize; j++)
+                temp[j] = array[i * chunkSize + j];
+
+            splitArray[i] = temp;
+        }
+        return splitArray;
+    }
 }
