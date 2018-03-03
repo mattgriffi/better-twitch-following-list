@@ -49,7 +49,7 @@ public class Netcode {
     public static void getUsers(long[] ids, Response.Listener<Containers.Users> listener,
                                 @Nullable Response.ErrorListener errorListener) {
         String url = URLTools.getUsersUrl(ids);
-        queue.add(RequestFactory.getRequest(REQUEST_TYPE_FOLLOWS, url, listener, errorListener));
+        queue.add(RequestFactory.getRequest(REQUEST_TYPE_USERS, url, listener, errorListener));
     }
 
     public static void getGames(long[] ids, Response.Listener<Containers.Games> listener,
