@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import mseffner.twitchnotifier.data.ChannelContract.ChannelEntry;
+import mseffner.twitchnotifier.networking.Containers;
 import mseffner.twitchnotifier.settings.SettingsManager;
 
 
@@ -20,6 +22,56 @@ public class ChannelDb {
 
 
     private ChannelDb() {}
+
+    public static void insertFollowsData(@NonNull Containers.Follows follows) {
+        for (Containers.Follows.Data data : follows.data) {
+            ContentValues values = new ContentValues();
+            values.put(ChannelEntry._ID, data.to_id);
+            insert(values);
+        }
+    }
+
+    public static void updateUsersData(@NonNull Containers.Users users) {
+        for (Containers.Users.Data data : users.data) {
+            ContentValues values = new ContentValues();
+            values.put(ChannelEntry.COLUMN_LOGIN_NAME, data.login);
+            values.put(ChannelEntry.COLUMN_DISPLAY_NAME, data.display_name);
+            values.put(ChannelEntry.COLUMN_LOGO_URL, data.profile_image_url);
+
+            String selection = ChannelEntry._ID + "=?";
+            String[] selectionArgs = {data.id};
+
+            update(values, selection, selectionArgs);
+        }
+    }
+
+    public static void updateStreamsData(@NonNull Containers.Streams streams) {
+        for (Containers.Streams.Data data : streams.data) {
+            ContentValues values = new ContentValues();
+            values.put(ChannelEntry.COLUMN_GAME_ID, data.game_id);
+            values.put(ChannelEntry.COLUMN_STREAM_TYPE, data.type);
+            values.put(ChannelEntry.COLUMN_STATUS, data.title);
+            values.put(ChannelEntry.COLUMN_VIEWERS, data.viewer_count);
+            values.put(ChannelEntry.COLUMN_CREATED_AT, data.started_at);
+
+            String selection = ChannelEntry._ID + "=?";
+            String[] selectionArgs = {data.user_id};
+
+            update(values, selection, selectionArgs);
+        }
+    }
+
+    public static void updateGamesData(@NonNull Containers.Games games) {
+        for (Containers.Games.Data data : games.data) {
+            ContentValues values = new ContentValues();
+            values.put(ChannelEntry.COLUMN_GAME, data.name);
+
+            String selection = ChannelEntry.COLUMN_GAME_ID + "=?";
+            String[] selectionArgs = {data.id};
+
+            update(values, selection, selectionArgs);
+        }
+    }
 
     public static void initialize(Context context) {
         dbHelper = new ChannelDbHelper(context.getApplicationContext());
