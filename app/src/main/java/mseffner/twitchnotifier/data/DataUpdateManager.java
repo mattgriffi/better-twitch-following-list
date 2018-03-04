@@ -110,16 +110,20 @@ public class DataUpdateManager {
     private static long[] getGameIdsFromStreams(Containers.Streams streams) {
         int size = streams.data.size();
         long[] ids = new long[size];
-        for (int i = 0; i < size; i++)
-            ids[i] = Long.parseLong(streams.data.get(i).game_id);
+        for (int i = 0; i < size; i++) {
+            String id = streams.data.get(i).game_id;
+            ids[i] = id.isEmpty() ? 0L : Long.parseLong(id);
+        }
         return ids;
     }
 
     private static long[] getUserIdsFromStreams(Containers.Streams streams) {
         int size = streams.data.size();
         long[] ids = new long[size];
-        for (int i = 0; i < size; i++)
-            ids[i] = Long.parseLong(streams.data.get(i).user_id);
+        for (int i = 0; i < size; i++) {
+            String id = streams.data.get(i).user_id;
+            ids[i] = id.isEmpty() ? 0L : Long.parseLong(id);
+        }
         return ids;
     }
 
