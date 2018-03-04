@@ -40,10 +40,14 @@ public class ContainerParser {
     }
 
     public int getTotalFollows() {
+        if (follows == null)
+            return Integer.MAX_VALUE;
         return follows.total;
     }
 
     public String getFollowsCursor() {
+        if (follows == null)
+            return null;
         return follows.pagination.cursor;
     }
 
