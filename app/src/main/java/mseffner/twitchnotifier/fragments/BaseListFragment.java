@@ -16,11 +16,18 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import mseffner.twitchnotifier.R;
+import mseffner.twitchnotifier.data.Channel;
+import mseffner.twitchnotifier.data.ChannelAdapter;
+import mseffner.twitchnotifier.settings.SettingsManager;
 
 public abstract class BaseListFragment extends Fragment {
 
     protected RecyclerView recyclerView;
+    protected ChannelAdapter channelAdapter;
     protected SwipeRefreshLayout swipeRefreshLayout;
     protected FloatingActionButton scrollTopButton;
     protected FloatingActionButton refreshButton;
@@ -29,6 +36,7 @@ public abstract class BaseListFragment extends Fragment {
 
     protected abstract void refreshList();
     protected abstract void cancelAsyncTasks();
+    protected abstract boolean getLongClickSetting();
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -48,20 +56,17 @@ public abstract class BaseListFragment extends Fragment {
         // Start the refresh animation (will be stopped when child classes finish their stuff)
         swipeRefreshLayout.setRefreshing(true);
 
-        // Set up the layout manager
+        // Set up the recyclerView
         final LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
+        channelAdapter = new ChannelAdapter(new ArrayList<>(), 0, getLongClickSetting());
+        recyclerView.setAdapter(channelAdapter);
 
         // Set up the swipe refresh
         swipeRefreshLayout.setColorSchemeResources(R.color.colorWhiteAlpha);
         swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.colorPrimaryAlpha);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refreshList();
-            }
-        });
+        swipeRefreshLayout.setOnRefreshListener(this::refreshList);
 
 
         // Set up floating action button animations
@@ -90,20 +95,9 @@ public abstract class BaseListFragment extends Fragment {
             }
         });
 
-        // Make the scroll button actually do something
-        scrollTopButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                layoutManager.smoothScrollToPosition(recyclerView, null, 0);
-            }
-        });
-
-        refreshButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                refreshList();
-            }
-        });
+        // Add click listeners to buttons
+        scrollTopButton.setOnClickListener(view -> layoutManager.smoothScrollToPosition(recyclerView, null, 0));
+        refreshButton.setOnClickListener(view -> refreshList());
 
         return rootView;
     }
@@ -127,6 +121,12 @@ public abstract class BaseListFragment extends Fragment {
         // because the support library is a mess
         super.onAttach(activity);
         this.context = activity.getApplicationContext();
+    }
+
+    protected void updateAdapter(List<Channel> list) {
+        channelAdapter.clear();
+        channelAdapter.addAll(list);
+        channelAdapter.updateVodcastSetting(SettingsManager.getRerunSetting());
     }
 
     private Animation getScaleAnimation(FloatingActionButton floatingActionButton, int animResource) {

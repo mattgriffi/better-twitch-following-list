@@ -2,7 +2,6 @@ package mseffner.twitchnotifier.fragments;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -14,7 +13,6 @@ import java.util.List;
 
 import mseffner.twitchnotifier.ToastMaker;
 import mseffner.twitchnotifier.data.Channel;
-import mseffner.twitchnotifier.data.ChannelAdapter;
 import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.networking.NetworkUtils;
 import mseffner.twitchnotifier.settings.SettingsManager;
@@ -24,8 +22,6 @@ public class FollowingListFragment extends BaseListFragment {
     private static final String TAG = FollowingListFragment.class.getSimpleName();
     private static final String LOG_TAG_ERROR = "Error";
     private static final int MAX_ALLOWED_ERROR_COUNT = 3;
-
-    private ChannelAdapter channelAdapter;
 
     private UpdateAdapterAsyncTask updateAdapterAsyncTask;
     private UpdateFollowingListAsyncTask updateFollowingListAsyncTask;
@@ -52,6 +48,11 @@ public class FollowingListFragment extends BaseListFragment {
         // On start, we want to recheck the whole following list in case the user has
         // followed or unfollowed any channels
         runUpdateFollowingListAsyncTask();
+    }
+
+    @Override
+    protected boolean getLongClickSetting() {
+        return true;
     }
 
     @Override
@@ -115,27 +116,13 @@ public class FollowingListFragment extends BaseListFragment {
             if (!isAdded() || isCancelled())
                 return;
 
-            int rerunSetting = SettingsManager.getRerunSetting();
-
-            // Reset adapter if it exists, else create a new one
-            if (channelAdapter == null) {
-                channelAdapter = new ChannelAdapter(channelList, rerunSetting, true);
-            } else {
-                channelAdapter.clear();
-                channelAdapter.addAll(channelList);
-                channelAdapter.updateVodcastSetting(rerunSetting);
-            }
+            updateAdapter(channelList);
 
             // Show startMessage if adapter is empty, else hide it
             if (channelAdapter.getItemCount() == 0)
                 startMessage.setVisibility(View.VISIBLE);
             else
                 startMessage.setVisibility(View.GONE);
-
-            // Update recycler view while saving scroll position
-            Parcelable recyclerViewState = recyclerView.getLayoutManager().onSaveInstanceState();
-            recyclerView.setAdapter(channelAdapter);
-            recyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);
 
             // Disable the refreshing animation if other tasks are not running
             if (updateStreamsAsyncTask == null && updateFollowingListAsyncTask == null)
