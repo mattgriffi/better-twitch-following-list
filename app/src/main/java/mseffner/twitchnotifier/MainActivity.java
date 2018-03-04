@@ -11,20 +11,18 @@ import android.util.Log;
 
 import com.android.volley.Response;
 import com.android.volley.ServerError;
-import com.android.volley.VolleyError;
 
 import java.lang.reflect.Method;
 
 import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.networking.Containers;
 import mseffner.twitchnotifier.networking.ErrorHandler;
-import mseffner.twitchnotifier.networking.Netcode;
+import mseffner.twitchnotifier.networking.Requests;
 import mseffner.twitchnotifier.networking.URLTools;
 import mseffner.twitchnotifier.settings.SettingsManager;
 
 
-public class MainActivity extends AppCompatActivity implements SettingsManager.OnSettingsChangedListener,
-        Response.Listener<Containers.Users> {
+public class MainActivity extends AppCompatActivity implements SettingsManager.OnSettingsChangedListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements SettingsManager.O
         SettingsManager.initialize(sharedPreferences, getResources());
         SettingsManager.registerOnSettingsChangedListener(this);
         ChannelDb.initialize(this);
-        Netcode.initialize(this);
+        Requests.initialize(this);
         ToastMaker.initialize(this);
 
         // Set the theme based on whether dark mode is on;
@@ -54,24 +52,12 @@ public class MainActivity extends AppCompatActivity implements SettingsManager.O
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-
-        String url = "https://api.twitch.tv/helix/users?login=takagi";
-        Netcode.makeRequest(Netcode.REQUEST_TYPE_USERS, url, this, null);
-        Netcode.makeRequest(Netcode.REQUEST_TYPE_USERS, "https://api.twitch.tv/helix/users?login=holokraft", this, null);
-        Netcode.makeRequest(Netcode.REQUEST_TYPE_USERS, "https://api.twitch.tv/helix/users?login=iammetv", this, null);
-        Netcode.makeRequest(Netcode.REQUEST_TYPE_USERS, "https://api.twitch.tv/helix/users?login=cirno_tv", this, null);
-        Netcode.makeRequest(Netcode.REQUEST_TYPE_USERS, "https://api.twitch.tv/helix/users?login=thisnamedefinitelydoenotexist", this, null);
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         // Destroy static classes to prevent memory leaks
         SettingsManager.destroy();
         ChannelDb.destroy();
-        Netcode.destroy();
+        Requests.destroy();
         ToastMaker.destroy();
     }
 
@@ -89,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements SettingsManager.O
         // If the username is changed, empty the database
         else if (setting == SettingsManager.SETTING_USERNAME) {
             ChannelDb.deleteAllChannels();
-            Netcode.makeRequest(Netcode.REQUEST_TYPE_USERS, URLTools.getUserIdUrl(),
+            Requests.makeRequest(Requests.REQUEST_TYPE_USERS, URLTools.getUserIdUrl(),
                     new Response.Listener<Containers.Users>() {
                         @Override
                         public void onResponse(Containers.Users response) {
@@ -127,14 +113,5 @@ public class MainActivity extends AppCompatActivity implements SettingsManager.O
         }
         // 0 shows an invalid resource ID
         return 0;
-    }
-
-    @Override
-    public void onResponse(Containers.Users response) {
-        if (response.data.isEmpty()) return;
-        Containers.Users.Data data = response.data.get(0);
-        Log.e("id", data.id);
-        Log.e("login", data.login);
-        Log.e("display_name", data.display_name);
     }
 }
