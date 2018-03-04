@@ -53,6 +53,12 @@ public class Requests {
         queue.add(RequestFactory.getRequest(REQUEST_TYPE_USERS, url, listener, errorListener));
     }
 
+    public static void getStreams(long[] ids, Response.Listener<Containers.Streams> listener,
+                                  @Nullable Response.ErrorListener errorListener) {
+        String url = URLTools.getStreamsUrl(ids);
+        queue.add(RequestFactory.getRequest(REQUEST_TYPE_STREAMS, url, listener, errorListener));
+    }
+
     public static void getGames(long[] ids, Response.Listener<Containers.Games> listener,
                                 @Nullable Response.ErrorListener errorListener) {
         String url = URLTools.getGamesUrl(ids);

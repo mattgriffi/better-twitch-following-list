@@ -5,7 +5,6 @@ import android.os.Parcelable;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
