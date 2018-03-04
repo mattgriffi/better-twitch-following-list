@@ -41,36 +41,42 @@ public class Requests {
         queue = null;
     }
 
+    @SuppressWarnings("unchecked")
     public static void getFollows(@Nullable String cursor, Response.Listener<Containers.Follows> listener,
                                   @Nullable Response.ErrorListener errorListener) {
         String url = URLTools.getFollowsUrl(cursor);
         queue.add(RequestFactory.getRequest(REQUEST_TYPE_FOLLOWS, url, listener, errorListener));
     }
 
+    @SuppressWarnings("unchecked")
     public static void getUsers(long[] ids, Response.Listener<Containers.Users> listener,
                                 @Nullable Response.ErrorListener errorListener) {
         String url = URLTools.getUsersUrl(ids);
         queue.add(RequestFactory.getRequest(REQUEST_TYPE_USERS, url, listener, errorListener));
     }
 
+    @SuppressWarnings("unchecked")
     public static void getStreams(long[] ids, Response.Listener<Containers.Streams> listener,
                                   @Nullable Response.ErrorListener errorListener) {
         String url = URLTools.getStreamsUrl(ids);
         queue.add(RequestFactory.getRequest(REQUEST_TYPE_STREAMS, url, listener, errorListener));
     }
 
+    @SuppressWarnings("unchecked")
     public static void getGames(long[] ids, Response.Listener<Containers.Games> listener,
                                 @Nullable Response.ErrorListener errorListener) {
         String url = URLTools.getGamesUrl(ids);
         queue.add(RequestFactory.getRequest(REQUEST_TYPE_GAMES, url, listener, errorListener));
     }
 
+    @SuppressWarnings("unchecked")
     public static void getTopStreams(Response.Listener<Containers.Streams> listener,
                                      @Nullable Response.ErrorListener errorListener) {
         String url = URLTools.getTopStreamsUrl();
         queue.add(RequestFactory.getRequest(REQUEST_TYPE_STREAMS, url, listener, errorListener));
     }
 
+    @SuppressWarnings("unchecked")
     public static void makeRequest(int requestType, String url, Response.Listener listener,
                                    @Nullable Response.ErrorListener errorListener) {
         queue.add(RequestFactory.getRequest(requestType, url, listener, errorListener));
