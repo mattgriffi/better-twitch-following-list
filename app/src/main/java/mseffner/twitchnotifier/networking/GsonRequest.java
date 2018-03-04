@@ -1,12 +1,14 @@
 package mseffner.twitchnotifier.networking;
 
+import android.support.annotation.Nullable;
+import android.util.Log;
+
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.Response;
-import com.android.volley.RetryPolicy;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -27,7 +29,7 @@ public class GsonRequest<T> extends Request<T> {
     private Response.Listener<T> listener;
 
     public GsonRequest(String url, Class<T> clazz, Map<String, String> headers,
-                       Response.Listener<T> listener, Response.ErrorListener errorListener) {
+                       @Nullable Response.Listener<T> listener, @Nullable Response.ErrorListener errorListener) {
         super(Method.GET, url, errorListener);
         this.headers = headers;
         this.clazz = clazz;
@@ -42,6 +44,7 @@ public class GsonRequest<T> extends Request<T> {
             String json = new String(
                     response.data,
                     HttpHeaderParser.parseCharset(response.headers));
+            Log.e("TEST", json);
             // Build object with gson and return it
             return Response.success(
                     gson.fromJson(json, clazz),
@@ -57,7 +60,8 @@ public class GsonRequest<T> extends Request<T> {
 
     @Override
     protected void deliverResponse(T response) {
-        listener.onResponse(response);
+        if (listener != null)
+            listener.onResponse(response);
     }
 
     @Override
