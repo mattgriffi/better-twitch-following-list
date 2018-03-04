@@ -1,6 +1,5 @@
 package mseffner.twitchnotifier.fragments;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
@@ -32,7 +31,6 @@ public abstract class BaseListFragment extends Fragment {
     protected FloatingActionButton scrollTopButton;
     protected FloatingActionButton refreshButton;
     protected LinearLayout startMessage;
-    protected Context context;
 
     protected abstract void refreshList();
     protected abstract void cancelAsyncTasks();
@@ -68,12 +66,11 @@ public abstract class BaseListFragment extends Fragment {
         swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.colorPrimaryAlpha);
         swipeRefreshLayout.setOnRefreshListener(this::refreshList);
 
-
         // Set up floating action button animations
-        final Animation scrollScaleUp = getScaleAnimation(scrollTopButton, R.anim.scale_up);
-        final Animation refreshScaleUp = getScaleAnimation(refreshButton, R.anim.scale_up);
-        final Animation scrollScaleDown = getScaleAnimation(scrollTopButton, R.anim.scale_down);
-        final Animation refreshScaleDown = getScaleAnimation(refreshButton, R.anim.scale_down);
+        final Animation scrollScaleUp = getScaleAnimation(context, scrollTopButton, R.anim.scale_up);
+        final Animation refreshScaleUp = getScaleAnimation(context, refreshButton, R.anim.scale_up);
+        final Animation scrollScaleDown = getScaleAnimation(context, scrollTopButton, R.anim.scale_down);
+        final Animation refreshScaleDown = getScaleAnimation(context, refreshButton, R.anim.scale_down);
 
         // Animate the floating action buttons
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -108,28 +105,13 @@ public abstract class BaseListFragment extends Fragment {
         cancelAsyncTasks();
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        this.context = context;
-    }
-
-    @SuppressWarnings("deprecation")
-    @Override
-    public void onAttach(Activity activity) {
-        // This is needed to support API versions below 23
-        // because the support library is a mess
-        super.onAttach(activity);
-        this.context = activity.getApplicationContext();
-    }
-
     protected void updateAdapter(List<Channel> list) {
         channelAdapter.clear();
         channelAdapter.addAll(list);
         channelAdapter.updateVodcastSetting(SettingsManager.getRerunSetting());
     }
 
-    private Animation getScaleAnimation(FloatingActionButton floatingActionButton, int animResource) {
+    private Animation getScaleAnimation(Context context, FloatingActionButton floatingActionButton, int animResource) {
         Animation anim;
         if (animResource == R.anim.scale_up) {
             anim = AnimationUtils.loadAnimation(context, R.anim.scale_up);

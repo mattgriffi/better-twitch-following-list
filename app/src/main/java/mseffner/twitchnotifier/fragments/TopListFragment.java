@@ -18,17 +18,15 @@ import mseffner.twitchnotifier.settings.SettingsManager;
 
 public class TopListFragment extends BaseListFragment implements DataUpdateManager.TopStreamsListener {
 
-    private static final String TAG = TopListFragment.class.getSimpleName();
     private static final int NUM_TOP_STREAMS = 25;
 
     private boolean updating = false;
 
     @Override
     protected void refreshList() {
-        if (!updating) {
-            refreshStart();
-            DataUpdateManager.getTopStreamsData(this, new TopStreamsErrorHandler());
-        }
+        if (updating) return;
+        refreshStart();
+        DataUpdateManager.getTopStreamsData(this, new TopStreamsErrorHandler());
     }
 
     @Override
