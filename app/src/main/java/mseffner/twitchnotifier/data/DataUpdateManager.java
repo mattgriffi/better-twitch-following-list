@@ -20,7 +20,6 @@ public class DataUpdateManager {
     private static final String TAG = DataUpdateManager.class.getSimpleName();
 
     private static TopStreamsListener listener;
-    private static ContainerParser parser;
 
     public interface TopStreamsListener {
         void onTopStreamsResponse(@NonNull List<Channel> channels);
@@ -29,7 +28,7 @@ public class DataUpdateManager {
     public static void getTopStreamsData(@NonNull TopStreamsListener listener,
                                          final Response.ErrorListener errorListener) {
         DataUpdateManager.listener = listener;
-        parser = new ContainerParser();
+        ContainerParser parser = new ContainerParser();
 
         // Get the top streams
         Requests.getTopStreams(streamsResponse -> {
@@ -38,18 +37,18 @@ public class DataUpdateManager {
             Requests.getGames(parser.getGameIdsFromStreams(),
                     gamesResponse -> {
                         parser.setGames(gamesResponse);
-                        notifyListener();
+                        notifyListener(parser);
                     }, errorListener);
             // Get the streamer names
             Requests.getUsers(parser.getUserIdsFromStreams(),
                     usersResponse -> {
                         parser.setUsers(usersResponse);
-                        notifyListener();
+                        notifyListener(parser);
                     }, errorListener);
         }, errorListener);
     }
 
-    private static synchronized void notifyListener() {
+    private static synchronized void notifyListener(ContainerParser parser) {
         Log.e(TAG, "notifyListener");
         if (parser == null || !parser.isDataComplete() || listener == null) return;
         listener.onTopStreamsResponse(parser.getChannelList());
