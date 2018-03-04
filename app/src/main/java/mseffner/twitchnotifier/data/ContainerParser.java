@@ -14,6 +14,7 @@ public class ContainerParser {
 
     private static final String TAG = ContainerParser.class.getSimpleName();
 
+    private Containers.Follows follows;
     private Containers.Users users;
     private Containers.Games games;
     private Containers.Streams streams;
@@ -32,6 +33,18 @@ public class ContainerParser {
     public void setUsers(Containers.Users users) {
         this.users = users;
         parseData();
+    }
+
+    public void setFollows(Containers.Follows follows) {
+        this.follows = follows;
+    }
+
+    public int getTotalFollows() {
+        return follows.total;
+    }
+
+    public String getFollowsCursor() {
+        return follows.pagination.cursor;
     }
 
     public boolean isDataComplete() {
@@ -57,6 +70,16 @@ public class ContainerParser {
         long[] ids = new long[size];
         for (int i = 0; i < size; i++) {
             String id = streams.data.get(i).user_id;
+            ids[i] = id.isEmpty() ? 0L : Long.parseLong(id);
+        }
+        return ids;
+    }
+
+    public long[] getUserIdsFromFollows() {
+        int size = follows.data.size();
+        long[] ids = new long[size];
+        for (int i = 0; i < size; i++) {
+            String id = follows.data.get(i).to_id;
             ids[i] = id.isEmpty() ? 0L : Long.parseLong(id);
         }
         return ids;
