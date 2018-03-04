@@ -89,6 +89,16 @@ public class ContainerParser {
         return ids;
     }
 
+    public long[] getUserIdsFromUsers() {
+        int size = users.data.size();
+        long[] ids = new long[size];
+        for (int i = 0; i < size; i++) {
+            String id = users.data.get(i).id;
+            ids[i] = id.isEmpty() ? 0L : Long.parseLong(id);
+        }
+        return ids;
+    }
+
     private void parseData() {
         // Only run if all of the requests have completed
         if (users == null || games == null || streams == null) return;
