@@ -7,12 +7,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -74,7 +72,8 @@ public class ChannelDb {
         for (Containers.Streams.Data data : streams.data) {
             ContentValues values = new ContentValues();
             values.put(StreamEntry._ID, Long.parseLong(data.user_id));
-            values.put(StreamEntry.COLUMN_GAME_ID, Long.parseLong(data.game_id));
+            if (!data.game_id.equals(""))
+                values.put(StreamEntry.COLUMN_GAME_ID, Long.parseLong(data.game_id));
             int streamType = data.type.equals("live") ? StreamEntry.STREAM_TYPE_LIVE : StreamEntry.STREAM_TYPE_RERUN;
             values.put(StreamEntry.COLUMN_TYPE, streamType);
             values.put(StreamEntry.COLUMN_TITLE, data.title);
@@ -161,7 +160,6 @@ public class ChannelDb {
                     GameEntry.TABLE_NAME + "." + GameEntry._ID + ";";
 
         Cursor cursor = dbHelper.getReadableDatabase().rawQuery(selection, null);
-        Log.e("column names", Arrays.toString(cursor.getColumnNames()));
 
         List<ListEntry> list = new ArrayList<>();
         while (cursor.moveToNext()) {
@@ -181,7 +179,6 @@ public class ChannelDb {
 
             ListEntry listEntry = new ListEntry(id, pinned, login, displayName, profileImageUrl,
                     type, title, viewerCount, startedAt, language, thumbnailUrl, gameName, boxArtUrl);
-            Log.e("TEST", listEntry.toString());
             list.add(listEntry);
         }
         cursor.close();
