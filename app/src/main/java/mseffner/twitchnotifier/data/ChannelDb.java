@@ -110,6 +110,15 @@ public class ChannelDb {
                 insertChannel(channel);
     }
 
+    public static Set<Long> getChannelIdSet() {
+        Cursor cursor = query(true, new String[]{ChannelEntry._ID}, null, null, null);
+        Set<Long> idSet = new HashSet<>();
+        int i = cursor.getColumnIndex(ChannelEntry._ID);
+        while (cursor.moveToNext())
+            idSet.add(cursor.getLong(i));
+        return idSet;
+    }
+
     public static long[] getAllChannelIds() {
         Cursor cursor = query(new String[]{ChannelEntry._ID}, null, null, null);
 
@@ -281,9 +290,16 @@ public class ChannelDb {
         return database.query(ChannelEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
     }
 
+    private static Cursor query(boolean distinct, String[] projection, String selection, String[] selectionArgs,
+                                String sortOrder) {
+        SQLiteDatabase database = dbHelper.getReadableDatabase();
+        return database.query(distinct, ChannelEntry.TABLE_NAME, projection, selection,
+                selectionArgs, null, null, sortOrder, null);
+    }
+
     private static void insert(ContentValues contentValues) {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        database.insert(ChannelEntry.TABLE_NAME, null, contentValues);
+        database.insertWithOnConflict(ChannelEntry.TABLE_NAME, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
     }
 
     private static void update(ContentValues contentValues, String selection, String[] selectionArgs) {
