@@ -22,7 +22,8 @@ public class ChannelDb {
     private static ChannelDbHelper dbHelper;
 
 
-    private ChannelDb() {}
+    private ChannelDb() {
+    }
 
     public static void initialize(Context context) {
         dbHelper = new ChannelDbHelper(context.getApplicationContext());
@@ -143,6 +144,31 @@ public class ChannelDb {
         while (cursor.moveToNext())
             idArray[i++] = cursor.getLong(idColumnIndex);
         return idArray;
+    }
+
+    public static long[] getUnknownUserIds() {
+        return getUnknownIds(FollowEntry.TABLE_NAME, FollowEntry._ID,
+                UserEntry.TABLE_NAME, UserEntry._ID);
+    }
+
+    public static long[] getUnkownGameIds() {
+        return getUnknownIds(StreamEntry.TABLE_NAME, StreamEntry.COLUMN_GAME_ID,
+                GameEntry.TABLE_NAME, GameEntry._ID);
+    }
+
+    private static long[] getUnknownIds(String table1, String column1, String table2, String column2) {
+        // Make query
+        String query = "SELECT DISTINCT " + column1 + " FROM " + table1 +
+                " WHERE " + column1 + " NOT IN " +
+                "(SELECT " + column2 + " FROM " + table2 + ");";
+        Cursor cursor = dbHelper.getReadableDatabase().rawQuery(query, null);
+        // Build array
+        long[] ids = new long[cursor.getCount()];
+        int i = 0;
+        while (cursor.moveToNext())
+            ids[i++] = cursor.getLong(cursor.getColumnIndex(column1));
+        cursor.close();
+        return ids;
     }
 
     public static void toggleChannelPin(long id) {
