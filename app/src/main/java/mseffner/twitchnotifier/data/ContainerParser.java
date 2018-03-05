@@ -16,7 +16,7 @@ public class ContainerParser {
     private Containers.Users users;
     private Containers.Games games;
     private Containers.Streams streams;
-    private List<Channel> channelList = new ArrayList<>();
+    private List<ListEntry> channelList = new ArrayList<>();
     private boolean dataComplete = false;
 
     public void setStreams(Containers.Streams streams) {
@@ -57,7 +57,7 @@ public class ContainerParser {
         return dataComplete;
     }
 
-    public List<Channel> getChannelList() {
+    public List<ListEntry> getChannelList() {
         return channelList;
     }
 
@@ -117,25 +117,25 @@ public class ContainerParser {
 
         // Build the list
         for (Containers.Streams.Data data : streams.data) {
-            // Build Channel object
+            // Build ListEntry object
             String userId = data.user_id;
             long id = Long.parseLong(userId);
-            String displayName = ignoreNullPointerException(() -> userMap.get(userId).display_name);
-            String logoUrl = userMap.get(userId).profile_image_url;
-            String streamUrl = URLTools.getStreamUrl(userMap.get(userId).login);
             int pinned = ChannelContract.ChannelEntry.IS_NOT_PINNED;
-            Channel channel = new Channel(id, displayName, logoUrl, streamUrl, pinned);
+            String login = userMap.get(userId).login;
+            String displayName = ignoreNullPointerException(() -> userMap.get(userId).display_name);
+            String profileImageUrl = userMap.get(userId).profile_image_url;
+            String type = data.type;
+            String title = data.title;
+            int viewerCount = Integer.parseInt(data.viewer_count);
+            long startedAt = ChannelDb.getUnixTimestampFromUTC(data.started_at);
+            String language = data.language;
+            String thumbnailUrl = data.thumbnail_url;
+            String gameName = ignoreNullPointerException(() -> gameMap.get(data.game_id).name);
+            String boxArtUrl = gameMap.get(data.game_id).box_art_url;
 
-            // Build Stream object
-            String currentGame = ignoreNullPointerException(() -> gameMap.get(data.game_id).name);
-            int currentViewers = Integer.parseInt(data.viewer_count);
-            String status = data.title;
-            String createdAt = data.started_at;
-            String streamType = data.type;
-            Stream stream = new Stream(id, currentGame, currentViewers, status, createdAt, streamType);
-
-            channel.setStream(stream);
-            channelList.add(channel);
+            ListEntry listEntry = new ListEntry(id, pinned, login, displayName, profileImageUrl, type,
+                    title, viewerCount, startedAt, language, thumbnailUrl, gameName, boxArtUrl);
+            channelList.add(listEntry);
         }
         dataComplete = true;
     }
