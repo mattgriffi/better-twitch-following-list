@@ -13,9 +13,9 @@ import mseffner.twitchnotifier.data.ChannelContract.StreamEntry;
 public class ChannelDbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "channels.db";
-    private static int DATABASE_VERSION = 2;
+    private static int DATABASE_VERSION = 3;
 
-    private static final String DEFAULT_LOGO_URL = "\"https://www-cdn.jtvnw.net/images/xarth/404_user_300x300.png\"";
+    private static final String DEFAULT_PROFILE_IMAGE_URL = "\"https://www-cdn.jtvnw.net/images/xarth/404_user_300x300.png\"";
 
     public ChannelDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -23,8 +23,7 @@ public class ChannelDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase database) {
-        // TODO create version 3 tables
-        database.execSQL(getVersion2CreateStatement(ChannelEntry.TABLE_NAME));
+        createVersion3(database);
     }
 
     @Override
@@ -58,7 +57,7 @@ public class ChannelDbHelper extends SQLiteOpenHelper {
                 UserEntry._ID + " INTEGER PRIMARY KEY, " +
                 UserEntry.COLUMN_LOGIN + " TEXT NOT NULL DEFAULT \"\", " +
                 UserEntry.COLUMN_DISPLAY_NAME + " TEXT NOT NULL DEFAULT \"\", " +
-                UserEntry.COLUMN_PROFILE_IMAGE_URL + " TEXT NOT NULL DEFAULT \"\"" +
+                UserEntry.COLUMN_PROFILE_IMAGE_URL + " TEXT NOT NULL DEFAULT " + DEFAULT_PROFILE_IMAGE_URL +
             ");";
     }
 
@@ -101,7 +100,7 @@ public class ChannelDbHelper extends SQLiteOpenHelper {
                 ChannelEntry.COLUMN_DISPLAY_NAME + " TEXT NOT NULL DEFAULT \"\", " +
                 ChannelEntry.COLUMN_LOGIN_NAME + " TEXT NOT NULL DEFAULT \"\", " +
                 ChannelEntry.COLUMN_CHANNEL_URL + " TEXT NOT NULL DEFAULT \"\", " +
-                ChannelEntry.COLUMN_LOGO_URL + " TEXT NOT NULL DEFAULT " + DEFAULT_LOGO_URL +  ", " +
+                ChannelEntry.COLUMN_LOGO_URL + " TEXT NOT NULL DEFAULT " + DEFAULT_PROFILE_IMAGE_URL +  ", " +
                 ChannelEntry.COLUMN_PINNED + " INTEGER NOT NULL DEFAULT " + ChannelEntry.IS_NOT_PINNED + ", " +
                 ChannelEntry.COLUMN_STREAM_TYPE + " INTEGER NOT NULL DEFAULT " + ChannelEntry.STREAM_TYPE_OFFLINE + ", " +
                 ChannelEntry.COLUMN_STATUS + " TEXT NOT NULL DEFAULT \"\", " +
@@ -115,28 +114,38 @@ public class ChannelDbHelper extends SQLiteOpenHelper {
     }
 
     private static void upgradeFrom1to2(SQLiteDatabase database) {
-        String create = getVersion2CreateStatement("temp");
+        String createNew = getVersion2CreateStatement("temp");
         String columnList = ChannelEntry._ID + ", " + ChannelEntry.COLUMN_DISPLAY_NAME + ", " +
                 ChannelEntry.COLUMN_CHANNEL_URL + ", " + ChannelEntry.COLUMN_LOGO_URL + ", " +
                 ChannelEntry.COLUMN_PINNED + ", " + ChannelEntry.COLUMN_STREAM_TYPE + ", " +
                 ChannelEntry.COLUMN_STATUS + ", " + ChannelEntry.COLUMN_VIEWERS + ", " +
                 ChannelEntry.COLUMN_CREATED_AT + ", " + ChannelEntry.COLUMN_GAME;
-        String insert = "INSERT INTO temp (" + columnList + ") SELECT " + columnList +
+        String insertNew = "INSERT INTO temp (" + columnList + ") SELECT " + columnList +
                 " FROM " + ChannelEntry.TABLE_NAME + ";";
-        String drop = "DROP TABLE " + ChannelEntry.TABLE_NAME + ";";
-        String rename = "ALTER TABLE temp RENAME TO " + ChannelEntry.TABLE_NAME + ";";
+        String dropOld = "DROP TABLE " + ChannelEntry.TABLE_NAME + ";";
+        String renameNew = "ALTER TABLE temp RENAME TO " + ChannelEntry.TABLE_NAME + ";";
 
-        // Create temp table
-        database.execSQL(create);
-        // Insert old data into temp
-        database.execSQL(insert);
-        // Drop old table
-        database.execSQL(drop);
-        // Rename temp table
-        database.execSQL(rename);
+        database.execSQL(createNew);
+        database.execSQL(insertNew);
+        database.execSQL(dropOld);
+        database.execSQL(renameNew);
     }
 
     private static void upgradeFrom2to3(SQLiteDatabase database) {
-        // TODO implement
+        String createFollows = getFollowsCreateStatement(FollowEntry.TABLE_NAME);
+        String createUsers = getUsersCreateStatement(UserEntry.TABLE_NAME);
+        String createGames = getGamesCreateStatement(GameEntry.TABLE_NAME);
+        String createStreams = getStreamsCreateStatement(StreamEntry.TABLE_NAME);
+
+        String insertFollows = "INSERT INTO " + FollowEntry.TABLE_NAME + " (" +
+                FollowEntry._ID + ", " + FollowEntry.COLUMN_PINNED + ") SELECT " +
+                ChannelEntry._ID + ", " + ChannelEntry.COLUMN_PINNED + " FROM "
+                + ChannelEntry.TABLE_NAME + ";";
+
+        database.execSQL(createFollows);
+        database.execSQL(createUsers);
+        database.execSQL(createGames);
+        database.execSQL(createStreams);
+        database.execSQL(insertFollows);
     }
 }
