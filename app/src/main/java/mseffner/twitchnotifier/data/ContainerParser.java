@@ -1,7 +1,5 @@
 package mseffner.twitchnotifier.data;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -106,7 +104,6 @@ public class ContainerParser {
     private void parseData() {
         // Only run if all of the requests have completed
         if (users == null || games == null || streams == null) return;
-        Log.e(TAG, "buildData");
 
         // Get map of game id -> Games.Data object
         Map<String, Containers.Games.Data> gameMap = new HashMap<>();
