@@ -52,14 +52,7 @@ public class DataUpdateManager {
             if (followsListener == null) {
                 // TODO cancel update, clean database
             }
-
-            // HandlerThread for database operations
-            if (handler == null) {
-                HandlerThread handlerThread = new HandlerThread("DatabaseOperations");
-                handlerThread.start();
-                Looper looper = handlerThread.getLooper();
-                handler = new Handler(looper);
-            }
+            checkHandler();
 
             handler.post(() -> ChannelDb.insertFollowsData(followsResponse));
 
@@ -96,10 +89,20 @@ public class DataUpdateManager {
         }
     }
 
+    private static void checkHandler() {
+        if (handler == null) {
+            HandlerThread handlerThread = new HandlerThread("DatabaseOperations");
+            handlerThread.start();
+            Looper looper = handlerThread.getLooper();
+            handler = new Handler(looper);
+        }
+    }
+
     public static void getTopStreamsData(@NonNull TopStreamsListener listener,
                                          final Response.ErrorListener errorListener) {
         DataUpdateManager.topStreamsListener = listener;
         ContainerParser parser = new ContainerParser();
+        checkHandler();
 
         // Get the top streams
         Requests.getTopStreams(streamsResponse -> {
@@ -107,12 +110,14 @@ public class DataUpdateManager {
             // Get the game names
             Requests.getGames(parser.getGameIdsFromStreams(),
                     gamesResponse -> {
+                        handler.post(() -> ChannelDb.insertGamesData(gamesResponse));
                         parser.setGames(gamesResponse);
                         notifyListener(parser);
                     }, errorListener);
             // Get the streamer names
             Requests.getUsers(parser.getUserIdsFromStreams(),
                     usersResponse -> {
+                        handler.post(() -> ChannelDb.insertUsersData(usersResponse));
                         parser.setUsers(usersResponse);
                         notifyListener(parser);
                     }, errorListener);
