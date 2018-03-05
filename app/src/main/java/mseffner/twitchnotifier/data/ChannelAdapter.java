@@ -1,5 +1,6 @@
 package mseffner.twitchnotifier.data;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
@@ -129,14 +130,11 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
 
             // LongClickListener to toggle pin (does not apply to top streams list)
             if (allowLongClick) {
-                itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View view) {
-                        ChannelDb.toggleChannelPin(channel);
-                        channel.togglePinned();
-                        updatePinIcon(channel, pinIcon);
-                        return true;
-                    }
+                itemView.setOnLongClickListener(view -> {
+                    ChannelDb.toggleChannelPin(channel);
+                    channel.togglePinned();
+                    updatePinIcon(channel, pinIcon);
+                    return true;
                 });
             }
 
@@ -162,21 +160,19 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             itemView.setOnClickListener(null);
         }
 
+        @SuppressLint("SetTextI18n")
         private void bindOnlineStream(final Channel channel) {
             Stream stream = channel.getStream();
 
             // OnClickListener to open the stream
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Uri channelPage = Uri.parse(channel.getStreamUrl());
-                    Intent intent = new Intent(Intent.ACTION_VIEW, channelPage);
-                    // Start intent to open stream
-                    if (intent.resolveActivity(view.getContext().getPackageManager()) != null) {
-                        view.getContext().startActivity(intent);
-                    } else {
-                        Log.e(LOG_TAG, "No app can handle intent");
-                    }
+            itemView.setOnClickListener(view -> {
+                Uri channelPage = Uri.parse(channel.getStreamUrl());
+                Intent intent = new Intent(Intent.ACTION_VIEW, channelPage);
+                // Start intent to open stream
+                if (intent.resolveActivity(view.getContext().getPackageManager()) != null) {
+                    view.getContext().startActivity(intent);
+                } else {
+                    Log.e(LOG_TAG, "No app can handle intent");
                 }
             });
 
