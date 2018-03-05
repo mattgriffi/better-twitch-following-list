@@ -77,7 +77,7 @@ public class ChannelDb {
             int streamType = data.type.equals("live") ? StreamEntry.STREAM_TYPE_LIVE : StreamEntry.STREAM_TYPE_RERUN;
             values.put(StreamEntry.COLUMN_TYPE, streamType);
             values.put(StreamEntry.COLUMN_TITLE, data.title);
-            values.put(StreamEntry.COLUMN_VIEWER_COUNT, Integer.parseInt(data.viewer_count));
+            values.put(StreamEntry.COLUMN_VIEWER_COUNT, data.viewer_count);
             values.put(StreamEntry.COLUMN_STARTED_AT, getUnixTimestampFromUTC(data.started_at));
             values.put(StreamEntry.COLUMN_LANGUAGE, data.language);
             values.put(StreamEntry.COLUMN_THUMBNAIL_URL, data.thumbnail_url);
@@ -107,7 +107,7 @@ public class ChannelDb {
             int streamType = data.type.equals("live") ? StreamEntry.STREAM_TYPE_LIVE : StreamEntry.STREAM_TYPE_RERUN;
             values.put(StreamEntry.COLUMN_TYPE, streamType);
             values.put(StreamEntry.COLUMN_TITLE, data.title);
-            values.put(StreamEntry.COLUMN_VIEWER_COUNT, Integer.parseInt(data.viewer_count));
+            values.put(StreamEntry.COLUMN_VIEWER_COUNT, data.viewer_count);
             values.put(StreamEntry.COLUMN_STARTED_AT, getUnixTimestampFromUTC(data.started_at));
             values.put(StreamEntry.COLUMN_LANGUAGE, data.language);
             values.put(StreamEntry.COLUMN_THUMBNAIL_URL, data.thumbnail_url);

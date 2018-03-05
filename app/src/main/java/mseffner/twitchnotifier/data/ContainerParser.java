@@ -127,7 +127,7 @@ public class ContainerParser {
             String profileImageUrl = userMap.get(userId).profile_image_url;
             int type = data.type.equals("live") ? StreamEntry.STREAM_TYPE_LIVE : StreamEntry.STREAM_TYPE_RERUN;
             String title = data.title;
-            int viewerCount = Integer.parseInt(data.viewer_count);
+            int viewerCount = data.viewer_count;
             long startedAt = ChannelDb.getUnixTimestampFromUTC(data.started_at);
             String language = data.language;
             String thumbnailUrl = data.thumbnail_url;
