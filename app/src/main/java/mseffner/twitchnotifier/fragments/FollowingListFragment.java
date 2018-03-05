@@ -7,12 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.data.DataUpdateManager;
+import mseffner.twitchnotifier.data.ListEntry;
+import mseffner.twitchnotifier.data.ListEntrySorter;
 import mseffner.twitchnotifier.networking.ErrorHandler;
 
 public class FollowingListFragment extends BaseListFragment implements DataUpdateManager.FollowsListener {
@@ -72,7 +72,9 @@ public class FollowingListFragment extends BaseListFragment implements DataUpdat
 
         @Override
         protected List<ListEntry> doInBackground(Void... voids) {
-            return ChannelDb.getAllChannels();
+            List<ListEntry> list = ChannelDb.getAllChannels();
+            ListEntrySorter.sort(list);
+            return list;
         }
 
         @Override
