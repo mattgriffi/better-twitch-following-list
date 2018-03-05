@@ -86,7 +86,10 @@ public class ChannelDbHelper extends SQLiteOpenHelper {
     }
 
     private static void createVersion3(SQLiteDatabase database) {
-        // TODO implement
+        database.execSQL(getFollowsCreateStatement(FollowEntry.TABLE_NAME));
+        database.execSQL(getUsersCreateStatement(UserEntry.TABLE_NAME));
+        database.execSQL(getStreamsCreateStatement(StreamEntry.TABLE_NAME));
+        database.execSQL(getGamesCreateStatement(GameEntry.TABLE_NAME));
     }
 
     private static String getVersion2CreateStatement(String tableName) {
