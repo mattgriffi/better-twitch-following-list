@@ -5,8 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import mseffner.twitchnotifier.data.ChannelContract.StreamEntry;
 import mseffner.twitchnotifier.networking.Containers;
-import mseffner.twitchnotifier.networking.URLTools;
+
 
 public class ContainerParser {
 
@@ -124,7 +125,7 @@ public class ContainerParser {
             String login = userMap.get(userId).login;
             String displayName = ignoreNullPointerException(() -> userMap.get(userId).display_name);
             String profileImageUrl = userMap.get(userId).profile_image_url;
-            String type = data.type;
+            int type = data.type.equals("live") ? StreamEntry.STREAM_TYPE_LIVE : StreamEntry.STREAM_TYPE_RERUN;
             String title = data.title;
             int viewerCount = Integer.parseInt(data.viewer_count);
             long startedAt = ChannelDb.getUnixTimestampFromUTC(data.started_at);
