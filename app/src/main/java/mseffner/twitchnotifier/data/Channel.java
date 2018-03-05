@@ -55,4 +55,14 @@ public class Channel {
             pinned = ChannelContract.ChannelEntry.IS_PINNED;
         }
     }
+
+    @Override
+    public String toString() {
+        return "\nChannel: " +
+                "\tid: " + id +
+                "\tdisplayName: " + displayName +
+                "\tlogoUrl: " + logoUrl +
+                "\tstreamUrl: " + streamUrl +
+                "\n\t" + stream;
+    }
 }

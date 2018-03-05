@@ -50,6 +50,17 @@ public class Stream {
         this.status = status;
     }
 
+    @Override
+    public String toString() {
+        return "Stream: " +
+                "\tid: " + id +
+                "\tcurrentGame: " + currentGame +
+                "\tcurrentViewers: " + currentViewers +
+                "\tstatus: " + status +
+                "\tstreamType: " + streamType +
+                "\tcreatedAt: " + createdAt;
+    }
+
     public String getCurrentGame() {
         return currentGame;
     }
@@ -74,7 +85,7 @@ public class Stream {
         return id;
     }
 
-    private static long getUnixTimestampFromUTC(String utcFormattedTimestamp) {
+    public static long getUnixTimestampFromUTC(String utcFormattedTimestamp) {
         @SuppressLint("SimpleDateFormat")
         // This is the format returned by the Twitch API
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
