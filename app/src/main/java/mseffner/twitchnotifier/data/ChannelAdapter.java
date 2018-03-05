@@ -23,18 +23,18 @@ import mseffner.twitchnotifier.settings.SettingsManager;
 
 public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelViewHolder> {
 
-    private final List<Channel> channelList;
-    private int vodcastSetting;
+    private final List<ListEntry> channelList;
+    private int rerunSetting;
     private Boolean allowLongClick;
 
-    public ChannelAdapter(List<Channel> channelList, int vodcastSetting, Boolean allowLongClick) {
+    public ChannelAdapter(List<ListEntry> channelList, int rerunSetting, Boolean allowLongClick) {
         this.channelList = channelList;
-        this.vodcastSetting = vodcastSetting;
+        this.rerunSetting = rerunSetting;
         this.allowLongClick = allowLongClick;
     }
 
     public void updateVodcastSetting(int newSetting) {
-        vodcastSetting = newSetting;
+        rerunSetting = newSetting;
     }
 
     public void clear() {
@@ -44,7 +44,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
         }
     }
 
-    public void addAll(List<Channel> list) {
+    public void addAll(List<ListEntry> list) {
         if (channelList != null && list != null) {
             channelList.addAll(list);
             notifyDataSetChanged();
@@ -108,11 +108,11 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
 
         void bind(int index) {
 
-            final Channel channel = channelList.get(index);
+            final ListEntry listEntry = channelList.get(index);
 
             // Set the channel name and pin icon
-            channelName.setText(channel.getDisplayName());
-            if (channel.getPinned() == ChannelContract.ChannelEntry.IS_PINNED) {
+            channelName.setText(listEntry.displayName);
+            if (listEntry.pinned) {
                 pinIcon.setVisibility(View.VISIBLE);
             } else if (!allowLongClick){
                 // If pins are disabled, remove the pin icon space
@@ -124,27 +124,27 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
 
             // Set up Picasso to load the channel logo
             Picasso.with(itemView.getContext())
-                    .load(channel.getLogoUrl())
+                    .load(listEntry.profileImageUrl)
                     .placeholder(R.drawable.default_logo_300x300)
                     .into(channelLogo);
 
             // LongClickListener to toggle pin (does not apply to top streams list)
             if (allowLongClick) {
                 itemView.setOnLongClickListener(view -> {
-                    ChannelDb.toggleChannelPin(channel.getId());
-                    channel.togglePinned();
-                    updatePinIcon(channel, pinIcon);
+                    ChannelDb.toggleChannelPin(listEntry.id);
+                    listEntry.togglePinned();
+                    updatePinIcon(listEntry, pinIcon);
                     return true;
                 });
             }
 
             // Determine whether to treat stream as online or offline, and finish binding there
-            if (channel.getStream() == null ||
-                    (channel.getStream().getStreamType() == ChannelContract.ChannelEntry.STREAM_TYPE_RERUN &&
-                    vodcastSetting == SettingsManager.RERUN_OFFLINE)) {
+            if (listEntry.type == ChannelContract.StreamEntry.STREAM_TYPE_OFFLINE ||
+                    (listEntry.type == ChannelContract.ChannelEntry.STREAM_TYPE_RERUN &&
+                    rerunSetting == SettingsManager.RERUN_OFFLINE)) {
                 bindOfflineStream();
             } else {
-                bindOnlineStream(channel);
+                bindOnlineStream(listEntry);
             }
         }
 
@@ -161,12 +161,11 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
         }
 
         @SuppressLint("SetTextI18n")
-        private void bindOnlineStream(final Channel channel) {
-            Stream stream = channel.getStream();
+        private void bindOnlineStream(final ListEntry listEntry) {
 
             // OnClickListener to open the stream
             itemView.setOnClickListener(view -> {
-                Uri channelPage = Uri.parse(channel.getStreamUrl());
+                Uri channelPage = Uri.parse(listEntry.streamUrl);
                 Intent intent = new Intent(Intent.ACTION_VIEW, channelPage);
                 // Start intent to open stream
                 if (intent.resolveActivity(view.getContext().getPackageManager()) != null) {
@@ -182,23 +181,23 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             streamTitle.setVisibility(View.VISIBLE);
             streamInfo.setVisibility(View.VISIBLE);
 
-            currentGame.setText(stream.getCurrentGame());
-            streamTitle.setText(stream.getStatus());
-            viewerCount.setText(Integer.toString(stream.getCurrentViewers()));
-            uptime.setText(getUptime(stream.getCreatedAt()));
+            currentGame.setText(listEntry.gameName);
+            streamTitle.setText(listEntry.title);
+            viewerCount.setText(Integer.toString(listEntry.viewerCount));
+            uptime.setText(getUptime(listEntry.startedAt));
 
             // Display vodcast tag depending on setting
-            if (stream.getStreamType() == ChannelContract.ChannelEntry.STREAM_TYPE_RERUN &&
-                    vodcastSetting == SettingsManager.RERUN_ONLINE_TAG) {
+            if (listEntry.type == ChannelContract.ChannelEntry.STREAM_TYPE_RERUN &&
+                    rerunSetting == SettingsManager.RERUN_ONLINE_TAG) {
                 vodcastTag.setVisibility(View.VISIBLE);
             } else {
                 vodcastTag.setVisibility(View.INVISIBLE);
             }
         }
 
-        private void updatePinIcon(Channel channel, View pinIconView) {
+        private void updatePinIcon(ListEntry listEntry, View pinIconView) {
             // This is used to visually toggle the pin icon without refreshing the whole list
-            if (channel.getPinned() == ChannelContract.ChannelEntry.IS_PINNED) {
+            if (listEntry.pinned) {
                 pinIconView.setVisibility(View.VISIBLE);
             } else {
                 pinIcon.setVisibility(View.INVISIBLE);
