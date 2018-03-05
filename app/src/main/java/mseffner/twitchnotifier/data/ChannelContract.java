@@ -42,7 +42,7 @@ public final class ChannelContract {
     public static class FollowEntry implements BaseColumns {
         private FollowEntry() {}
 
-        public static final String TABLE_NAME = "streams";
+        public static final String TABLE_NAME = "follows";
         public static final String COLUMN_PINNED = "pinned";
         public static final String COLUMN_DIRTY = "dirty";
 
