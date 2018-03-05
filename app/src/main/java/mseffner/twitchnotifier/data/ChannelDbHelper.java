@@ -3,12 +3,13 @@ package mseffner.twitchnotifier.data;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import mseffner.twitchnotifier.data.ChannelContract.ChannelEntry;
 import mseffner.twitchnotifier.data.ChannelContract.FollowEntry;
 import mseffner.twitchnotifier.data.ChannelContract.GameEntry;
-import mseffner.twitchnotifier.data.ChannelContract.UserEntry;
 import mseffner.twitchnotifier.data.ChannelContract.StreamEntry;
+import mseffner.twitchnotifier.data.ChannelContract.UserEntry;
 
 public class ChannelDbHelper extends SQLiteOpenHelper {
 
@@ -62,24 +63,27 @@ public class ChannelDbHelper extends SQLiteOpenHelper {
     }
 
     private static String getStreamsCreateStatement(String tableName) {
+        Log.e("TEST", "getStreamsCreateStatement");
         return "CREATE TABLE " + tableName +
             " (" +
                 StreamEntry._ID + " INTEGER PRIMARY KEY, " +
                 StreamEntry.COLUMN_GAME_ID + " INTEGER NOT NULL DEFAULT 0, " +
                 StreamEntry.COLUMN_TYPE + " TEXT NOT NULL DEFAULT " + StreamEntry.STREAM_TYPE_OFFLINE + ", " +
-                StreamEntry.COLUMN_TITLE + " TEXT NOT NULL DEFAULT \"\"" +
-                StreamEntry.COLUMN_VIEWER_COUNT + " INTEGER NOT NULL DEFAULT 0" +
-                StreamEntry.COLUMN_STARTED_AT + " INTEGER NOT NULL DEFAULT 0" +
-                StreamEntry.COLUMN_LANGUAGE + " TEXT NOT NULL DEFAULT \"en\"" +
+                StreamEntry.COLUMN_TITLE + " TEXT NOT NULL DEFAULT \"\", " +
+                StreamEntry.COLUMN_VIEWER_COUNT + " INTEGER NOT NULL DEFAULT 0, " +
+                StreamEntry.COLUMN_STARTED_AT + " INTEGER NOT NULL DEFAULT 0, " +
+                StreamEntry.COLUMN_LANGUAGE + " TEXT NOT NULL DEFAULT \"en\", " +
                 StreamEntry.COLUMN_THUMBNAIL_URL + " TEXT NOT NULL DEFAULT \"\"" +
             ");";
     }
 
     private static String getGamesCreateStatement(String tableName) {
+        Log.e("TEST", "getGamesCreateStatement");
+
         return "CREATE TABLE " + tableName +
             " (" +
                 GameEntry._ID + " INTEGER PRIMARY KEY, " +
-                GameEntry.COLUMN_NAME + " TEXT NOT NULL DEFAULT \"\"" +
+                GameEntry.COLUMN_NAME + " TEXT NOT NULL DEFAULT \"\", " +
                 GameEntry.COLUMN_BOX_ART_URL + " TEXT NOT NULL DEFAULT \"\"" +
             ");";
     }
@@ -91,11 +95,9 @@ public class ChannelDbHelper extends SQLiteOpenHelper {
         database.execSQL(getGamesCreateStatement(GameEntry.TABLE_NAME));
     }
 
-    private static String getVersion2CreateStatement(String tableName) {
-        return "CREATE TABLE " + tableName +
+    private static void upgradeFrom1to2(SQLiteDatabase database) {
+        String createNew = "CREATE TABLE temp" +
             " (" +
-                // The ID will be the ID returned by the Twitch API, which allows me to use it
-                // to specify channels in future API requests.
                 ChannelEntry._ID + " INTEGER PRIMARY KEY, " +
                 ChannelEntry.COLUMN_DISPLAY_NAME + " TEXT NOT NULL DEFAULT \"\", " +
                 ChannelEntry.COLUMN_LOGIN_NAME + " TEXT NOT NULL DEFAULT \"\", " +
@@ -107,14 +109,10 @@ public class ChannelDbHelper extends SQLiteOpenHelper {
                 ChannelEntry.COLUMN_GAME + " TEXT NOT NULL DEFAULT \"\", " +
                 ChannelEntry.COLUMN_GAME_ID + " INTEGER NOT NULL DEFAULT 0, " +
                 ChannelEntry.COLUMN_VIEWERS + " INTEGER NOT NULL DEFAULT 0, " +
-                // CREATED_AT will be a Unix timestamp showing when the stream went live.
                 ChannelEntry.COLUMN_CREATED_AT + " INTEGER NOT NULL DEFAULT 0, " +
                 ChannelEntry.COLUMN_DIRTY + " INTEGER NOT NULL DEFAULT " + ChannelEntry.CLEAN +
             ");";
-    }
 
-    private static void upgradeFrom1to2(SQLiteDatabase database) {
-        String createNew = getVersion2CreateStatement("temp");
         String columnList = ChannelEntry._ID + ", " + ChannelEntry.COLUMN_DISPLAY_NAME + ", " +
                 ChannelEntry.COLUMN_CHANNEL_URL + ", " + ChannelEntry.COLUMN_LOGO_URL + ", " +
                 ChannelEntry.COLUMN_PINNED + ", " + ChannelEntry.COLUMN_STREAM_TYPE + ", " +
@@ -132,20 +130,12 @@ public class ChannelDbHelper extends SQLiteOpenHelper {
     }
 
     private static void upgradeFrom2to3(SQLiteDatabase database) {
-        String createFollows = getFollowsCreateStatement(FollowEntry.TABLE_NAME);
-        String createUsers = getUsersCreateStatement(UserEntry.TABLE_NAME);
-        String createGames = getGamesCreateStatement(GameEntry.TABLE_NAME);
-        String createStreams = getStreamsCreateStatement(StreamEntry.TABLE_NAME);
-
         String insertFollows = "INSERT INTO " + FollowEntry.TABLE_NAME + " (" +
                 FollowEntry._ID + ", " + FollowEntry.COLUMN_PINNED + ") SELECT " +
                 ChannelEntry._ID + ", " + ChannelEntry.COLUMN_PINNED + " FROM "
                 + ChannelEntry.TABLE_NAME + ";";
 
-        database.execSQL(createFollows);
-        database.execSQL(createUsers);
-        database.execSQL(createGames);
-        database.execSQL(createStreams);
+        createVersion3(database);
         database.execSQL(insertFollows);
     }
 }
