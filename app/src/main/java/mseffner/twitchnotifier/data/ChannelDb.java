@@ -1,14 +1,22 @@
 package mseffner.twitchnotifier.data;
 
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 
 import mseffner.twitchnotifier.data.ChannelContract.FollowEntry;
 import mseffner.twitchnotifier.data.ChannelContract.GameEntry;
@@ -71,7 +79,7 @@ public class ChannelDb {
             values.put(StreamEntry.COLUMN_TYPE, streamType);
             values.put(StreamEntry.COLUMN_TITLE, data.title);
             values.put(StreamEntry.COLUMN_VIEWER_COUNT, Integer.parseInt(data.viewer_count));
-            values.put(StreamEntry.COLUMN_STARTED_AT, Stream.getUnixTimestampFromUTC(data.started_at));
+            values.put(StreamEntry.COLUMN_STARTED_AT, getUnixTimestampFromUTC(data.started_at));
             values.put(StreamEntry.COLUMN_LANGUAGE, data.language);
             values.put(StreamEntry.COLUMN_THUMBNAIL_URL, data.thumbnail_url);
 
@@ -101,7 +109,7 @@ public class ChannelDb {
             values.put(StreamEntry.COLUMN_TYPE, streamType);
             values.put(StreamEntry.COLUMN_TITLE, data.title);
             values.put(StreamEntry.COLUMN_VIEWER_COUNT, Integer.parseInt(data.viewer_count));
-            values.put(StreamEntry.COLUMN_STARTED_AT, Stream.getUnixTimestampFromUTC(data.started_at));
+            values.put(StreamEntry.COLUMN_STARTED_AT, getUnixTimestampFromUTC(data.started_at));
             values.put(StreamEntry.COLUMN_LANGUAGE, data.language);
             values.put(StreamEntry.COLUMN_THUMBNAIL_URL, data.thumbnail_url);
 
@@ -266,5 +274,17 @@ public class ChannelDb {
     private static void delete(String tableName, String selection, String[] selectionArgs) {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         database.delete(tableName, selection, selectionArgs);
+    }
+
+    public static long getUnixTimestampFromUTC(String utcFormattedTimestamp) {
+        @SuppressLint("SimpleDateFormat")
+        // This is the format returned by the Twitch API
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        format.setTimeZone(TimeZone.getTimeZone("GMT"));
+        try {
+            return format.parse(utcFormattedTimestamp).getTime() / 1000;
+        } catch (ParseException e) {
+            return 0;
+        }
     }
 }
