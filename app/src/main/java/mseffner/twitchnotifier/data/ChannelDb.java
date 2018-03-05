@@ -152,7 +152,7 @@ public class ChannelDb {
         return idSet;
     }
 
-    public static long[] getAllChannelIds() {
+    public static long[] getAllFollowIds() {
         Cursor cursor = query(FollowEntry.TABLE_NAME, new String[]{FollowEntry._ID}, null, null, null);
         long[] idArray = new long[cursor.getCount()];
         int idColumnIndex = cursor.getColumnIndex(FollowEntry._ID);
