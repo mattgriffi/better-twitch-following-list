@@ -61,18 +61,18 @@ public class DataUpdateManager {
             long[] userIds = parser.getUserIdsFromFollows();
 
             // Get users data
-            Requests.getUsers(userIds, usersResponse -> handler.post(() -> ChannelDb.updateUsersData(usersResponse)),
+            Requests.getUsers(userIds, usersResponse -> handler.post(() -> ChannelDb.insertUsersData(usersResponse)),
                     followsErrorListener);
 
             // Get streams data
             Requests.getStreams(userIds, streamsResponse -> {
-                handler.post(() -> ChannelDb.updateStreamsData(streamsResponse));
+                handler.post(() -> ChannelDb.insertStreamsData(streamsResponse));
 
                 // Get the games data
                 ContainerParser gamesParser = new ContainerParser();
                 gamesParser.setStreams(streamsResponse);
                 Requests.getGames(gamesParser.getGameIdsFromStreams(),
-                        gamesResponse -> handler.post(() -> ChannelDb.updateGamesData(gamesResponse)),
+                        gamesResponse -> handler.post(() -> ChannelDb.insertGamesData(gamesResponse)),
                         followsErrorListener);
 
             }, followsErrorListener);
@@ -89,15 +89,6 @@ public class DataUpdateManager {
         }
     }
 
-    private static void checkHandler() {
-        if (handler == null) {
-            HandlerThread handlerThread = new HandlerThread("DatabaseOperations");
-            handlerThread.start();
-            Looper looper = handlerThread.getLooper();
-            handler = new Handler(looper);
-        }
-    }
-
     public static void getTopStreamsData(@NonNull TopStreamsListener listener,
                                          final Response.ErrorListener errorListener) {
         DataUpdateManager.topStreamsListener = listener;
@@ -110,14 +101,14 @@ public class DataUpdateManager {
             // Get the game names
             Requests.getGames(parser.getGameIdsFromStreams(),
                     gamesResponse -> {
-                        handler.post(() -> ChannelDb.insertGamesData(gamesResponse));
+//                        handler.post(() -> ChannelDb.insertGamesData(gamesResponse));
                         parser.setGames(gamesResponse);
                         notifyListener(parser);
                     }, errorListener);
             // Get the streamer names
             Requests.getUsers(parser.getUserIdsFromStreams(),
                     usersResponse -> {
-                        handler.post(() -> ChannelDb.insertUsersData(usersResponse));
+//                        handler.post(() -> ChannelDb.insertUsersData(usersResponse));
                         parser.setUsers(usersResponse);
                         notifyListener(parser);
                     }, errorListener);
@@ -128,5 +119,14 @@ public class DataUpdateManager {
         if (parser == null || !parser.isDataComplete() || topStreamsListener == null) return;
         topStreamsListener.onTopStreamsResponse(parser.getChannelList());
         topStreamsListener = null;
+    }
+
+    private static void checkHandler() {
+        if (handler == null) {
+            HandlerThread handlerThread = new HandlerThread("DatabaseOperations");
+            handlerThread.start();
+            Looper looper = handlerThread.getLooper();
+            handler = new Handler(looper);
+        }
     }
 }

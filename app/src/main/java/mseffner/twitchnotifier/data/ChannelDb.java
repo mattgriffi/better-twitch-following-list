@@ -11,9 +11,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import mseffner.twitchnotifier.data.ChannelContract.FollowEntry;
-import mseffner.twitchnotifier.data.ChannelContract.UserEntry;
-import mseffner.twitchnotifier.data.ChannelContract.StreamEntry;
 import mseffner.twitchnotifier.data.ChannelContract.GameEntry;
+import mseffner.twitchnotifier.data.ChannelContract.StreamEntry;
+import mseffner.twitchnotifier.data.ChannelContract.UserEntry;
 import mseffner.twitchnotifier.networking.Containers;
 
 
@@ -59,6 +59,23 @@ public class ChannelDb {
             values.put(UserEntry.COLUMN_DISPLAY_NAME, data.display_name);
             values.put(UserEntry.COLUMN_PROFILE_IMAGE_URL, data.profile_image_url);
             insert(UserEntry.TABLE_NAME, values);
+        }
+    }
+
+    public static void insertStreamsData(@NonNull Containers.Streams streams) {
+        for (Containers.Streams.Data data : streams.data) {
+            ContentValues values = new ContentValues();
+            values.put(StreamEntry._ID, Long.parseLong(data.user_id));
+            values.put(StreamEntry.COLUMN_GAME_ID, Long.parseLong(data.game_id));
+            int streamType = data.type.equals("live") ? StreamEntry.STREAM_TYPE_LIVE : StreamEntry.STREAM_TYPE_RERUN;
+            values.put(StreamEntry.COLUMN_TYPE, streamType);
+            values.put(StreamEntry.COLUMN_TITLE, data.title);
+            values.put(StreamEntry.COLUMN_VIEWER_COUNT, Integer.parseInt(data.viewer_count));
+            values.put(StreamEntry.COLUMN_STARTED_AT, Stream.getUnixTimestampFromUTC(data.started_at));
+            values.put(StreamEntry.COLUMN_LANGUAGE, data.language);
+            values.put(StreamEntry.COLUMN_THUMBNAIL_URL, data.thumbnail_url);
+
+            insert(StreamEntry.TABLE_NAME, values);
         }
     }
 
@@ -151,7 +168,7 @@ public class ChannelDb {
                 UserEntry.TABLE_NAME, UserEntry._ID);
     }
 
-    public static long[] getUnkownGameIds() {
+    public static long[] getUnknownGameIds() {
         return getUnknownIds(StreamEntry.TABLE_NAME, StreamEntry.COLUMN_GAME_ID,
                 GameEntry.TABLE_NAME, GameEntry._ID);
     }
@@ -160,7 +177,7 @@ public class ChannelDb {
         // Make query
         String query = "SELECT DISTINCT " + column1 + " FROM " + table1 +
                 " WHERE " + column1 + " NOT IN " +
-                "(SELECT " + column2 + " FROM " + table2 + ");";
+                "(SELECT DISTINCT " + column2 + " FROM " + table2 + ");";
         Cursor cursor = dbHelper.getReadableDatabase().rawQuery(query, null);
         // Build array
         long[] ids = new long[cursor.getCount()];
