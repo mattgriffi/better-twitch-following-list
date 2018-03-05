@@ -133,6 +133,61 @@ public class ChannelDb {
         }
     }
 
+    public static List<ListEntry> getAllChannels() {
+        String selection =
+            "SELECT " +
+                FollowEntry.TABLE_NAME + "." + FollowEntry._ID + ", " +
+                FollowEntry.TABLE_NAME + "." + FollowEntry.COLUMN_PINNED + ", " +
+                UserEntry.TABLE_NAME + "." + UserEntry.COLUMN_LOGIN + ", " +
+                UserEntry.TABLE_NAME + "." + UserEntry.COLUMN_DISPLAY_NAME + ", " +
+                UserEntry.TABLE_NAME + "." + UserEntry.COLUMN_PROFILE_IMAGE_URL + ", " +
+                StreamEntry.TABLE_NAME + "." + StreamEntry.COLUMN_TYPE + ", " +
+                StreamEntry.TABLE_NAME + "." + StreamEntry.COLUMN_TITLE + ", " +
+                StreamEntry.TABLE_NAME + "." + StreamEntry.COLUMN_VIEWER_COUNT + ", " +
+                StreamEntry.TABLE_NAME + "." + StreamEntry.COLUMN_STARTED_AT + ", " +
+                StreamEntry.TABLE_NAME + "." + StreamEntry.COLUMN_LANGUAGE + ", " +
+                StreamEntry.TABLE_NAME + "." + StreamEntry.COLUMN_THUMBNAIL_URL + ", " +
+                GameEntry.TABLE_NAME + "." + GameEntry.COLUMN_NAME + ", " +
+                GameEntry.TABLE_NAME + "." + GameEntry.COLUMN_BOX_ART_URL +
+            " FROM " + FollowEntry.TABLE_NAME +
+                " LEFT OUTER JOIN " + UserEntry.TABLE_NAME + " ON "+
+                    FollowEntry.TABLE_NAME + "." + FollowEntry._ID + " = " +
+                    UserEntry.TABLE_NAME + "." + UserEntry._ID +
+                " LEFT OUTER JOIN " + StreamEntry.TABLE_NAME + " ON " +
+                    FollowEntry.TABLE_NAME + "." + FollowEntry._ID + " = " +
+                    StreamEntry.TABLE_NAME + "." + StreamEntry._ID +
+                " LEFT OUTER JOIN " + GameEntry.TABLE_NAME + " ON " +
+                    StreamEntry.TABLE_NAME + "." + StreamEntry.COLUMN_GAME_ID + " = " +
+                    GameEntry.TABLE_NAME + "." + GameEntry._ID + ";";
+
+        Cursor cursor = dbHelper.getReadableDatabase().rawQuery(selection, null);
+        Log.e("column names", Arrays.toString(cursor.getColumnNames()));
+
+        List<ListEntry> list = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            long id = cursor.getLong(cursor.getColumnIndex(FollowEntry._ID));
+            int pinned = cursor.getInt(cursor.getColumnIndex(FollowEntry.COLUMN_PINNED));
+            String login = cursor.getString(cursor.getColumnIndex(UserEntry.COLUMN_LOGIN));
+            String displayName = cursor.getString(cursor.getColumnIndex(UserEntry.COLUMN_DISPLAY_NAME));
+            String profileImageUrl = cursor.getString(cursor.getColumnIndex(UserEntry.COLUMN_PROFILE_IMAGE_URL));
+            int type = cursor.getInt(cursor.getColumnIndex(StreamEntry.COLUMN_TYPE));
+            String title = cursor.getString(cursor.getColumnIndex(StreamEntry.COLUMN_TITLE));
+            int viewerCount = cursor.getInt(cursor.getColumnIndex(StreamEntry.COLUMN_VIEWER_COUNT));
+            long startedAt = cursor.getLong(cursor.getColumnIndex(StreamEntry.COLUMN_STARTED_AT));
+            String language = cursor.getString(cursor.getColumnIndex(StreamEntry.COLUMN_LANGUAGE));
+            String thumbnailUrl = cursor.getString(cursor.getColumnIndex(StreamEntry.COLUMN_THUMBNAIL_URL));
+            String gameName = cursor.getString(cursor.getColumnIndex(GameEntry.COLUMN_NAME));
+            String boxArtUrl = cursor.getString(cursor.getColumnIndex(GameEntry.COLUMN_BOX_ART_URL));
+
+            ListEntry listEntry = new ListEntry(id, pinned, login, displayName, profileImageUrl,
+                    type, title, viewerCount, startedAt, language, thumbnailUrl, gameName, boxArtUrl);
+            Log.e("TEST", listEntry.toString());
+            list.add(listEntry);
+        }
+        cursor.close();
+        return list;
+    }
+
     public static Set<Long> getChannelIdSet() {
         Cursor cursor = query(FollowEntry.TABLE_NAME, true, new String[]{FollowEntry._ID}, null, null, null);
         Set<Long> idSet = new HashSet<>();
