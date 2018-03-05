@@ -40,6 +40,27 @@ public class ChannelDb {
         }
     }
 
+    public static void insertGamesData(@NonNull Containers.Games games) {
+        for (Containers.Games.Data data : games.data) {
+            ContentValues values = new ContentValues();
+            values.put(GameEntry._ID, Long.parseLong(data.id));
+            values.put(GameEntry.COLUMN_NAME, data.name);
+            values.put(GameEntry.COLUMN_BOX_ART_URL, data.box_art_url);
+            insert(GameEntry.TABLE_NAME, values);
+        }
+    }
+
+    public static void insertUsersData(@NonNull Containers.Users users) {
+        for (Containers.Users.Data data : users.data) {
+            ContentValues values = new ContentValues();
+            values.put(UserEntry._ID, Long.parseLong(data.id));
+            values.put(UserEntry.COLUMN_LOGIN, data.login);
+            values.put(UserEntry.COLUMN_DISPLAY_NAME, data.display_name);
+            values.put(UserEntry.COLUMN_PROFILE_IMAGE_URL, data.profile_image_url);
+            insert(UserEntry.TABLE_NAME, values);
+        }
+    }
+
     public static void updateUsersData(@NonNull Containers.Users users) {
         for (Containers.Users.Data data : users.data) {
             ContentValues values = new ContentValues();
