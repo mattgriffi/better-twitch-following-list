@@ -2,6 +2,7 @@ package mseffner.twitchnotifier.data;
 
 
 import mseffner.twitchnotifier.data.ChannelContract.FollowEntry;
+import mseffner.twitchnotifier.networking.URLTools;
 
 public class ListEntry {
 
@@ -18,6 +19,7 @@ public class ListEntry {
     public String thumbnailUrl;
     public String gameName;
     public String boxArtUrl;
+    public String streamUrl;
 
     public ListEntry(long id, int pinned, String login, String displayName, String profileImageUrl,
                      String type, String title, int viewerCount, long startedAt, String language,
@@ -35,9 +37,28 @@ public class ListEntry {
         this.thumbnailUrl = thumbnailUrl;
         this.gameName = gameName;
         this.boxArtUrl = boxArtUrl;
+        this.streamUrl = URLTools.getStreamUrl(this.login);
     }
 
     public void togglePinned() {
         pinned = !pinned;
+    }
+
+    @Override
+    public String toString() {
+        return "id: " + id +
+                "\tpinned: " + pinned +
+                "\tlogin: " + login +
+                "\tdisplayName: " + displayName +
+                "\tprofileImageUrl: " + profileImageUrl +
+                "\ttype: " + type +
+                "\ttitle: " + title +
+                "\tviewerCount: " + viewerCount +
+                "\tstartedAt: " + startedAt +
+                "\tlanguage: " + language +
+                "\tthumbnailUrl: " + thumbnailUrl +
+                "\tgameName: " + gameName +
+                "\tboxArtUrl: " + boxArtUrl +
+                "\tstreamUrl: " + streamUrl + "\n";
     }
 }
