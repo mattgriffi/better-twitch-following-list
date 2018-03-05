@@ -11,7 +11,7 @@ public class ListEntry {
     public String login;
     public String displayName;
     public String profileImageUrl;
-    public String type;
+    public int type;
     public String title;
     public int viewerCount;
     public long startedAt;
@@ -22,7 +22,7 @@ public class ListEntry {
     public String streamUrl;
 
     public ListEntry(long id, int pinned, String login, String displayName, String profileImageUrl,
-                     String type, String title, int viewerCount, long startedAt, String language,
+                     int type, String title, int viewerCount, long startedAt, String language,
                      String thumbnailUrl, String gameName, String boxArtUrl) {
         this.id = id;
         this.pinned = pinned == FollowEntry.IS_PINNED;
