@@ -5,8 +5,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,7 +28,7 @@ public class ChannelDb {
     public static void insertFollowsData(@NonNull Containers.Follows follows) {
         for (Containers.Follows.Data data : follows.data) {
             ContentValues values = new ContentValues();
-            values.put(ChannelEntry._ID, data.to_id);
+            values.put(ChannelEntry._ID, Long.parseLong(data.to_id));
             insert(values);
         }
     }
@@ -48,11 +50,12 @@ public class ChannelDb {
     public static void updateStreamsData(@NonNull Containers.Streams streams) {
         for (Containers.Streams.Data data : streams.data) {
             ContentValues values = new ContentValues();
-            values.put(ChannelEntry.COLUMN_GAME_ID, data.game_id);
-            values.put(ChannelEntry.COLUMN_STREAM_TYPE, data.type);
+            values.put(ChannelEntry.COLUMN_GAME_ID, Long.parseLong(data.game_id));
+            int streamType = data.type.equals("live") ? ChannelEntry.STREAM_TYPE_LIVE : ChannelEntry.STREAM_TYPE_RERUN;
+            values.put(ChannelEntry.COLUMN_STREAM_TYPE, streamType);
             values.put(ChannelEntry.COLUMN_STATUS, data.title);
-            values.put(ChannelEntry.COLUMN_VIEWERS, data.viewer_count);
-            values.put(ChannelEntry.COLUMN_CREATED_AT, data.started_at);
+            values.put(ChannelEntry.COLUMN_VIEWERS, Integer.parseInt(data.viewer_count));
+            values.put(ChannelEntry.COLUMN_CREATED_AT, Stream.getUnixTimestampFromUTC(data.started_at));
 
             String selection = ChannelEntry._ID + "=?";
             String[] selectionArgs = {data.user_id};
