@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements SettingsManager.O
         }
         // If the username is changed, empty the database
         else if (setting == SettingsManager.SETTING_USERNAME) {
-            ChannelDb.deleteAllChannels();
+            ChannelDb.deleteAllFollows();
             Requests.makeRequest(Requests.REQUEST_TYPE_USERS, URLTools.getUserIdUrl(),
                     new Response.Listener<Containers.Users>() {
                         @Override

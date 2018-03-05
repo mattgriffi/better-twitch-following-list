@@ -131,7 +131,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             // LongClickListener to toggle pin (does not apply to top streams list)
             if (allowLongClick) {
                 itemView.setOnLongClickListener(view -> {
-                    ChannelDb.toggleChannelPin(channel);
+                    ChannelDb.toggleChannelPin(channel.getId());
                     channel.togglePinned();
                     updatePinIcon(channel, pinIcon);
                     return true;

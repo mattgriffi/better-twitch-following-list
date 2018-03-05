@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import mseffner.twitchnotifier.data.Channel;
@@ -71,7 +72,8 @@ public class FollowingListFragment extends BaseListFragment implements DataUpdat
 
         @Override
         protected List<Channel> doInBackground(Void... voids) {
-            return ChannelDb.getAllChannels();
+//            return ChannelDb.getAllChannels();
+            return new ArrayList<>();
         }
 
         @Override
