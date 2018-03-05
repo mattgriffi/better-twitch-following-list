@@ -51,6 +51,10 @@ public class ContainerParser {
         return follows.pagination.cursor;
     }
 
+    public int getFollowsDataSize() {
+        return follows.data.size();
+    }
+
     public boolean isDataComplete() {
         return dataComplete;
     }
