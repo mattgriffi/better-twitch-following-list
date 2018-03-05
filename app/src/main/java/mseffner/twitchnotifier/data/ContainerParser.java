@@ -132,7 +132,7 @@ public class ContainerParser {
             String language = data.language;
             String thumbnailUrl = data.thumbnail_url;
             String gameName = ignoreNullPointerException(() -> gameMap.get(data.game_id).name);
-            String boxArtUrl = gameMap.get(data.game_id).box_art_url;
+            String boxArtUrl = ignoreNullPointerException(() -> gameMap.get(data.game_id).box_art_url);
 
             ListEntry listEntry = new ListEntry(id, pinned, login, displayName, profileImageUrl, type,
                     title, viewerCount, startedAt, language, thumbnailUrl, gameName, boxArtUrl);
