@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mseffner.twitchnotifier.ToastMaker;
-import mseffner.twitchnotifier.data.Channel;
+import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.data.ChannelContract;
 import mseffner.twitchnotifier.data.DataUpdateManager;
 import mseffner.twitchnotifier.networking.ErrorHandler;
@@ -55,7 +55,7 @@ public class TopListFragment extends BaseListFragment implements DataUpdateManag
     protected void cancelAsyncTasks() {}
 
     @Override
-    public void onTopStreamsResponse(@NonNull List<Channel> channels) {
+    public void onTopStreamsResponse(@NonNull List<ListEntry> channels) {
         // If vodcasts are set to be shown as offline, remove them from the top list entirely
         if (SettingsManager.getRerunSetting() == SettingsManager.RERUN_OFFLINE)
             channels = removeNonliveChannels(channels);
@@ -68,11 +68,11 @@ public class TopListFragment extends BaseListFragment implements DataUpdateManag
         refreshStop();
     }
 
-    private List<Channel> removeNonliveChannels(@NonNull List<Channel> list) {
-        List<Channel> newList = new ArrayList<>();
-        for (Channel channel : list)
-            if (channel.getStream().getStreamType() == ChannelContract.ChannelEntry.STREAM_TYPE_LIVE)
-                newList.add(channel);
+    private List<ListEntry> removeNonliveChannels(@NonNull List<ListEntry> list) {
+        List<ListEntry> newList = new ArrayList<>();
+        for (ListEntry listEntry : list)
+            if (listEntry.type == ChannelContract.ChannelEntry.STREAM_TYPE_LIVE)
+                newList.add(listEntry);
         return newList;
     }
 

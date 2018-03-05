@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mseffner.twitchnotifier.R;
-import mseffner.twitchnotifier.data.Channel;
+import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.data.ChannelAdapter;
 import mseffner.twitchnotifier.settings.SettingsManager;
 
@@ -105,7 +105,7 @@ public abstract class BaseListFragment extends Fragment {
         cancelAsyncTasks();
     }
 
-    protected void updateAdapter(List<Channel> list) {
+    protected void updateAdapter(List<ListEntry> list) {
         channelAdapter.clear();
         channelAdapter.addAll(list);
         channelAdapter.updateVodcastSetting(SettingsManager.getRerunSetting());

@@ -29,7 +29,7 @@ public class DataUpdateManager {
     private static Handler handler;
 
     public interface TopStreamsListener {
-        void onTopStreamsResponse(@NonNull List<Channel> channels);
+        void onTopStreamsResponse(@NonNull List<ListEntry> channels);
     }
 
     public interface FollowsListener {
@@ -101,14 +101,14 @@ public class DataUpdateManager {
             // Get the game names
             Requests.getGames(parser.getGameIdsFromStreams(),
                     gamesResponse -> {
-//                        handler.post(() -> ChannelDb.insertGamesData(gamesResponse));
+                        handler.post(() -> ChannelDb.insertGamesData(gamesResponse));
                         parser.setGames(gamesResponse);
                         notifyListener(parser);
                     }, errorListener);
             // Get the streamer names
             Requests.getUsers(parser.getUserIdsFromStreams(),
                     usersResponse -> {
-//                        handler.post(() -> ChannelDb.insertUsersData(usersResponse));
+                        handler.post(() -> ChannelDb.insertUsersData(usersResponse));
                         parser.setUsers(usersResponse);
                         notifyListener(parser);
                     }, errorListener);

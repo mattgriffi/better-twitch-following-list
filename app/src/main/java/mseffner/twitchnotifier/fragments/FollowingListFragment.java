@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-import mseffner.twitchnotifier.data.Channel;
+import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.data.DataUpdateManager;
 import mseffner.twitchnotifier.networking.ErrorHandler;
@@ -63,7 +63,7 @@ public class FollowingListFragment extends BaseListFragment implements DataUpdat
         runUpdateAdapterAsyncTask();
     }
 
-    private class UpdateAdapterAsyncTask extends AsyncTask<Void, Void, List<Channel>> {
+    private class UpdateAdapterAsyncTask extends AsyncTask<Void, Void, List<ListEntry>> {
 
         @Override
         protected void onPreExecute() {
@@ -71,13 +71,12 @@ public class FollowingListFragment extends BaseListFragment implements DataUpdat
         }
 
         @Override
-        protected List<Channel> doInBackground(Void... voids) {
-//            return ChannelDb.getAllChannels();
-            return new ArrayList<>();
+        protected List<ListEntry> doInBackground(Void... voids) {
+            return ChannelDb.getAllChannels();
         }
 
         @Override
-        protected void onPostExecute(List<Channel> channelList) {
+        protected void onPostExecute(List<ListEntry> channelList) {
 
             if (!isAdded() || isCancelled())
                 return;
