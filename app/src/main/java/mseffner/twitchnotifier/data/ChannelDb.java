@@ -149,7 +149,7 @@ public class ChannelDb {
                 GameEntry.TABLE_NAME + "." + GameEntry.COLUMN_NAME + ", " +
                 GameEntry.TABLE_NAME + "." + GameEntry.COLUMN_BOX_ART_URL +
             " FROM " + FollowEntry.TABLE_NAME +
-                " LEFT OUTER JOIN " + UserEntry.TABLE_NAME + " ON "+
+                " INNER JOIN " + UserEntry.TABLE_NAME + " ON " +
                     FollowEntry.TABLE_NAME + "." + FollowEntry._ID + " = " +
                     UserEntry.TABLE_NAME + "." + UserEntry._ID +
                 " LEFT OUTER JOIN " + StreamEntry.TABLE_NAME + " ON " +
