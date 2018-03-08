@@ -3,6 +3,7 @@ package mseffner.twitchnotifier.data;
 
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 
 /**
  * This class handles the boilerplate of starting and stopping the handler thread.
@@ -35,6 +36,10 @@ public class ThreadManager {
                 handler = null;
             }
         });
+    }
+
+    public static void postMainThread(Runnable r) {
+        new Handler(Looper.getMainLooper()).post(r);
     }
 
     public static void post(Runnable r) {
