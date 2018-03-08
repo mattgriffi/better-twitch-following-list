@@ -39,7 +39,11 @@ public class ThreadManager {
     }
 
     public static void postMainThread(Runnable r) {
-        new Handler(Looper.getMainLooper()).post(r);
+        // Check to see if we're already on the main thread
+        if (Looper.myLooper() == Looper.getMainLooper())
+            r.run();
+        else
+            new Handler(Looper.getMainLooper()).post(r);
     }
 
     public static void post(Runnable r) {
