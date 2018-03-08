@@ -2,9 +2,11 @@ package mseffner.twitchnotifier.data;
 
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.android.volley.Response;
 
+import java.util.Arrays;
 import java.util.List;
 
 import mseffner.twitchnotifier.networking.Containers;
@@ -20,8 +22,8 @@ import mseffner.twitchnotifier.settings.SettingsManager;
 public class DataUpdateManager {
 
     private static TopDataUpdatedListener topDataUpdatedListener;
-    private static FollowsDataUpdatedListener followsDataUpdatedListener;
-    private static Response.ErrorListener followsErrorListener;
+    private static DataUpdatedListener dataUpdatedListener;
+    private static Response.ErrorListener errorListener;
     // Variables to track when sets of requests have finished
     private static int totalFollowsRequests;
     private static int totalStreamsRequests;
@@ -38,16 +40,16 @@ public class DataUpdateManager {
         void onTopStreamsResponse(@NonNull List<ListEntry> channels);
     }
 
-    public interface FollowsDataUpdatedListener {
+    public interface DataUpdatedListener {
         void onFollowsDataUpdated();
     }
 
-    public static void registerOnFollowsDataUpdatedListener(FollowsDataUpdatedListener listener) {
-        followsDataUpdatedListener = listener;
+    public static void registerOnDataUpdatedListener(DataUpdatedListener listener) {
+        dataUpdatedListener = listener;
     }
 
-    public static void unregisterOnFollowsDataUpdatedListener() {
-        followsDataUpdatedListener = null;
+    public static void unregisterOnDataUpdatedListener() {
+        dataUpdatedListener = null;
     }
 
     /**
@@ -80,7 +82,7 @@ public class DataUpdateManager {
      * @param errorListener notified if any network operation goes wrong
      */
     public static void updateFollowsData(final Response.ErrorListener errorListener) {
-        followsErrorListener = errorListener;
+        DataUpdateManager.errorListener = errorListener;
 
         // Reset counters
         totalFollowsRequests = 0;
@@ -95,6 +97,28 @@ public class DataUpdateManager {
         ThreadManager.post(DataUpdateManager::performFollowsUpdate);
     }
 
+    public static void updateStreamsData(final Response.ErrorListener errorListener) {
+        DataUpdateManager.errorListener = errorListener;
+
+        // Reset counters
+        totalStreamsRequests = 0;
+        totalUsersRequests = 0;
+        totalGamesRequests = 0;
+        completedStreamsRequests = 0;
+        completedUsersRequests = 0;
+        completedGamesRequests = 0;
+
+        ThreadManager.post(DataUpdateManager::performStreamsUpdate);
+    }
+
+    private static void performStreamsUpdate() {
+        ChannelDb.deleteAllStreams();
+        long[][] userIds = URLTools.splitIdArray(ChannelDb.getAllFollowIds());
+        totalStreamsRequests = userIds.length;
+        for (long[] ids : userIds)
+            Requests.getStreams(ids, new StreamsListener(), errorListener);
+    }
+
     private static void performFollowsUpdate() {
         // Any rows that are not cleaned by the time we finish will be deleted as this
         // means that those channels were unfollowed
@@ -103,7 +127,7 @@ public class DataUpdateManager {
 
         // Get all of the follows data in chunks of 100
         if (!SettingsManager.getUsername().equals(""))
-            Requests.getFollows(null, new FollowsListener(), followsErrorListener);
+            Requests.getFollows(null, new FollowsListener(), errorListener);
     }
 
     private static class FollowsListener implements Response.Listener<Containers.Follows> {
@@ -118,11 +142,11 @@ public class DataUpdateManager {
             ThreadManager.post(() -> ChannelDb.insertFollowsData(followsResponse, new FollowsInsertListener()));
 
             // Get streams data
-            Requests.getStreams(userIds, new StreamsListener(), followsErrorListener);
+            Requests.getStreams(userIds, new StreamsListener(), errorListener);
 
             // If there are 100 elements, then there might be more to fetch
             if (parser.getFollowsDataSize() >= 100)
-                Requests.getFollows(parser.getFollowsCursor(), new FollowsListener(), followsErrorListener);
+                Requests.getFollows(parser.getFollowsCursor(), new FollowsListener(), errorListener);
         }
     }
 
@@ -160,8 +184,9 @@ public class DataUpdateManager {
 
                 long[][] userIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIds());
                 totalUsersRequests = userIds.length;
+                totalStreamsRequests = totalUsersRequests;
                 for (long[] ids : userIds)
-                    Requests.getUsers(ids, new UsersListener(), followsErrorListener);
+                    Requests.getUsers(ids, new UsersListener(), errorListener);
             }
         }
     }
@@ -174,9 +199,13 @@ public class DataUpdateManager {
             // If all of the streams data has been inserted, run the games requests
             if (completedStreamsRequests == totalStreamsRequests) {
                 long[][] gameIds = URLTools.splitIdArray(ChannelDb.getUnknownGameIds());
-                totalGamesRequests = gameIds.length;
-                for (long[] ids : gameIds)
-                    Requests.getGames(ids, new GamesListener(), followsErrorListener);
+                if (gameIds.length == 0) {
+                    notifyFollowsListener();
+                } else {
+                    totalGamesRequests = gameIds.length;
+                    for (long[] ids : gameIds)
+                        Requests.getGames(ids, new GamesListener(), errorListener);
+                }
             }
         }
     }
@@ -233,7 +262,7 @@ public class DataUpdateManager {
     }
 
     private static synchronized  void notifyFollowsListener() {
-        if (followsDataUpdatedListener != null)
-            ThreadManager.postMainThread(() -> followsDataUpdatedListener.onFollowsDataUpdated());
+        if (dataUpdatedListener != null)
+            ThreadManager.postMainThread(() -> dataUpdatedListener.onFollowsDataUpdated());
     }
 }

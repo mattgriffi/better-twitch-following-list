@@ -16,7 +16,7 @@ import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.data.ListEntrySorter;
 import mseffner.twitchnotifier.networking.ErrorHandler;
 
-public class FollowingListFragment extends BaseListFragment implements DataUpdateManager.FollowsDataUpdatedListener {
+public class FollowingListFragment extends BaseListFragment implements DataUpdateManager.DataUpdatedListener {
 
     private UpdateAdapterAsyncTask updateAdapterAsyncTask;
 
@@ -24,26 +24,26 @@ public class FollowingListFragment extends BaseListFragment implements DataUpdat
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
-        DataUpdateManager.registerOnFollowsDataUpdatedListener(this);
+        DataUpdateManager.registerOnDataUpdatedListener(this);
         DataUpdateManager.updateFollowsData(new ErrorHandler() {});
         return view;
     }
 
     @Override
     protected void refreshList() {
-        runUpdateAdapterAsyncTask();
+        DataUpdateManager.updateStreamsData(new ErrorHandler() {});
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        refreshList();
+        runUpdateAdapterAsyncTask();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        DataUpdateManager.unregisterOnFollowsDataUpdatedListener();
+        DataUpdateManager.unregisterOnDataUpdatedListener();
     }
 
     @Override
@@ -68,6 +68,7 @@ public class FollowingListFragment extends BaseListFragment implements DataUpdat
     @Override
     public void onFollowsDataUpdated() {
         runUpdateAdapterAsyncTask();
+        Log.e("TEST", "onFollowsDataUpdated");
     }
 
     private class UpdateAdapterAsyncTask extends AsyncTask<Void, Void, List<ListEntry>> {
