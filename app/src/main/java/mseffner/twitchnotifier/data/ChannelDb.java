@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -45,54 +46,78 @@ public class ChannelDb {
     }
 
     public static void insertFollowsData(@NonNull Containers.Follows follows, @Nullable InsertListener listener) {
-        for (Containers.Follows.Data data : follows.data) {
-            ContentValues values = new ContentValues();
-            values.put(FollowEntry._ID, Long.parseLong(data.to_id));
-            insert(FollowEntry.TABLE_NAME, values);
-        }
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        wrapTransaction(database, () -> {
+            for (Containers.Follows.Data data : follows.data) {
+                ContentValues values = new ContentValues();
+                values.put(FollowEntry._ID, Long.parseLong(data.to_id));
+                insert(database, FollowEntry.TABLE_NAME, values);
+            }
+        });
         notifyListener(listener);
     }
 
     public static void insertGamesData(@NonNull Containers.Games games, @Nullable InsertListener listener) {
-        for (Containers.Games.Data data : games.data) {
-            ContentValues values = new ContentValues();
-            values.put(GameEntry._ID, Long.parseLong(data.id));
-            values.put(GameEntry.COLUMN_NAME, data.name);
-            values.put(GameEntry.COLUMN_BOX_ART_URL, data.box_art_url);
-            insert(GameEntry.TABLE_NAME, values);
-        }
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        wrapTransaction(database, () -> {
+            for (Containers.Games.Data data : games.data) {
+                ContentValues values = new ContentValues();
+                values.put(GameEntry._ID, Long.parseLong(data.id));
+                values.put(GameEntry.COLUMN_NAME, data.name);
+                values.put(GameEntry.COLUMN_BOX_ART_URL, data.box_art_url);
+                insert(database, GameEntry.TABLE_NAME, values);
+            }
+        });
         notifyListener(listener);
     }
 
     public static void insertUsersData(@NonNull Containers.Users users, @Nullable InsertListener listener) {
-        for (Containers.Users.Data data : users.data) {
-            ContentValues values = new ContentValues();
-            values.put(UserEntry._ID, Long.parseLong(data.id));
-            values.put(UserEntry.COLUMN_LOGIN, data.login);
-            values.put(UserEntry.COLUMN_DISPLAY_NAME, data.display_name);
-            values.put(UserEntry.COLUMN_PROFILE_IMAGE_URL, data.profile_image_url);
-            insert(UserEntry.TABLE_NAME, values);
-        }
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        wrapTransaction(database, () -> {
+            for (Containers.Users.Data data : users.data) {
+                ContentValues values = new ContentValues();
+                values.put(UserEntry._ID, Long.parseLong(data.id));
+                values.put(UserEntry.COLUMN_LOGIN, data.login);
+                values.put(UserEntry.COLUMN_DISPLAY_NAME, data.display_name);
+                values.put(UserEntry.COLUMN_PROFILE_IMAGE_URL, data.profile_image_url);
+                insert(database, UserEntry.TABLE_NAME, values);
+            }
+        });
         notifyListener(listener);
     }
 
     public static void insertStreamsData(@NonNull Containers.Streams streams, @Nullable InsertListener listener) {
-        for (Containers.Streams.Data data : streams.data) {
-            ContentValues values = new ContentValues();
-            values.put(StreamEntry._ID, Long.parseLong(data.user_id));
-            if (!data.game_id.equals(""))
-                values.put(StreamEntry.COLUMN_GAME_ID, Long.parseLong(data.game_id));
-            int streamType = data.type.equals("live") ? StreamEntry.STREAM_TYPE_LIVE : StreamEntry.STREAM_TYPE_RERUN;
-            values.put(StreamEntry.COLUMN_TYPE, streamType);
-            values.put(StreamEntry.COLUMN_TITLE, data.title);
-            values.put(StreamEntry.COLUMN_VIEWER_COUNT, data.viewer_count);
-            values.put(StreamEntry.COLUMN_STARTED_AT, getUnixTimestampFromUTC(data.started_at));
-            values.put(StreamEntry.COLUMN_LANGUAGE, data.language);
-            values.put(StreamEntry.COLUMN_THUMBNAIL_URL, data.thumbnail_url);
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        wrapTransaction(database, () -> {
+            for (Containers.Streams.Data data : streams.data) {
+                ContentValues values = new ContentValues();
+                values.put(StreamEntry._ID, Long.parseLong(data.user_id));
+                if (!data.game_id.equals(""))
+                    values.put(StreamEntry.COLUMN_GAME_ID, Long.parseLong(data.game_id));
+                int streamType = data.type.equals("live") ? StreamEntry.STREAM_TYPE_LIVE : StreamEntry.STREAM_TYPE_RERUN;
+                values.put(StreamEntry.COLUMN_TYPE, streamType);
+                values.put(StreamEntry.COLUMN_TITLE, data.title);
+                values.put(StreamEntry.COLUMN_VIEWER_COUNT, data.viewer_count);
+                values.put(StreamEntry.COLUMN_STARTED_AT, getUnixTimestampFromUTC(data.started_at));
+                values.put(StreamEntry.COLUMN_LANGUAGE, data.language);
+                values.put(StreamEntry.COLUMN_THUMBNAIL_URL, data.thumbnail_url);
 
-            insert(StreamEntry.TABLE_NAME, values);
-        }
+                insert(database, StreamEntry.TABLE_NAME, values);
+            }
+        });
         notifyListener(listener);
+    }
+
+    private static void wrapTransaction(SQLiteDatabase db, Runnable r) {
+        db.beginTransaction();
+        try {
+            r.run();
+            db.setTransactionSuccessful();
+
+        } finally {
+            db.endTransaction();
+
+        }
     }
 
     private static void notifyListener(InsertListener listener) {
@@ -248,8 +273,7 @@ public class ChannelDb {
         return database.query(tableName, projection, selection, selectionArgs, null, null, sortOrder);
     }
 
-    private static void insert(String tableName, ContentValues contentValues) {
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
+    private static void insert(SQLiteDatabase database, String tableName, ContentValues contentValues) {
         database.insertWithOnConflict(tableName, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
     }
 

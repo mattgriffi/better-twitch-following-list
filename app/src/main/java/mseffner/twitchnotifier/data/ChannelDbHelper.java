@@ -63,7 +63,6 @@ public class ChannelDbHelper extends SQLiteOpenHelper {
     }
 
     private static String getStreamsCreateStatement(String tableName) {
-        Log.e("TEST", "getStreamsCreateStatement");
         return "CREATE TABLE " + tableName +
             " (" +
                 StreamEntry._ID + " INTEGER PRIMARY KEY, " +
@@ -78,8 +77,6 @@ public class ChannelDbHelper extends SQLiteOpenHelper {
     }
 
     private static String getGamesCreateStatement(String tableName) {
-        Log.e("TEST", "getGamesCreateStatement");
-
         return "CREATE TABLE " + tableName +
             " (" +
                 GameEntry._ID + " INTEGER PRIMARY KEY, " +
