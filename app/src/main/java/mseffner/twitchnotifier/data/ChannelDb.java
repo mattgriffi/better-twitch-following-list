@@ -238,7 +238,7 @@ public class ChannelDb {
 
     private static void insert(String tableName, ContentValues contentValues) {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        database.insertWithOnConflict(tableName, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
+        database.insertWithOnConflict(tableName, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     private static void update(String tableName, ContentValues contentValues, String selection, String[] selectionArgs) {
