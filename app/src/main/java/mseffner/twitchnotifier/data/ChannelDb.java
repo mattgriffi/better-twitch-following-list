@@ -178,6 +178,18 @@ public class ChannelDb {
         return ids;
     }
 
+    public static long[] getAllFollowIds() {
+            Cursor cursor = query(FollowEntry.TABLE_NAME, new String[]{FollowEntry._ID},
+                    null, null, null);
+            long[] idArray = new long[cursor.getCount()];
+            int idColumnIndex = cursor.getColumnIndex(FollowEntry._ID);
+
+            int i = 0;
+            while (cursor.moveToNext())
+                idArray[i++] = cursor.getLong(idColumnIndex);
+            return idArray;
+        }
+
     public static void toggleChannelPin(long id) {
         // Determine the current pin status of the channel
         String selection = FollowEntry._ID + "=?";
