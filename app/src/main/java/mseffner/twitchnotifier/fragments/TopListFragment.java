@@ -16,7 +16,7 @@ import mseffner.twitchnotifier.data.DataUpdateManager;
 import mseffner.twitchnotifier.networking.ErrorHandler;
 import mseffner.twitchnotifier.settings.SettingsManager;
 
-public class TopListFragment extends BaseListFragment implements DataUpdateManager.TopStreamsListener {
+public class TopListFragment extends BaseListFragment implements DataUpdateManager.TopDataUpdatedListener {
 
     private static final int NUM_TOP_STREAMS = 25;
 

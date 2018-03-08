@@ -1,9 +1,6 @@
 package mseffner.twitchnotifier.data;
 
 
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 
 import com.android.volley.Response;
@@ -12,6 +9,7 @@ import java.util.List;
 
 import mseffner.twitchnotifier.networking.Containers;
 import mseffner.twitchnotifier.networking.Requests;
+import mseffner.twitchnotifier.networking.URLTools;
 import mseffner.twitchnotifier.settings.SettingsManager;
 
 /**
@@ -21,79 +19,172 @@ import mseffner.twitchnotifier.settings.SettingsManager;
  */
 public class DataUpdateManager {
 
-    private static final String TAG = DataUpdateManager.class.getSimpleName();
-
-    private static TopStreamsListener topStreamsListener;
-    private static FollowsListener followsListener;
+    private static TopDataUpdatedListener topDataUpdatedListener;
+    private static FollowsDataUpdatedListener followsDataUpdatedListener;
     private static Response.ErrorListener followsErrorListener;
-    private static Handler handler;
+    // Variables to track when sets of requests have finished
+    private static int totalFollowsRequests;
+    private static int totalStreamsRequests;
+    private static int totalUsersRequests;
+    private static int totalGamesRequests;
+    private static int completedFollowsRequests;
+    private static int completedStreamsRequests;
+    private static int completedUsersRequests;
+    private static int completedGamesRequests;
 
-    public interface TopStreamsListener {
+    public interface TopDataUpdatedListener {
         void onTopStreamsResponse(@NonNull List<ListEntry> channels);
     }
 
-    public interface FollowsListener {
+    public interface FollowsDataUpdatedListener {
         void onFollowsDataUpdated();
     }
 
-    public static void updateFollowsData(FollowsListener listener,
+    /**
+     * Updates the follows table and the streams, users, and games tables if
+     * necessary.
+     *
+     *                  Flow Chart
+     *
+     * [follow request] -> [next follow request] -> [...]
+     *      |        ----> [follows db insert]
+     *      V                       |
+     * [stream request]       (all complete)
+     *      |                       |
+     *      V                       V
+     * [streams db insert]   [users requests]
+     *      |                       |
+     * (all complete)               V
+     *      |                [users db insert]
+     *      V                       |
+     * [games requests]             |
+     *      |                       |
+     *      V                       |
+     * [games db insert]            |
+     *      |                       |
+     *       -----(all complete)----
+     *                  |
+     *                  V
+     *           [notify listener]
+     *
+     * @param listener      notified when all data is totally updated
+     * @param errorListener notified if any network operation goes wrong
+     */
+    public static void updateFollowsData(FollowsDataUpdatedListener listener,
                                          final Response.ErrorListener errorListener) {
-        followsListener = listener;
+        followsDataUpdatedListener = listener;
         followsErrorListener = errorListener;
+
+        // Reset counters
+        totalFollowsRequests = 0;
+        totalStreamsRequests = 0;
+        totalUsersRequests = 0;
+        totalGamesRequests = 0;
+        completedFollowsRequests = 0;
+        completedStreamsRequests = 0;
+        completedUsersRequests = 0;
+        completedGamesRequests = 0;
 
         // Get all of the follows data in chunks of 100
         if (!SettingsManager.getUsername().equals(""))
-            Requests.getFollows(null, new FollowsResponseListener(), followsErrorListener);
+            Requests.getFollows(null, new FollowsListener(), followsErrorListener);
     }
 
-    private static class FollowsResponseListener implements Response.Listener<Containers.Follows> {
+    private static class FollowsListener implements Response.Listener<Containers.Follows> {
         @Override
         public void onResponse(Containers.Follows followsResponse) {
-            if (followsListener == null) {
-                // TODO cancel update, clean database
-            }
-            checkHandler();
-
-            handler.post(() -> ChannelDb.insertFollowsData(followsResponse));
-
             ContainerParser parser = new ContainerParser();
             parser.setFollows(followsResponse);
             long[] userIds = parser.getUserIdsFromFollows();
+            totalFollowsRequests = (int) Math.ceil(parser.getTotalFollows() / 100.0);
 
-            // Get users data
-            Requests.getUsers(userIds, usersResponse -> handler.post(() -> ChannelDb.insertUsersData(usersResponse)),
-                    followsErrorListener);
+            // Insert data into database
+            ThreadManager.post(() -> ChannelDb.insertFollowsData(followsResponse, new FollowsInsertListener()));
 
             // Get streams data
-            Requests.getStreams(userIds, streamsResponse -> {
-                handler.post(() -> ChannelDb.insertStreamsData(streamsResponse));
-
-                // Get the games data
-                ContainerParser gamesParser = new ContainerParser();
-                gamesParser.setStreams(streamsResponse);
-                Requests.getGames(gamesParser.getGameIdsFromStreams(),
-                        gamesResponse -> handler.post(() -> ChannelDb.insertGamesData(gamesResponse)),
-                        followsErrorListener);
-
-            }, followsErrorListener);
+            Requests.getStreams(userIds, new StreamsListener(), followsErrorListener);
 
             // If there are 100 elements, then there might be more to fetch
-            if (parser.getFollowsDataSize() >= 100) {
-                String cursor = parser.getFollowsCursor();
-                // Recursively fetch more data
-                Requests.getFollows(cursor, new FollowsResponseListener(), followsErrorListener);
-            } else {
-                // We are done
-                followsListener.onFollowsDataUpdated();
+            if (parser.getFollowsDataSize() >= 100)
+                Requests.getFollows(parser.getFollowsCursor(), new FollowsListener(), followsErrorListener);
+        }
+    }
+
+    private static class UsersListener implements Response.Listener<Containers.Users> {
+        @Override
+        public void onResponse(Containers.Users response) {
+            ThreadManager.post(() -> ChannelDb.insertUsersData(response, new UsersInsertListener()));
+        }
+    }
+
+    private static class GamesListener implements Response.Listener<Containers.Games> {
+        @Override
+        public void onResponse(Containers.Games response) {
+            ThreadManager.post(() -> ChannelDb.insertGamesData(response, new GamesInsertListener()));
+        }
+    }
+
+    private static class StreamsListener implements Response.Listener<Containers.Streams> {
+        @Override
+        public void onResponse(Containers.Streams response) {
+            ThreadManager.post(() -> ChannelDb.insertStreamsData(response, new StreamsInsertListener()));
+        }
+    }
+
+    private static class FollowsInsertListener implements ChannelDb.InsertListener {
+        @Override
+        public void onInsertFinished() {
+            completedFollowsRequests += 1;
+
+            // If all of the follows data has been inserted, run the users requests
+            if (completedFollowsRequests == totalFollowsRequests) {
+                long[][] userIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIds());
+                totalUsersRequests = userIds.length;
+                for (long[] ids : userIds)
+                    Requests.getUsers(ids, new UsersListener(), followsErrorListener);
             }
         }
     }
 
-    public static void getTopStreamsData(@NonNull TopStreamsListener listener,
+    private static class StreamsInsertListener implements ChannelDb.InsertListener {
+        @Override
+        public void onInsertFinished() {
+            completedStreamsRequests += 1;
+
+            // If all of the streams data has been inserted, run the games requests
+            if (completedStreamsRequests == totalStreamsRequests) {
+                long[][] gameIds = URLTools.splitIdArray(ChannelDb.getUnknownGameIds());
+                totalGamesRequests = gameIds.length;
+                for (long[] ids : gameIds)
+                    Requests.getGames(ids, new GamesListener(), followsErrorListener);
+            }
+        }
+    }
+
+    private static class UsersInsertListener implements ChannelDb.InsertListener {
+        @Override
+        public void onInsertFinished() {
+            completedUsersRequests += 1;
+            // Notify the listener if all operations are complete
+            if (completedUsersRequests == totalUsersRequests && completedGamesRequests == totalGamesRequests)
+                notifyFollowsListener();
+        }
+    }
+
+    private static class GamesInsertListener implements ChannelDb.InsertListener {
+        @Override
+        public void onInsertFinished() {
+            completedGamesRequests += 1;
+            // Notify the listener if all operations are complete
+            if (completedUsersRequests == totalUsersRequests && completedGamesRequests == totalGamesRequests)
+                notifyFollowsListener();
+        }
+    }
+
+    public static void getTopStreamsData(@NonNull TopDataUpdatedListener listener,
                                          final Response.ErrorListener errorListener) {
-        DataUpdateManager.topStreamsListener = listener;
+        DataUpdateManager.topDataUpdatedListener = listener;
         ContainerParser parser = new ContainerParser();
-        checkHandler();
 
         // Get the top streams
         Requests.getTopStreams(streamsResponse -> {
@@ -101,14 +192,14 @@ public class DataUpdateManager {
             // Get the game names
             Requests.getGames(parser.getGameIdsFromStreams(),
                     gamesResponse -> {
-                        handler.post(() -> ChannelDb.insertGamesData(gamesResponse));
+                        ThreadManager.post(() -> ChannelDb.insertGamesData(gamesResponse, null));
                         parser.setGames(gamesResponse);
                         notifyListener(parser);
                     }, errorListener);
             // Get the streamer names
             Requests.getUsers(parser.getUserIdsFromStreams(),
                     usersResponse -> {
-                        handler.post(() -> ChannelDb.insertUsersData(usersResponse));
+                        ThreadManager.post(() -> ChannelDb.insertUsersData(usersResponse, null));
                         parser.setUsers(usersResponse);
                         notifyListener(parser);
                     }, errorListener);
@@ -116,17 +207,13 @@ public class DataUpdateManager {
     }
 
     private static synchronized void notifyListener(ContainerParser parser) {
-        if (parser == null || !parser.isDataComplete() || topStreamsListener == null) return;
-        topStreamsListener.onTopStreamsResponse(parser.getChannelList());
-        topStreamsListener = null;
+        if (parser == null || !parser.isDataComplete() || topDataUpdatedListener == null) return;
+        topDataUpdatedListener.onTopStreamsResponse(parser.getChannelList());
+        topDataUpdatedListener = null;
     }
 
-    private static void checkHandler() {
-        if (handler == null) {
-            HandlerThread handlerThread = new HandlerThread("DatabaseOperations");
-            handlerThread.start();
-            Looper looper = handlerThread.getLooper();
-            handler = new Handler(looper);
-        }
+    private static synchronized  void notifyFollowsListener() {
+        if (followsDataUpdatedListener != null)
+            ThreadManager.postMainThread(() -> followsDataUpdatedListener.onFollowsDataUpdated());
     }
 }

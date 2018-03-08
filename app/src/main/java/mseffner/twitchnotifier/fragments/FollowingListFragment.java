@@ -3,6 +3,7 @@ package mseffner.twitchnotifier.fragments;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,7 @@ import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.data.ListEntrySorter;
 import mseffner.twitchnotifier.networking.ErrorHandler;
 
-public class FollowingListFragment extends BaseListFragment implements DataUpdateManager.FollowsListener {
+public class FollowingListFragment extends BaseListFragment implements DataUpdateManager.FollowsDataUpdatedListener {
 
     private static final String TAG = FollowingListFragment.class.getSimpleName();
 
@@ -24,8 +25,9 @@ public class FollowingListFragment extends BaseListFragment implements DataUpdat
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
         DataUpdateManager.updateFollowsData(this, new ErrorHandler() {});
-        return super.onCreateView(inflater, container, savedInstanceState);
+        return view;
     }
 
     @Override
@@ -74,6 +76,7 @@ public class FollowingListFragment extends BaseListFragment implements DataUpdat
         protected List<ListEntry> doInBackground(Void... voids) {
             List<ListEntry> list = ChannelDb.getAllChannels();
             ListEntrySorter.sort(list);
+            Log.e("list size", "" + list.size());
             return list;
         }
 
