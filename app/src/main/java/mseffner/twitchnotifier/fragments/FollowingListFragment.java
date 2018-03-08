@@ -18,15 +18,14 @@ import mseffner.twitchnotifier.networking.ErrorHandler;
 
 public class FollowingListFragment extends BaseListFragment implements DataUpdateManager.FollowsDataUpdatedListener {
 
-    private static final String TAG = FollowingListFragment.class.getSimpleName();
-
     private UpdateAdapterAsyncTask updateAdapterAsyncTask;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
-        DataUpdateManager.updateFollowsData(this, new ErrorHandler() {});
+        DataUpdateManager.registerOnFollowsDataUpdatedListener(this);
+        DataUpdateManager.updateFollowsData(new ErrorHandler() {});
         return view;
     }
 
@@ -39,6 +38,12 @@ public class FollowingListFragment extends BaseListFragment implements DataUpdat
     public void onStart() {
         super.onStart();
         refreshList();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        DataUpdateManager.unregisterOnFollowsDataUpdatedListener();
     }
 
     @Override

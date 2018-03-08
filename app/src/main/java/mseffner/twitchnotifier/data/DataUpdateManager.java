@@ -32,12 +32,22 @@ public class DataUpdateManager {
     private static int completedUsersRequests;
     private static int completedGamesRequests;
 
+    private DataUpdateManager() {}
+
     public interface TopDataUpdatedListener {
         void onTopStreamsResponse(@NonNull List<ListEntry> channels);
     }
 
     public interface FollowsDataUpdatedListener {
         void onFollowsDataUpdated();
+    }
+
+    public static void registerOnFollowsDataUpdatedListener(FollowsDataUpdatedListener listener) {
+        followsDataUpdatedListener = listener;
+    }
+
+    public static void unregisterOnFollowsDataUpdatedListener() {
+        followsDataUpdatedListener = null;
     }
 
     /**
@@ -67,12 +77,9 @@ public class DataUpdateManager {
      *                  V
      *           [notify listener]
      *
-     * @param listener      notified when all data is totally updated
      * @param errorListener notified if any network operation goes wrong
      */
-    public static void updateFollowsData(FollowsDataUpdatedListener listener,
-                                         final Response.ErrorListener errorListener) {
-        followsDataUpdatedListener = listener;
+    public static void updateFollowsData(final Response.ErrorListener errorListener) {
         followsErrorListener = errorListener;
 
         // Reset counters
