@@ -15,6 +15,7 @@ import com.android.volley.ServerError;
 import java.lang.reflect.Method;
 
 import mseffner.twitchnotifier.data.ChannelDb;
+import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.networking.Containers;
 import mseffner.twitchnotifier.networking.ErrorHandler;
 import mseffner.twitchnotifier.networking.Requests;
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements SettingsManager.O
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SettingsManager.initialize(sharedPreferences, getResources());
         SettingsManager.registerOnSettingsChangedListener(this);
+        ThreadManager.initialize();
         ChannelDb.initialize(this);
         Requests.initialize(this);
         ToastMaker.initialize(this);
@@ -59,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements SettingsManager.O
         ChannelDb.destroy();
         Requests.destroy();
         ToastMaker.destroy();
+        ThreadManager.destroy();
     }
 
     @Override
