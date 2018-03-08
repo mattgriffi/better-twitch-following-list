@@ -85,6 +85,11 @@ public class DataUpdateManager {
         completedUsersRequests = 0;
         completedGamesRequests = 0;
 
+        // Any rows that are not cleaned by the time we finish will be deleted as this
+        // means that those channels were unfollowed
+        // Note that channels will NOT be deleted if an error ends the update prematurely
+        ChannelDb.setFollowsDirty();
+
         // Get all of the follows data in chunks of 100
         if (!SettingsManager.getUsername().equals(""))
             Requests.getFollows(null, new FollowsListener(), followsErrorListener);
@@ -138,6 +143,10 @@ public class DataUpdateManager {
 
             // If all of the follows data has been inserted, run the users requests
             if (completedFollowsRequests == totalFollowsRequests) {
+                // If any follows rows haven't been updated, then they were unfollowed
+                // and should be deleted
+                ThreadManager.post(ChannelDb::cleanFollows);
+
                 long[][] userIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIds());
                 totalUsersRequests = userIds.length;
                 for (long[] ids : userIds)
