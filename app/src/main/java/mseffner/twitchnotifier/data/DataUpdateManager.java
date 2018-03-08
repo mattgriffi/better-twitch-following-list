@@ -92,6 +92,10 @@ public class DataUpdateManager {
         completedUsersRequests = 0;
         completedGamesRequests = 0;
 
+        ThreadManager.post(DataUpdateManager::performFollowsUpdate);
+    }
+
+    private static void performFollowsUpdate() {
         // Any rows that are not cleaned by the time we finish will be deleted as this
         // means that those channels were unfollowed
         // Note that channels will NOT be deleted if an error ends the update prematurely
