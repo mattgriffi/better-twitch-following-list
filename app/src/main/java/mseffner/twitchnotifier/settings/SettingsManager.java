@@ -45,12 +45,7 @@ public class SettingsManager {
     private static Resources resources;
     private static List<OnSettingsChangedListener> listeners;
     private static SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener =
-            new SharedPreferences.OnSharedPreferenceChangeListener() {
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            SettingsManager.onSharedPreferenceChanged(key);
-        }
-    };
+            (sharedPreferences, key) -> onSharedPreferenceChanged(key);
 
     private static String usernameKey;
     private static String usernameIdKey;
@@ -116,6 +111,13 @@ public class SettingsManager {
      */
     public static long getUsernameId() {
         return sharedPreferences.getLong(usernameIdKey, INVALID_USERNAME_ID);
+    }
+
+    /**
+     * @return whether a valid username is set
+     */
+    public static boolean validUsername() {
+        return !getUsername().equals("");
     }
 
     /**
