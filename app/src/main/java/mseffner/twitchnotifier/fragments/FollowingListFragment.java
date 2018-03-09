@@ -16,15 +16,20 @@ import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.data.ListEntrySorter;
 import mseffner.twitchnotifier.networking.ErrorHandler;
 
-public class FollowingListFragment extends BaseListFragment implements DataUpdateManager.DataUpdatedListener {
+public class FollowingListFragment extends BaseListFragment implements DataUpdateManager.FollowsUpdateListener,
+        DataUpdateManager.StreamsUpdateListener {
 
     private UpdateAdapterAsyncTask updateAdapterAsyncTask;
+
+    private static long start;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
-        DataUpdateManager.registerOnDataUpdatedListener(this);
+        DataUpdateManager.registerFollowsUpdateListener(this);
+        DataUpdateManager.registerStreamsUpdateListener(this);
+        start = System.nanoTime();
         DataUpdateManager.updateFollowsData(new ErrorHandler() {});
         return view;
     }
@@ -43,7 +48,8 @@ public class FollowingListFragment extends BaseListFragment implements DataUpdat
     @Override
     public void onStop() {
         super.onStop();
-        DataUpdateManager.unregisterOnDataUpdatedListener();
+        DataUpdateManager.unregisterFollowsUpdateListener();
+        DataUpdateManager.unregisterStreamsUpdateListener();
     }
 
     @Override
@@ -67,8 +73,14 @@ public class FollowingListFragment extends BaseListFragment implements DataUpdat
 
     @Override
     public void onFollowsDataUpdated() {
+        Log.e("TEST", "Follows update time: " + (System.nanoTime() - start) / 1000000);
+        DataUpdateManager.updateStreamsData(new ErrorHandler() {});
+    }
+
+    @Override
+    public void onStreamsDataUpdated() {
+        Log.e("TEST", "Total update time: "  + (System.nanoTime() - start) / 1000000);
         runUpdateAdapterAsyncTask();
-        Log.e("TEST", "onFollowsDataUpdated");
     }
 
     private class UpdateAdapterAsyncTask extends AsyncTask<Void, Void, List<ListEntry>> {

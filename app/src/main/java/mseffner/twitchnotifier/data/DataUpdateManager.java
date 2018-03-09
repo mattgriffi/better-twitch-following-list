@@ -2,7 +2,6 @@ package mseffner.twitchnotifier.data;
 
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.android.volley.Response;
 
@@ -22,18 +21,14 @@ import mseffner.twitchnotifier.settings.SettingsManager;
 public class DataUpdateManager {
 
     private static TopDataUpdatedListener topDataUpdatedListener;
-    private static DataUpdatedListener dataUpdatedListener;
+    private static FollowsUpdateListener followsUpdateListener;
+    private static StreamsUpdateListener streamsUpdateListener;
     private static Response.ErrorListener errorListener;
-    // Variables to track when sets of requests have finished
-    private static int totalStreamsRequests;
-    private static int totalUsersRequests;
-    private static int totalGamesRequests;
-    private static int completedStreamsRequests;
-    private static int completedUsersRequests;
-    private static int completedGamesRequests;
 
     private static int remainingFollowsRequests;
     private static int remainingUsersRequests;
+    private static int remainingStreamsRequests;
+    private static int remainingGamesRequests;
 
     private DataUpdateManager() {}
 
@@ -41,16 +36,28 @@ public class DataUpdateManager {
         void onTopStreamsResponse(@NonNull List<ListEntry> channels);
     }
 
-    public interface DataUpdatedListener {
+    public interface FollowsUpdateListener {
         void onFollowsDataUpdated();
     }
 
-    public static void registerOnDataUpdatedListener(DataUpdatedListener listener) {
-        dataUpdatedListener = listener;
+    public interface StreamsUpdateListener {
+        void onStreamsDataUpdated();
     }
 
-    public static void unregisterOnDataUpdatedListener() {
-        dataUpdatedListener = null;
+    public static void registerFollowsUpdateListener(FollowsUpdateListener listener) {
+        followsUpdateListener = listener;
+    }
+
+    public static void unregisterFollowsUpdateListener() {
+        followsUpdateListener = null;
+    }
+
+    public static void registerStreamsUpdateListener(StreamsUpdateListener listener) {
+        streamsUpdateListener = listener;
+    }
+
+    public static void unregisterStreamsUpdateListener() {
+        streamsUpdateListener = null;
     }
 
     /**
@@ -61,45 +68,13 @@ public class DataUpdateManager {
      */
     public static void updateFollowsData(final Response.ErrorListener errorListener) {
         DataUpdateManager.errorListener = errorListener;
-
-        // Reset counters
-        totalStreamsRequests = 0;
-        totalUsersRequests = 0;
-        totalGamesRequests = 0;
-        completedStreamsRequests = 0;
-        completedUsersRequests = 0;
-        completedGamesRequests = 0;
-
         remainingFollowsRequests = 0;
         remainingUsersRequests = 0;
-
         ThreadManager.post(DataUpdateManager::performFollowsUpdate);
     }
 
-    public static void updateStreamsData(final Response.ErrorListener errorListener) {
-        DataUpdateManager.errorListener = errorListener;
-
-        // Reset counters
-        totalStreamsRequests = 0;
-        totalUsersRequests = 0;
-        totalGamesRequests = 0;
-        completedStreamsRequests = 0;
-        completedUsersRequests = 0;
-        completedGamesRequests = 0;
-
-        ThreadManager.post(DataUpdateManager::performStreamsUpdate);
-    }
-
-    private static void performStreamsUpdate() {
-        ChannelDb.deleteAllStreams();
-        long[][] userIds = URLTools.splitIdArray(ChannelDb.getAllFollowIds());
-        totalStreamsRequests = userIds.length;
-        for (long[] ids : userIds)
-            Requests.getStreams(ids, new StreamsListener(), errorListener);
-    }
-
     /**
-     * Updates the follows data. This method should NOT be called on the main thread.
+     * Updates the follows and users data. This method should NOT be called on the main thread.
      */
     private static void performFollowsUpdate() {
         // Mark rows to be deleted if they're not updated
@@ -116,6 +91,7 @@ public class DataUpdateManager {
      * the users data update if all of the follows data has been updated.
      */
     private static class FollowsListener implements Response.Listener<Containers.Follows> {
+
         @Override
         public void onResponse(Containers.Follows followsResponse) {
             // Track progress of the follows requests
@@ -133,6 +109,7 @@ public class DataUpdateManager {
                 updateUsersData();
             }
         }
+
     }
 
     /**
@@ -152,6 +129,7 @@ public class DataUpdateManager {
      * if all of the users requests have completed.
      */
     private static class UsersListener implements Response.Listener<Containers.Users> {
+
         @Override
         public void onResponse(Containers.Users response) {
             remainingUsersRequests--;
@@ -159,58 +137,69 @@ public class DataUpdateManager {
             if (remainingUsersRequests == 0)
                 notifyFollowsListener();
         }
+
     }
 
-    private static class GamesListener implements Response.Listener<Containers.Games> {
-        @Override
-        public void onResponse(Containers.Games response) {
-            ThreadManager.post(() -> ChannelDb.insertGamesData(response, new GamesInsertListener()));
-        }
+
+    /**
+     * Updates the streams table then updates the games table if necessary.
+     *
+     * @param errorListener notified if any network operation goes wrong
+     */
+    public static void updateStreamsData(final Response.ErrorListener errorListener) {
+        DataUpdateManager.errorListener = errorListener;
+        remainingStreamsRequests = 0;
+        remainingGamesRequests = 0;
+        ThreadManager.post(DataUpdateManager::performStreamsUpdate);
     }
 
+    /**
+     * Updates the streams and games data. This method should NOT be called on the main thread.
+     */
+    private static void performStreamsUpdate() {
+        ChannelDb.deleteAllStreams();
+        long[][] userIds = URLTools.splitIdArray(ChannelDb.getAllFollowIds());
+        remainingStreamsRequests = userIds.length;
+        for (long[] ids : userIds)
+            Requests.getStreams(ids, new StreamsListener(), errorListener);
+    }
+
+    /**
+     * Inserts the streams data into the database, then starts the games update after
+     * all of the streams data has been updated.
+     */
     private static class StreamsListener implements Response.Listener<Containers.Streams> {
         @Override
         public void onResponse(Containers.Streams response) {
-            ThreadManager.post(() -> ChannelDb.insertStreamsData(response, new StreamsInsertListener()));
+            remainingStreamsRequests--;
+            ChannelDb.insertStreamsData(response);
+            if (remainingStreamsRequests == 0)
+                updateGamesData();
         }
     }
 
-    private static class StreamsInsertListener implements ChannelDb.InsertListener {
-        @Override
-        public void onInsertFinished() {
-            completedStreamsRequests += 1;
-
-            // If all of the streams data has been inserted, run the games requests
-            if (completedStreamsRequests == totalStreamsRequests) {
-                long[][] gameIds = URLTools.splitIdArray(ChannelDb.getUnknownGameIds());
-                if (gameIds.length == 0) {
-                    notifyFollowsListener();
-                } else {
-                    totalGamesRequests = gameIds.length;
-                    for (long[] ids : gameIds)
-                        Requests.getGames(ids, new GamesListener(), errorListener);
-                }
-            }
-        }
+    /**
+     * Requests the games data for any games id in the streams table that is not
+     * already in the games table.
+     */
+    private static void updateGamesData() {
+        long[][] gameIds = URLTools.splitIdArray(ChannelDb.getUnknownGameIds());
+        if (gameIds.length == 0) return;
+        remainingGamesRequests = gameIds.length;
+        for (long[] ids : gameIds)
+            Requests.getGames(ids, new GamesListener(), new ErrorHandler() {});
     }
 
-    private static class UsersInsertListener implements ChannelDb.InsertListener {
+    /**
+     * Inserts games data into database, then notifies the listener.
+     */
+    private static class GamesListener implements Response.Listener<Containers.Games> {
         @Override
-        public void onInsertFinished() {
-            completedUsersRequests += 1;
-            // Notify the listener if all operations are complete
-            if (completedUsersRequests == totalUsersRequests && completedGamesRequests == totalGamesRequests)
-                notifyFollowsListener();
-        }
-    }
-
-    private static class GamesInsertListener implements ChannelDb.InsertListener {
-        @Override
-        public void onInsertFinished() {
-            completedGamesRequests += 1;
-            // Notify the listener if all operations are complete
-            if (completedUsersRequests == totalUsersRequests && completedGamesRequests == totalGamesRequests)
-                notifyFollowsListener();
+        public void onResponse(Containers.Games response) {
+            remainingGamesRequests--;
+            ChannelDb.insertGamesData(response);
+            if (remainingGamesRequests == 0)
+                notifyStreamsListener();
         }
     }
 
@@ -225,14 +214,14 @@ public class DataUpdateManager {
             // Get the game names
             Requests.getGames(parser.getGameIdsFromStreams(),
                     gamesResponse -> {
-                        ThreadManager.post(() -> ChannelDb.insertGamesData(gamesResponse, null));
+                        ThreadManager.post(() -> ChannelDb.insertGamesData(gamesResponse));
                         parser.setGames(gamesResponse);
                         notifyListener(parser);
                     }, errorListener);
             // Get the streamer names
             Requests.getUsers(parser.getUserIdsFromStreams(),
                     usersResponse -> {
-//                        ThreadManager.post(() -> ChannelDb.insertUsersData(usersResponse, null));
+                        ThreadManager.post(() -> ChannelDb.insertUsersData(usersResponse));
                         parser.setUsers(usersResponse);
                         notifyListener(parser);
                     }, errorListener);
@@ -246,7 +235,12 @@ public class DataUpdateManager {
     }
 
     private static synchronized  void notifyFollowsListener() {
-        if (dataUpdatedListener != null)
-            ThreadManager.postMainThread(() -> dataUpdatedListener.onFollowsDataUpdated());
+        if (followsUpdateListener != null)
+            ThreadManager.postMainThread(() -> followsUpdateListener.onFollowsDataUpdated());
+    }
+
+    private static synchronized  void notifyStreamsListener() {
+        if (streamsUpdateListener != null)
+            ThreadManager.postMainThread(() -> streamsUpdateListener.onStreamsDataUpdated());
     }
 }
