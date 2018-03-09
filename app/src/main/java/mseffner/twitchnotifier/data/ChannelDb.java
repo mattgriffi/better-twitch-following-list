@@ -45,7 +45,7 @@ public class ChannelDb {
         notifyListeners = false;
     }
 
-    public static void insertFollowsData(@NonNull Containers.Follows follows, @Nullable InsertListener listener) {
+    public static void insertFollowsData(@NonNull Containers.Follows follows) {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         wrapTransaction(database, () -> {
             for (Containers.Follows.Data data : follows.data) {
@@ -54,7 +54,6 @@ public class ChannelDb {
                 insert(database, FollowEntry.TABLE_NAME, values);
             }
         });
-        notifyListener(listener);
     }
 
     public static void insertGamesData(@NonNull Containers.Games games, @Nullable InsertListener listener) {
@@ -71,7 +70,7 @@ public class ChannelDb {
         notifyListener(listener);
     }
 
-    public static void insertUsersData(@NonNull Containers.Users users, @Nullable InsertListener listener) {
+    public static void insertUsersData(@NonNull Containers.Users users) {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         wrapTransaction(database, () -> {
             for (Containers.Users.Data data : users.data) {
@@ -83,7 +82,6 @@ public class ChannelDb {
                 insert(database, UserEntry.TABLE_NAME, values);
             }
         });
-        notifyListener(listener);
     }
 
     public static void insertStreamsData(@NonNull Containers.Streams streams, @Nullable InsertListener listener) {
