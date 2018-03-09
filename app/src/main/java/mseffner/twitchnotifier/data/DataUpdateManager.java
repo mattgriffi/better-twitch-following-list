@@ -114,14 +114,18 @@ public class DataUpdateManager {
 
     /**
      * Requests the users data for any user id in the follows table that is not
-     * already in the users table.
+     * already in the users table. Notifies the listener if there is no new
+     * users data to fetch.
      */
     private static void updateUsersData() {
         long[][] userIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIds());
-        if (userIds.length == 0) return;
-        remainingUsersRequests = userIds.length;
-        for (long[] ids : userIds)
-            Requests.getUsers(ids, new UsersListener(), new ErrorHandler() {});
+        if (userIds.length == 0) {
+            notifyFollowsListener();
+        } else {
+            remainingUsersRequests = userIds.length;
+            for (long[] ids : userIds)
+                Requests.getUsers(ids, new UsersListener(), new ErrorHandler() {});
+        }
     }
 
     /**
@@ -139,7 +143,6 @@ public class DataUpdateManager {
         }
 
     }
-
 
     /**
      * Updates the streams table then updates the games table if necessary.
@@ -180,14 +183,18 @@ public class DataUpdateManager {
 
     /**
      * Requests the games data for any games id in the streams table that is not
-     * already in the games table.
+     * already in the games table. Notifies the listener if there are no games
+     * to fetch.
      */
     private static void updateGamesData() {
         long[][] gameIds = URLTools.splitIdArray(ChannelDb.getUnknownGameIds());
-        if (gameIds.length == 0) return;
-        remainingGamesRequests = gameIds.length;
-        for (long[] ids : gameIds)
-            Requests.getGames(ids, new GamesListener(), new ErrorHandler() {});
+        if (gameIds.length == 0)  {
+            notifyStreamsListener();
+        } else {
+            remainingGamesRequests = gameIds.length;
+            for (long[] ids : gameIds)
+                Requests.getGames(ids, new GamesListener(), new ErrorHandler() {});
+        }
     }
 
     /**
