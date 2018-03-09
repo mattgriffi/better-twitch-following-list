@@ -25,24 +25,17 @@ import mseffner.twitchnotifier.networking.Containers;
 
 public class ChannelDb {
 
-    public interface InsertListener {
-        void onInsertFinished();
-    }
-
     private static ChannelDbHelper dbHelper;
-    private static boolean notifyListeners;
 
     private ChannelDb() {
     }
 
     public static void initialize(Context context) {
         dbHelper = new ChannelDbHelper(context.getApplicationContext());
-        notifyListeners = true;
     }
 
     public static void destroy() {
         dbHelper = null;
-        notifyListeners = false;
     }
 
     public static void insertFollowsData(@NonNull Containers.Follows follows) {
@@ -56,7 +49,7 @@ public class ChannelDb {
         });
     }
 
-    public static void insertGamesData(@NonNull Containers.Games games, @Nullable InsertListener listener) {
+    public static void insertGamesData(@NonNull Containers.Games games) {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         wrapTransaction(database, () -> {
             for (Containers.Games.Data data : games.data) {
@@ -67,7 +60,6 @@ public class ChannelDb {
                 insert(database, GameEntry.TABLE_NAME, values);
             }
         });
-        notifyListener(listener);
     }
 
     public static void insertUsersData(@NonNull Containers.Users users) {
@@ -84,7 +76,7 @@ public class ChannelDb {
         });
     }
 
-    public static void insertStreamsData(@NonNull Containers.Streams streams, @Nullable InsertListener listener) {
+    public static void insertStreamsData(@NonNull Containers.Streams streams) {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         wrapTransaction(database, () -> {
             for (Containers.Streams.Data data : streams.data) {
@@ -103,7 +95,6 @@ public class ChannelDb {
                 insert(database, StreamEntry.TABLE_NAME, values);
             }
         });
-        notifyListener(listener);
     }
 
     private static void wrapTransaction(SQLiteDatabase db, Runnable r) {
@@ -116,11 +107,6 @@ public class ChannelDb {
             db.endTransaction();
 
         }
-    }
-
-    private static void notifyListener(InsertListener listener) {
-        if (notifyListeners && listener != null)
-            listener.onInsertFinished();
     }
 
     public static List<ListEntry> getAllChannels() {
