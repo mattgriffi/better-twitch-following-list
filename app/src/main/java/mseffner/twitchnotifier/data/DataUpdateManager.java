@@ -2,9 +2,11 @@ package mseffner.twitchnotifier.data;
 
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.android.volley.Response;
 
+import java.util.Arrays;
 import java.util.List;
 
 import mseffner.twitchnotifier.networking.Containers;
@@ -188,9 +190,11 @@ public class DataUpdateManager {
      */
     private static void updateGamesData() {
         long[][] gameIds = URLTools.splitIdArray(ChannelDb.getUnknownGameIds());
-        if (gameIds.length == 0)  {
+        // 0 indicates a null game, so ignore that
+        if (gameIds.length == 0 || (gameIds[0].length == 1 && gameIds[0][0] == 0))  {
             notifyStreamsListener();
         } else {
+            Log.e("TEST", Arrays.deepToString(gameIds));
             remainingGamesRequests = gameIds.length;
             for (long[] ids : gameIds)
                 Requests.getGames(ids, new GamesListener(), new ErrorHandler() {});
