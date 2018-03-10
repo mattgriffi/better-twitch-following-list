@@ -6,6 +6,10 @@ import android.view.View;
 import com.android.volley.ServerError;
 import com.android.volley.VolleyError;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,10 +17,11 @@ import mseffner.twitchnotifier.ToastMaker;
 import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.data.ChannelContract;
 import mseffner.twitchnotifier.data.DataUpdateManager;
+import mseffner.twitchnotifier.events.TopStreamsUpdatedEvent;
 import mseffner.twitchnotifier.networking.ErrorHandler;
 import mseffner.twitchnotifier.settings.SettingsManager;
 
-public class TopListFragment extends BaseListFragment implements DataUpdateManager.TopDataUpdatedListener {
+public class TopListFragment extends BaseListFragment {
 
     private static final int NUM_TOP_STREAMS = 25;
 
@@ -26,14 +31,21 @@ public class TopListFragment extends BaseListFragment implements DataUpdateManag
     protected void refreshList() {
         if (updating) return;
         refreshStart();
-        DataUpdateManager.getTopStreamsData(this, new TopStreamsErrorHandler());
+        DataUpdateManager.getTopStreamsData(new TopStreamsErrorHandler());
     }
 
     @Override
     public void onStart() {
         super.onStart();
         startMessage.setVisibility(View.GONE);
+        EventBus.getDefault().register(this);
         refreshList();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
     }
 
     private void refreshStart() {
@@ -54,17 +66,17 @@ public class TopListFragment extends BaseListFragment implements DataUpdateManag
     @Override
     protected void cancelAsyncTasks() {}
 
-    @Override
-    public void onTopStreamsResponse(@NonNull List<ListEntry> channels) {
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onTopStreamsUpdatedEvent(TopStreamsUpdatedEvent event) {
         // If vodcasts are set to be shown as offline, remove them from the top list entirely
         if (SettingsManager.getRerunSetting() == SettingsManager.RERUN_OFFLINE)
-            channels = removeNonliveChannels(channels);
+            event.list = removeNonliveChannels(event.list);
 
         // Limit list size to NUM_TOP_STREAMS
-        if (channels.size() > NUM_TOP_STREAMS)
-            channels = channels.subList(0, NUM_TOP_STREAMS);
+        if (event.list.size() > NUM_TOP_STREAMS)
+            event.list = event.list.subList(0, NUM_TOP_STREAMS);
 
-        updateAdapter(channels);
+        updateAdapter(event.list);
         refreshStop();
     }
 

@@ -12,6 +12,7 @@ import java.util.List;
 
 import mseffner.twitchnotifier.events.FollowsUpdatedEvent;
 import mseffner.twitchnotifier.events.StreamsUpdatedEvent;
+import mseffner.twitchnotifier.events.TopStreamsUpdatedEvent;
 import mseffner.twitchnotifier.networking.Containers;
 import mseffner.twitchnotifier.networking.ErrorHandler;
 import mseffner.twitchnotifier.networking.Requests;
@@ -25,7 +26,6 @@ import mseffner.twitchnotifier.settings.SettingsManager;
  */
 public class DataUpdateManager {
 
-    private static TopDataUpdatedListener topDataUpdatedListener;
     private static Response.ErrorListener errorListener;
 
     private static int remainingFollowsRequests;
@@ -37,10 +37,6 @@ public class DataUpdateManager {
     private static boolean streamsUpdateInProgress = false;
 
     private DataUpdateManager() {}
-
-    public interface TopDataUpdatedListener {
-        void onTopStreamsResponse(@NonNull List<ListEntry> channels);
-    }
 
     /**
      * Updates the follows table, removing any rows that no longer appear in the
@@ -207,9 +203,7 @@ public class DataUpdateManager {
         }
     }
 
-    public static void getTopStreamsData(@NonNull TopDataUpdatedListener listener,
-                                         final Response.ErrorListener errorListener) {
-        DataUpdateManager.topDataUpdatedListener = listener;
+    public static void getTopStreamsData(final Response.ErrorListener errorListener) {
         ContainerParser parser = new ContainerParser();
 
         // Get the top streams
@@ -233,9 +227,8 @@ public class DataUpdateManager {
     }
 
     private static synchronized void notifyListener(ContainerParser parser) {
-        if (parser == null || !parser.isDataComplete() || topDataUpdatedListener == null) return;
-        topDataUpdatedListener.onTopStreamsResponse(parser.getChannelList());
-        topDataUpdatedListener = null;
+        if (parser == null || !parser.isDataComplete()) return;
+        EventBus.getDefault().post(new TopStreamsUpdatedEvent(parser.getChannelList()));
     }
 
     private static synchronized  void postFollowsUpdatedEvent() {
