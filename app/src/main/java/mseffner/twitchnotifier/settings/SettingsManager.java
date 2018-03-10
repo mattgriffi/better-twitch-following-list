@@ -4,10 +4,11 @@ package mseffner.twitchnotifier.settings;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.greenrobot.eventbus.EventBus;
 
 import mseffner.twitchnotifier.R;
+import mseffner.twitchnotifier.events.DarkModeChangedEvent;
+import mseffner.twitchnotifier.events.UsernameChangedEvent;
 
 /**
  * SettingsManager is a class with static methods allowing all of the preferences
@@ -16,17 +17,6 @@ import mseffner.twitchnotifier.R;
  * supplied at startup via SettingsManager.initialize().
  */
 public class SettingsManager {
-
-    public interface OnSettingsChangedListener {
-        /**
-         * This method is called every time a setting is changed. Use
-         * SettingsManager public constants to determine what the
-         * setting is.
-         *
-         * @param settingChanged    the setting that was changed
-         */
-        void onSettingsChanged(int settingChanged);
-    }
 
     // Public constants returned by getRerunSetting
     public static final int RERUN_ONLINE = 0;
@@ -43,7 +33,6 @@ public class SettingsManager {
 
     private static SharedPreferences sharedPreferences;
     private static Resources resources;
-    private static List<OnSettingsChangedListener> listeners;
     private static SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener =
             (sharedPreferences, key) -> onSharedPreferenceChanged(key);
 
@@ -63,7 +52,6 @@ public class SettingsManager {
     public static void initialize(SharedPreferences sharedPreferences, Resources resources) {
         SettingsManager.sharedPreferences = sharedPreferences;
         SettingsManager.resources = resources;
-        SettingsManager.listeners = new ArrayList<>();
         sharedPreferences.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
         SettingsManager.usernameKey = resources.getString(R.string.pref_username_key);
         SettingsManager.usernameIdKey = resources.getString(R.string.pref_username_id_key);
@@ -79,24 +67,6 @@ public class SettingsManager {
         sharedPreferences.unregisterOnSharedPreferenceChangeListener(preferenceChangeListener);
         sharedPreferences = null;
         resources = null;
-        listeners = null;
-    }
-
-    /**
-     * Registers listener as a listener for settings changes. onSettingsChanged will
-     * be called any time a setting is changed.
-     * @param listener  an OnSettingsChangedListener
-     */
-    public static void registerOnSettingsChangedListener(OnSettingsChangedListener listener) {
-        listeners.add(listener);
-    }
-
-    /**
-     * @param listener  OnSettingsChangedListener to unregister
-     */
-    @SuppressWarnings("StatementWithEmptyBody")
-    public static void unregisterOnSettingsChangedListener(OnSettingsChangedListener listener) {
-        while (listeners.remove(listener));
     }
 
     /**
@@ -163,15 +133,9 @@ public class SettingsManager {
      * Notifies all OnSettingsChangedListeners.
      */
     private static void onSharedPreferenceChanged(String key) {
-        int setting;
         if (key.equals(usernameKey))
-            setting = SETTING_USERNAME;
-        else if (key.equals(rerunKey))
-            setting = SETTING_RERUN;
-        else
-            setting = SETTING_DARKMODE;
-
-        for (OnSettingsChangedListener listener : listeners)
-            listener.onSettingsChanged(setting);
+            EventBus.getDefault().post(new UsernameChangedEvent());
+        else if (key.equals(darkmodeKey))
+            EventBus.getDefault().post(new DarkModeChangedEvent(getDarkModeSetting()));
     }
 }

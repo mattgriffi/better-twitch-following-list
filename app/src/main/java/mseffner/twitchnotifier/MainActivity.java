@@ -12,10 +12,16 @@ import android.util.Log;
 import com.android.volley.Response;
 import com.android.volley.ServerError;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.lang.reflect.Method;
 
 import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.data.ThreadManager;
+import mseffner.twitchnotifier.events.DarkModeChangedEvent;
+import mseffner.twitchnotifier.events.UsernameChangedEvent;
 import mseffner.twitchnotifier.networking.Containers;
 import mseffner.twitchnotifier.networking.ErrorHandler;
 import mseffner.twitchnotifier.networking.Requests;
@@ -23,16 +29,16 @@ import mseffner.twitchnotifier.networking.URLTools;
 import mseffner.twitchnotifier.settings.SettingsManager;
 
 
-public class MainActivity extends AppCompatActivity implements SettingsManager.OnSettingsChangedListener {
+public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Set up static classes
+        EventBus.getDefault().register(this);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SettingsManager.initialize(sharedPreferences, getResources());
-        SettingsManager.registerOnSettingsChangedListener(this);
         ThreadManager.initialize();
         ChannelDb.initialize(this);
         Requests.initialize(this);
@@ -57,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements SettingsManager.O
     protected void onDestroy() {
         super.onDestroy();
         // Destroy static classes to prevent memory leaks
+        EventBus.getDefault().unregister(this);
         SettingsManager.destroy();
         ChannelDb.destroy();
         Requests.destroy();
@@ -64,44 +71,41 @@ public class MainActivity extends AppCompatActivity implements SettingsManager.O
         ThreadManager.destroy();
     }
 
-    @Override
-    public void onSettingsChanged(int setting) {
-        // recreate the activity to apply the new theme if needed
-        if (setting == SettingsManager.SETTING_DARKMODE) {
-            boolean dark = SettingsManager.getDarkModeSetting();
-            int themeID = getThemeId();
-            if (dark && themeID != R.style.AppTheme_Dark)
-                recreate();
-            else if (!dark && themeID != R.style.AppTheme_Light)
-                recreate();
-        }
-        // If the username is changed, empty the database
-        else if (setting == SettingsManager.SETTING_USERNAME) {
-            ChannelDb.deleteAllFollows();
-            Requests.makeRequest(Requests.REQUEST_TYPE_USERS, URLTools.getUserIdUrl(),
-                    new Response.Listener<Containers.Users>() {
-                        @Override
-                        public void onResponse(Containers.Users response) {
-                            if (response.data.isEmpty()) {
-                                ToastMaker.makeToastLong(ToastMaker.MESSAGE_INVALID_USERNAME);
-                                return;
-                            }
-                            Containers.Users.Data data = response.data.get(0);
-                            Log.e("New username", data.display_name);
-                            long newId = Long.parseLong(data.id);
-                            SettingsManager.setUsernameId(newId);
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDarkModeChanged(DarkModeChangedEvent event) {
+        int themeID = getThemeId();
+        if (event.darkModeEnabled && themeID != R.style.AppTheme_Dark)
+            recreate();
+        else if (!event.darkModeEnabled && themeID != R.style.AppTheme_Light)
+            recreate();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onUsernameChanged(UsernameChangedEvent event) {
+        ChannelDb.deleteAllFollows();
+        Requests.makeRequest(Requests.REQUEST_TYPE_USERS, URLTools.getUserIdUrl(),
+                new Response.Listener<Containers.Users>() {
+                    @Override
+                    public void onResponse(Containers.Users response) {
+                        if (response.data.isEmpty()) {
+                            ToastMaker.makeToastLong(ToastMaker.MESSAGE_INVALID_USERNAME);
+                            return;
                         }
-                    }, new ErrorHandler() {
-                        @Override
-                        protected void handleServerError(ServerError error) {
-                            int code = error.networkResponse.statusCode;
-                            if (code == 400)
-                                ToastMaker.makeToastLong(ToastMaker.MESSAGE_INVALID_USERNAME);
-                            else
-                                ToastMaker.makeToastLong(ToastMaker.MESSAGE_SERVER_ERROR);
-                        }
-                    });
-        }
+                        Containers.Users.Data data = response.data.get(0);
+                        Log.e("New username", data.display_name);
+                        long newId = Long.parseLong(data.id);
+                        SettingsManager.setUsernameId(newId);
+                    }
+                }, new ErrorHandler() {
+                    @Override
+                    protected void handleServerError(ServerError error) {
+                        int code = error.networkResponse.statusCode;
+                        if (code == 400)
+                            ToastMaker.makeToastLong(ToastMaker.MESSAGE_INVALID_USERNAME);
+                        else
+                            ToastMaker.makeToastLong(ToastMaker.MESSAGE_SERVER_ERROR);
+                    }
+                });
     }
 
     private int getThemeId() {
