@@ -44,7 +44,7 @@ public class ChannelDb {
             for (Containers.Follows.Data data : follows.data) {
                 ContentValues values = new ContentValues();
                 values.put(FollowEntry._ID, Long.parseLong(data.to_id));
-                insert(database, FollowEntry.TABLE_NAME, values);
+                insert(database, FollowEntry.TABLE_NAME, values, SQLiteDatabase.CONFLICT_IGNORE);
             }
         });
     }
@@ -57,7 +57,7 @@ public class ChannelDb {
                 values.put(GameEntry._ID, Long.parseLong(data.id));
                 values.put(GameEntry.COLUMN_NAME, data.name);
                 values.put(GameEntry.COLUMN_BOX_ART_URL, data.box_art_url);
-                insert(database, GameEntry.TABLE_NAME, values);
+                insert(database, GameEntry.TABLE_NAME, values, SQLiteDatabase.CONFLICT_REPLACE);
             }
         });
     }
@@ -71,7 +71,7 @@ public class ChannelDb {
                 values.put(UserEntry.COLUMN_LOGIN, data.login);
                 values.put(UserEntry.COLUMN_DISPLAY_NAME, data.display_name);
                 values.put(UserEntry.COLUMN_PROFILE_IMAGE_URL, data.profile_image_url);
-                insert(database, UserEntry.TABLE_NAME, values);
+                insert(database, UserEntry.TABLE_NAME, values, SQLiteDatabase.CONFLICT_REPLACE);
             }
         });
     }
@@ -92,7 +92,7 @@ public class ChannelDb {
                 values.put(StreamEntry.COLUMN_LANGUAGE, data.language);
                 values.put(StreamEntry.COLUMN_THUMBNAIL_URL, data.thumbnail_url);
 
-                insert(database, StreamEntry.TABLE_NAME, values);
+                insert(database, StreamEntry.TABLE_NAME, values, SQLiteDatabase.CONFLICT_REPLACE);
             }
         });
     }
@@ -257,8 +257,8 @@ public class ChannelDb {
         return database.query(tableName, projection, selection, selectionArgs, null, null, sortOrder);
     }
 
-    private static void insert(SQLiteDatabase database, String tableName, ContentValues contentValues) {
-        database.insertWithOnConflict(tableName, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+    private static void insert(SQLiteDatabase database, String tableName, ContentValues contentValues, int conflict) {
+        database.insertWithOnConflict(tableName, null, contentValues, conflict);
     }
 
     private static void update(String tableName, ContentValues contentValues, String selection, String[] selectionArgs) {
