@@ -26,6 +26,8 @@ public class SettingsManager {
     // Public constant for invalid username id
     public static final long INVALID_USERNAME_ID = -1;
 
+    public static final long RATE_LIMIT_MILLISECONDS = 60 * 1000;
+
     private static SharedPreferences sharedPreferences;
     private static Resources resources;
     private static SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener =
@@ -35,6 +37,7 @@ public class SettingsManager {
     private static String usernameIdKey;
     private static String rerunKey;
     private static String darkmodeKey;
+    private static String lastUpdatedKey;
 
     private SettingsManager() {}
 
@@ -52,6 +55,7 @@ public class SettingsManager {
         SettingsManager.usernameIdKey = resources.getString(R.string.pref_username_id_key);
         SettingsManager.rerunKey = resources.getString(R.string.pref_vodcast_key);
         SettingsManager.darkmodeKey = resources.getString(R.string.pref_dark_mode);
+        SettingsManager.lastUpdatedKey = resources.getString(R.string.last_updated);
     }
 
     /**
@@ -121,6 +125,21 @@ public class SettingsManager {
      */
     public static boolean getDarkModeSetting() {
         return sharedPreferences.getBoolean(darkmodeKey, false);
+    }
+
+    /**
+     * Sets the last updated time.
+     */
+    public static void setLastUpdated() {
+        sharedPreferences.edit().putLong(lastUpdatedKey, System.nanoTime()).apply();
+    }
+
+    /**
+     * @return whether or not the rate limit has reset
+     */
+    public static boolean rateLimitReset() {
+        long lastTime = sharedPreferences.getLong(lastUpdatedKey, 0L);
+        return (System.nanoTime() - lastTime) / 1000000 > RATE_LIMIT_MILLISECONDS;
     }
 
     /**
