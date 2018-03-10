@@ -8,16 +8,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.List;
 
 import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.data.DataUpdateManager;
 import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.data.ListEntrySorter;
+import mseffner.twitchnotifier.events.FollowsUpdatedEvent;
+import mseffner.twitchnotifier.events.StreamsUpdatedEvent;
 import mseffner.twitchnotifier.networking.ErrorHandler;
 
-public class FollowingListFragment extends BaseListFragment implements DataUpdateManager.FollowsUpdateListener,
-        DataUpdateManager.StreamsUpdateListener {
+public class FollowingListFragment extends BaseListFragment {
 
     private UpdateAdapterAsyncTask updateAdapterAsyncTask;
 
@@ -27,8 +32,7 @@ public class FollowingListFragment extends BaseListFragment implements DataUpdat
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
-        DataUpdateManager.registerFollowsUpdateListener(this);
-        DataUpdateManager.registerStreamsUpdateListener(this);
+        EventBus.getDefault().register(this);
         start = System.nanoTime();
         DataUpdateManager.updateFollowsData(new ErrorHandler() {});
         return view;
@@ -48,8 +52,7 @@ public class FollowingListFragment extends BaseListFragment implements DataUpdat
     @Override
     public void onStop() {
         super.onStop();
-        DataUpdateManager.unregisterFollowsUpdateListener();
-        DataUpdateManager.unregisterStreamsUpdateListener();
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -71,14 +74,14 @@ public class FollowingListFragment extends BaseListFragment implements DataUpdat
         }
     }
 
-    @Override
-    public void onFollowsDataUpdated() {
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onFollowsUpdatedEvent(FollowsUpdatedEvent event) {
         Log.e("TEST", "Follows update time: " + (System.nanoTime() - start) / 1000000);
         DataUpdateManager.updateStreamsData(new ErrorHandler() {});
     }
 
-    @Override
-    public void onStreamsDataUpdated() {
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onStreamsUpdatedEvent(StreamsUpdatedEvent event) {
         Log.e("TEST", "Total update time: "  + (System.nanoTime() - start) / 1000000);
         runUpdateAdapterAsyncTask();
     }

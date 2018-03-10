@@ -6,8 +6,12 @@ import android.support.annotation.NonNull;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.List;
 
+import mseffner.twitchnotifier.events.FollowsUpdatedEvent;
+import mseffner.twitchnotifier.events.StreamsUpdatedEvent;
 import mseffner.twitchnotifier.networking.Containers;
 import mseffner.twitchnotifier.networking.ErrorHandler;
 import mseffner.twitchnotifier.networking.Requests;
@@ -22,8 +26,6 @@ import mseffner.twitchnotifier.settings.SettingsManager;
 public class DataUpdateManager {
 
     private static TopDataUpdatedListener topDataUpdatedListener;
-    private static FollowsUpdateListener followsUpdateListener;
-    private static StreamsUpdateListener streamsUpdateListener;
     private static Response.ErrorListener errorListener;
 
     private static int remainingFollowsRequests;
@@ -38,30 +40,6 @@ public class DataUpdateManager {
 
     public interface TopDataUpdatedListener {
         void onTopStreamsResponse(@NonNull List<ListEntry> channels);
-    }
-
-    public interface FollowsUpdateListener {
-        void onFollowsDataUpdated();
-    }
-
-    public interface StreamsUpdateListener {
-        void onStreamsDataUpdated();
-    }
-
-    public static void registerFollowsUpdateListener(FollowsUpdateListener listener) {
-        followsUpdateListener = listener;
-    }
-
-    public static void unregisterFollowsUpdateListener() {
-        followsUpdateListener = null;
-    }
-
-    public static void registerStreamsUpdateListener(StreamsUpdateListener listener) {
-        streamsUpdateListener = listener;
-    }
-
-    public static void unregisterStreamsUpdateListener() {
-        streamsUpdateListener = null;
     }
 
     /**
@@ -127,7 +105,7 @@ public class DataUpdateManager {
     private static void updateUsersData() {
         long[][] userIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIds());
         if (userIds.length == 0) {
-            notifyFollowsListener();
+            postFollowsUpdatedEvent();
         } else {
             remainingUsersRequests = userIds.length;
             for (long[] ids : userIds)
@@ -147,7 +125,7 @@ public class DataUpdateManager {
                 remainingUsersRequests--;
                 ChannelDb.insertUsersData(response);
                 if (remainingUsersRequests == 0)
-                    notifyFollowsListener();
+                    postFollowsUpdatedEvent();
             });
         }
 
@@ -206,7 +184,7 @@ public class DataUpdateManager {
         long[][] gameIds = URLTools.splitIdArray(ChannelDb.getUnknownGameIds());
         // 0 indicates a null game, so ignore that
         if (gameIds.length == 0 || (gameIds[0].length == 1 && gameIds[0][0] == 0))  {
-            notifyStreamsListener();
+            postStreamsUpdatedEvent();
         } else {
             remainingGamesRequests = gameIds.length;
             for (long[] ids : gameIds)
@@ -224,7 +202,7 @@ public class DataUpdateManager {
                 remainingGamesRequests--;
                 ChannelDb.insertGamesData(response);
                 if (remainingGamesRequests == 0)
-                    notifyStreamsListener();
+                    postStreamsUpdatedEvent();
             });
         }
     }
@@ -260,16 +238,14 @@ public class DataUpdateManager {
         topDataUpdatedListener = null;
     }
 
-    private static synchronized  void notifyFollowsListener() {
+    private static synchronized  void postFollowsUpdatedEvent() {
         followsUpdateInProgress = false;
-        if (followsUpdateListener != null)
-            ThreadManager.postMainThread(() -> followsUpdateListener.onFollowsDataUpdated());
+        EventBus.getDefault().post(new FollowsUpdatedEvent());
     }
 
-    private static synchronized  void notifyStreamsListener() {
+    private static synchronized  void postStreamsUpdatedEvent() {
         streamsUpdateInProgress = false;
-        if (streamsUpdateListener != null)
-            ThreadManager.postMainThread(() -> streamsUpdateListener.onStreamsDataUpdated());
+        EventBus.getDefault().post(new StreamsUpdatedEvent());
     }
 
     private static class ErrorWrapper implements Response.ErrorListener {
