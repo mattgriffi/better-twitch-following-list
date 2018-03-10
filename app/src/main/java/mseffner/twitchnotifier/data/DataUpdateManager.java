@@ -4,6 +4,7 @@ package mseffner.twitchnotifier.data;
 import android.support.annotation.NonNull;
 
 import com.android.volley.Response;
+import com.android.volley.VolleyError;
 
 import java.util.List;
 
@@ -70,7 +71,7 @@ public class DataUpdateManager {
      * @param errorListener notified if any network operation goes wrong
      */
     public static void updateFollowsData(final Response.ErrorListener errorListener) {
-        DataUpdateManager.errorListener = errorListener;
+        DataUpdateManager.errorListener = new ErrorWrapper(errorListener);
 
         if (followsUpdateInProgress || streamsUpdateInProgress || !SettingsManager.validUsername())
             return;
@@ -158,7 +159,7 @@ public class DataUpdateManager {
      * @param errorListener notified if any network operation goes wrong
      */
     public static void updateStreamsData(final Response.ErrorListener errorListener) {
-        DataUpdateManager.errorListener = errorListener;
+        DataUpdateManager.errorListener = new ErrorWrapper(errorListener);
 
         // If an update is already in progress, do nothing
         if (streamsUpdateInProgress || followsUpdateInProgress) return;
@@ -269,5 +270,21 @@ public class DataUpdateManager {
         streamsUpdateInProgress = false;
         if (streamsUpdateListener != null)
             ThreadManager.postMainThread(() -> streamsUpdateListener.onStreamsDataUpdated());
+    }
+
+    private static class ErrorWrapper implements Response.ErrorListener {
+
+        private Response.ErrorListener errorListener;
+
+        ErrorWrapper(Response.ErrorListener errorListener) {
+            this.errorListener = errorListener;
+        }
+
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            followsUpdateInProgress = false;
+            streamsUpdateInProgress = false;
+            errorListener.onErrorResponse(error);
+        }
     }
 }
