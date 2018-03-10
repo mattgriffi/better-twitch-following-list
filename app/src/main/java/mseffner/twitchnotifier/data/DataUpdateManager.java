@@ -2,11 +2,9 @@ package mseffner.twitchnotifier.data;
 
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.android.volley.Response;
 
-import java.util.Arrays;
 import java.util.List;
 
 import mseffner.twitchnotifier.networking.Containers;
@@ -31,6 +29,9 @@ public class DataUpdateManager {
     private static int remainingUsersRequests;
     private static int remainingStreamsRequests;
     private static int remainingGamesRequests;
+
+    private static boolean followsUpdateInProgress = false;
+    private static boolean streamsUpdateInProgress = false;
 
     private DataUpdateManager() {}
 
@@ -70,8 +71,14 @@ public class DataUpdateManager {
      */
     public static void updateFollowsData(final Response.ErrorListener errorListener) {
         DataUpdateManager.errorListener = errorListener;
+
+        if (followsUpdateInProgress || streamsUpdateInProgress || !SettingsManager.validUsername())
+            return;
+
+        followsUpdateInProgress = true;
         remainingFollowsRequests = 0;
         remainingUsersRequests = 0;
+        ChannelDb.setFollowsDirty();
         ThreadManager.post(DataUpdateManager::performFollowsUpdate);
     }
 
@@ -79,12 +86,7 @@ public class DataUpdateManager {
      * Updates the follows and users data. This method should NOT be called on the main thread.
      */
     private static void performFollowsUpdate() {
-        // Mark rows to be deleted if they're not updated
-        ChannelDb.setFollowsDirty();
-
-        // If there is a valid username set, get their follows
-        if (!SettingsManager.getUsername().equals(""))
-            Requests.getFollows(null, new FollowsListener(), errorListener);
+        Requests.getFollows(null, new FollowsListener(), errorListener);
     }
 
     /**
@@ -96,20 +98,22 @@ public class DataUpdateManager {
 
         @Override
         public void onResponse(Containers.Follows followsResponse) {
-            // Track progress of the follows requests
-            if (remainingFollowsRequests == 0)  // This is the first request
-                remainingFollowsRequests = (int) Math.ceil(followsResponse.total / 100.0);
-            remainingFollowsRequests--;
+            ThreadManager.post(() -> {
+                // Track progress of the follows requests
+                if (remainingFollowsRequests == 0)  // This is the first request
+                    remainingFollowsRequests = (int) Math.ceil(followsResponse.total / 100.0);
+                remainingFollowsRequests--;
 
-            // Insert into database
-            ChannelDb.insertFollowsData(followsResponse);
+                // Insert into database
+                ChannelDb.insertFollowsData(followsResponse);
 
-            if (remainingFollowsRequests > 0)  // There is still more to fetch
-                Requests.getFollows(followsResponse.pagination.cursor, new FollowsListener(), errorListener);
-            else {  // We are done, clean follows and get the users data
-                ChannelDb.cleanFollows();
-                updateUsersData();
-            }
+                if (remainingFollowsRequests > 0)  // There is still more to fetch
+                    Requests.getFollows(followsResponse.pagination.cursor, new FollowsListener(), errorListener);
+                else {  // We are done, clean follows and get the users data
+                    ChannelDb.cleanFollows();
+                    updateUsersData();
+                }
+            });
         }
 
     }
@@ -138,10 +142,12 @@ public class DataUpdateManager {
 
         @Override
         public void onResponse(Containers.Users response) {
-            remainingUsersRequests--;
-            ChannelDb.insertUsersData(response);
-            if (remainingUsersRequests == 0)
-                notifyFollowsListener();
+            ThreadManager.post(() -> {
+                remainingUsersRequests--;
+                ChannelDb.insertUsersData(response);
+                if (remainingUsersRequests == 0)
+                    notifyFollowsListener();
+            });
         }
 
     }
@@ -153,6 +159,11 @@ public class DataUpdateManager {
      */
     public static void updateStreamsData(final Response.ErrorListener errorListener) {
         DataUpdateManager.errorListener = errorListener;
+
+        // If an update is already in progress, do nothing
+        if (streamsUpdateInProgress || followsUpdateInProgress) return;
+
+        streamsUpdateInProgress = true;
         remainingStreamsRequests = 0;
         remainingGamesRequests = 0;
         ThreadManager.post(DataUpdateManager::performStreamsUpdate);
@@ -176,10 +187,12 @@ public class DataUpdateManager {
     private static class StreamsListener implements Response.Listener<Containers.Streams> {
         @Override
         public void onResponse(Containers.Streams response) {
-            remainingStreamsRequests--;
-            ChannelDb.insertStreamsData(response);
-            if (remainingStreamsRequests == 0)
-                updateGamesData();
+            ThreadManager.post(() -> {
+                remainingStreamsRequests--;
+                ChannelDb.insertStreamsData(response);
+                if (remainingStreamsRequests == 0)
+                    updateGamesData();
+            });
         }
     }
 
@@ -194,7 +207,6 @@ public class DataUpdateManager {
         if (gameIds.length == 0 || (gameIds[0].length == 1 && gameIds[0][0] == 0))  {
             notifyStreamsListener();
         } else {
-            Log.e("TEST", Arrays.deepToString(gameIds));
             remainingGamesRequests = gameIds.length;
             for (long[] ids : gameIds)
                 Requests.getGames(ids, new GamesListener(), new ErrorHandler() {});
@@ -207,10 +219,12 @@ public class DataUpdateManager {
     private static class GamesListener implements Response.Listener<Containers.Games> {
         @Override
         public void onResponse(Containers.Games response) {
-            remainingGamesRequests--;
-            ChannelDb.insertGamesData(response);
-            if (remainingGamesRequests == 0)
-                notifyStreamsListener();
+            ThreadManager.post(() -> {
+                remainingGamesRequests--;
+                ChannelDb.insertGamesData(response);
+                if (remainingGamesRequests == 0)
+                    notifyStreamsListener();
+            });
         }
     }
 
@@ -246,11 +260,13 @@ public class DataUpdateManager {
     }
 
     private static synchronized  void notifyFollowsListener() {
+        followsUpdateInProgress = false;
         if (followsUpdateListener != null)
             ThreadManager.postMainThread(() -> followsUpdateListener.onFollowsDataUpdated());
     }
 
     private static synchronized  void notifyStreamsListener() {
+        streamsUpdateInProgress = false;
         if (streamsUpdateListener != null)
             ThreadManager.postMainThread(() -> streamsUpdateListener.onStreamsDataUpdated());
     }
