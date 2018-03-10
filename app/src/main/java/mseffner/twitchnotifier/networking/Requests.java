@@ -22,7 +22,6 @@ public class Requests {
     public static final int REQUEST_TYPE_FOLLOWS = 2;
     public static final int REQUEST_TYPE_GAMES = 3;
 
-    private static final String LOG_TAG = Requests.class.getSimpleName();
     private static final int CACHE_SIZE = 1024 * 1024;  // in bytes
 
     private static RequestQueue queue;

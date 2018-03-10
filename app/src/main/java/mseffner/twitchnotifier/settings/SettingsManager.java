@@ -26,11 +26,6 @@ public class SettingsManager {
     // Public constant for invalid username id
     public static final long INVALID_USERNAME_ID = -1;
 
-    // Public constants to indicate what setting has changed
-    public static final int SETTING_USERNAME = 0;
-    public static final int SETTING_RERUN = 1;
-    public static final int SETTING_DARKMODE = 2;
-
     private static SharedPreferences sharedPreferences;
     private static Resources resources;
     private static SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener =

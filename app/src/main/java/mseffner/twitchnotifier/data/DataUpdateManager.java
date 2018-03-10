@@ -1,14 +1,10 @@
 package mseffner.twitchnotifier.data;
 
 
-import android.support.annotation.NonNull;
-
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
 import org.greenrobot.eventbus.EventBus;
-
-import java.util.List;
 
 import mseffner.twitchnotifier.events.FollowsUpdatedEvent;
 import mseffner.twitchnotifier.events.StreamsUpdatedEvent;
@@ -214,19 +210,19 @@ public class DataUpdateManager {
                     gamesResponse -> {
                         ThreadManager.post(() -> ChannelDb.insertGamesData(gamesResponse));
                         parser.setGames(gamesResponse);
-                        notifyListener(parser);
+                        postTopStreamsUpdatedEvent(parser);
                     }, errorListener);
             // Get the streamer names
             Requests.getUsers(parser.getUserIdsFromStreams(),
                     usersResponse -> {
                         ThreadManager.post(() -> ChannelDb.insertUsersData(usersResponse));
                         parser.setUsers(usersResponse);
-                        notifyListener(parser);
+                        postTopStreamsUpdatedEvent(parser);
                     }, errorListener);
         }, errorListener);
     }
 
-    private static synchronized void notifyListener(ContainerParser parser) {
+    private static synchronized void postTopStreamsUpdatedEvent(ContainerParser parser) {
         if (parser == null || !parser.isDataComplete()) return;
         EventBus.getDefault().post(new TopStreamsUpdatedEvent(parser.getChannelList()));
     }
