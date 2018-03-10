@@ -1,6 +1,5 @@
 package mseffner.twitchnotifier.fragments;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -20,13 +19,12 @@ import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.data.ListEntrySorter;
 import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.events.FollowsUpdatedEvent;
+import mseffner.twitchnotifier.events.ListUpdatedEvent;
 import mseffner.twitchnotifier.events.StreamsUpdatedEvent;
 import mseffner.twitchnotifier.networking.ErrorHandler;
 import mseffner.twitchnotifier.networking.PeriodicUpdater;
 
 public class FollowingListFragment extends BaseListFragment {
-
-    private UpdateAdapterAsyncTask updateAdapterAsyncTask;
 
     private static PeriodicUpdater updater = new PeriodicUpdater();
     private static long start;
@@ -49,7 +47,7 @@ public class FollowingListFragment extends BaseListFragment {
     public void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
-        runUpdateAdapterAsyncTask();
+        updateList();
         updater.okay = true;
         ThreadManager.postDelayed(updater, 65 * 1000);
     }
@@ -67,17 +65,16 @@ public class FollowingListFragment extends BaseListFragment {
     }
 
     @Override
-    protected void cancelAsyncTasks() {
-        if (updateAdapterAsyncTask != null)
-            updateAdapterAsyncTask.cancel(true);
-        updateAdapterAsyncTask = null;
-    }
+    protected void cancelAsyncTasks() {}
 
-    private void runUpdateAdapterAsyncTask() {
-        if (updateAdapterAsyncTask == null) {
-            updateAdapterAsyncTask = new UpdateAdapterAsyncTask();
-            updateAdapterAsyncTask.execute();
-        }
+    private void updateList() {
+        swipeRefreshLayout.setRefreshing(true);
+        ThreadManager.post(() -> {
+            List<ListEntry> list = ChannelDb.getAllChannels();
+            ListEntrySorter.sort(list);
+            Log.e("list size", "" + list.size());
+            EventBus.getDefault().post(new ListUpdatedEvent(list));
+        });
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -89,42 +86,18 @@ public class FollowingListFragment extends BaseListFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onStreamsUpdatedEvent(StreamsUpdatedEvent event) {
         Log.e("TEST", "Total update time: "  + (System.nanoTime() - start) / 1000000);
-        runUpdateAdapterAsyncTask();
+        updateList();
     }
 
-    private class UpdateAdapterAsyncTask extends AsyncTask<Void, Void, List<ListEntry>> {
-
-        @Override
-        protected void onPreExecute() {
-            swipeRefreshLayout.setRefreshing(true);
-        }
-
-        @Override
-        protected List<ListEntry> doInBackground(Void... voids) {
-            List<ListEntry> list = ChannelDb.getAllChannels();
-            ListEntrySorter.sort(list);
-            Log.e("list size", "" + list.size());
-            return list;
-        }
-
-        @Override
-        protected void onPostExecute(List<ListEntry> channelList) {
-
-            if (!isAdded() || isCancelled())
-                return;
-
-            updateAdapter(channelList);
-
-            // Show startMessage if adapter is empty, else hide it
-            if (channelAdapter.getItemCount() == 0)
-                startMessage.setVisibility(View.VISIBLE);
-            else
-                startMessage.setVisibility(View.GONE);
-
-            // Disable the refreshing animation if other tasks are not running
-            swipeRefreshLayout.setRefreshing(false);
-
-            updateAdapterAsyncTask = null;
-        }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onListUpdatedEvent(ListUpdatedEvent event) {
+        updateAdapter(event.list);
+        // Show startMessage if adapter is empty, else hide it
+        if (channelAdapter.getItemCount() == 0)
+            startMessage.setVisibility(View.VISIBLE);
+        else
+            startMessage.setVisibility(View.GONE);
+        // Disable the refreshing animation if other tasks are not running
+        swipeRefreshLayout.setRefreshing(false);
     }
 }
