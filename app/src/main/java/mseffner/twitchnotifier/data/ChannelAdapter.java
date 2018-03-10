@@ -1,8 +1,10 @@
 package mseffner.twitchnotifier.data;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Vibrator;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,6 +24,8 @@ import mseffner.twitchnotifier.settings.SettingsManager;
 
 
 public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelViewHolder> {
+
+    public static final int VIBRATE_TIME = 3;
 
     private final List<ListEntry> channelList;
     private int rerunSetting;
@@ -78,6 +82,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
 
         private final String LOG_TAG = this.getClass().getSimpleName();
 
+        private Vibrator vibrator;
         private View itemView;
 
         private ImageView channelLogo;
@@ -104,6 +109,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             viewerCount = itemView.findViewById(R.id.viewer_count);
             uptime = itemView.findViewById(R.id.uptime);
             pinIcon = itemView.findViewById(R.id.pin_icon);
+            vibrator = (Vibrator) itemView.getContext().getSystemService(Context.VIBRATOR_SERVICE);
         }
 
         void bind(int index) {
@@ -131,6 +137,8 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             // LongClickListener to toggle pin (does not apply to top streams list)
             if (allowLongClick) {
                 itemView.setOnLongClickListener(view -> {
+                    if (vibrator != null)
+                        vibrator.vibrate(VIBRATE_TIME);
                     ChannelDb.toggleChannelPin(listEntry.id);
                     listEntry.togglePinned();
                     updatePinIcon(listEntry, pinIcon);

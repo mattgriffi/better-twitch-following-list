@@ -3,6 +3,7 @@
     package="mseffner.twitchnotifier">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
 
     <application
         android:allowBackup="true"
