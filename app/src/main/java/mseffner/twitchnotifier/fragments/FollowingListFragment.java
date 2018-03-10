@@ -32,7 +32,6 @@ public class FollowingListFragment extends BaseListFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
-        EventBus.getDefault().register(this);
         start = System.nanoTime();
         DataUpdateManager.updateFollowsData(new ErrorHandler() {});
         return view;
@@ -46,6 +45,7 @@ public class FollowingListFragment extends BaseListFragment {
     @Override
     public void onStart() {
         super.onStart();
+        EventBus.getDefault().register(this);
         runUpdateAdapterAsyncTask();
     }
 
