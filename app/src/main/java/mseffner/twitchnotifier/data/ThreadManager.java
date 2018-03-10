@@ -49,4 +49,8 @@ public class ThreadManager {
     public static void post(Runnable r) {
         handler.post(r);
     }
+
+    public static void postDelayed(Runnable r, long ms) {
+        handler.postDelayed(r, ms);
+    }
 }
