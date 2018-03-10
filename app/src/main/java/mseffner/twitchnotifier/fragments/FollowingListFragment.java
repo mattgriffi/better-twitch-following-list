@@ -18,14 +18,17 @@ import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.data.DataUpdateManager;
 import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.data.ListEntrySorter;
+import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.events.FollowsUpdatedEvent;
 import mseffner.twitchnotifier.events.StreamsUpdatedEvent;
 import mseffner.twitchnotifier.networking.ErrorHandler;
+import mseffner.twitchnotifier.networking.PeriodicUpdater;
 
 public class FollowingListFragment extends BaseListFragment {
 
     private UpdateAdapterAsyncTask updateAdapterAsyncTask;
 
+    private static PeriodicUpdater updater = new PeriodicUpdater();
     private static long start;
 
     @Override
@@ -47,12 +50,15 @@ public class FollowingListFragment extends BaseListFragment {
         super.onStart();
         EventBus.getDefault().register(this);
         runUpdateAdapterAsyncTask();
+        updater.okay = true;
+        ThreadManager.postDelayed(updater, 65 * 1000);
     }
 
     @Override
     public void onStop() {
         super.onStop();
         EventBus.getDefault().unregister(this);
+        updater.okay = false;
     }
 
     @Override
