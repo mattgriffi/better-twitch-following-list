@@ -13,7 +13,9 @@ import android.util.Log;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TimeZone;
 
 import mseffner.twitchnotifier.data.ChannelContract.FollowEntry;
@@ -40,11 +42,20 @@ public class ChannelDb {
 
     public static void insertFollowsData(@NonNull Containers.Follows follows) {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
+        Set<Long> idSet = getFollowIdSet();
         wrapTransaction(database, () -> {
             for (Containers.Follows.Data data : follows.data) {
+                long id = Long.parseLong(data.to_id);
                 ContentValues values = new ContentValues();
-                values.put(FollowEntry._ID, Long.parseLong(data.to_id));
-                insert(database, FollowEntry.TABLE_NAME, values, SQLiteDatabase.CONFLICT_IGNORE);
+                // Check if the id is already in follows
+                if (idSet.contains(id)) {  // If it is, mark it as clean
+                    values.put(FollowEntry.COLUMN_DIRTY, FollowEntry.CLEAN);
+                    String selection = FollowEntry._ID + " =?";
+                    update(FollowEntry.TABLE_NAME, values, selection, new String[]{data.to_id});
+                } else {  // Otherwise insert it
+                    values.put(FollowEntry._ID, id);
+                    insert(database, FollowEntry.TABLE_NAME, values, SQLiteDatabase.CONFLICT_IGNORE);
+                }
             }
         });
     }
@@ -188,16 +199,27 @@ public class ChannelDb {
     }
 
     public static long[] getAllFollowIds() {
-            Cursor cursor = query(FollowEntry.TABLE_NAME, new String[]{FollowEntry._ID},
-                    null, null, null);
-            long[] idArray = new long[cursor.getCount()];
-            int idColumnIndex = cursor.getColumnIndex(FollowEntry._ID);
+        Cursor cursor = query(FollowEntry.TABLE_NAME, new String[]{FollowEntry._ID},
+                null, null, null);
+        long[] idArray = new long[cursor.getCount()];
+        int idColumnIndex = cursor.getColumnIndex(FollowEntry._ID);
 
-            int i = 0;
-            while (cursor.moveToNext())
-                idArray[i++] = cursor.getLong(idColumnIndex);
-            return idArray;
-        }
+        int i = 0;
+        while (cursor.moveToNext())
+            idArray[i++] = cursor.getLong(idColumnIndex);
+        return idArray;
+    }
+
+    public static Set<Long> getFollowIdSet() {
+        Cursor cursor = query(FollowEntry.TABLE_NAME, new String[]{FollowEntry._ID},
+                null, null, null);
+        Set<Long> set = new HashSet<>();
+        int idColumnIndex = cursor.getColumnIndex(FollowEntry._ID);
+
+        while (cursor.moveToNext())
+            set.add(cursor.getLong(idColumnIndex));
+        return set;
+    }
 
     public static void toggleChannelPin(long id) {
         // Determine the current pin status of the channel
@@ -220,12 +242,14 @@ public class ChannelDb {
     }
 
     public static void removeAllPins() {
+        Log.e("TEST", "removeAllPins");
         ContentValues values = new ContentValues();
         values.put(FollowEntry.COLUMN_PINNED, FollowEntry.IS_NOT_PINNED);
         update(FollowEntry.TABLE_NAME, values, null, null);
     }
 
     public static void setFollowsDirty() {
+        Log.e("TEST", "setFollowsDirty");
         ContentValues values = new ContentValues();
         values.put(FollowEntry.COLUMN_DIRTY, FollowEntry.DIRTY);
         update(FollowEntry.TABLE_NAME, values, null, null);
@@ -238,6 +262,7 @@ public class ChannelDb {
     }
 
     public static void cleanFollows() {
+        Log.e("TEST", "cleanFollows");
         String selection = FollowEntry.COLUMN_DIRTY + "=?";
         String[] selectionArgs = {Integer.toString(FollowEntry.DIRTY)};
         delete(FollowEntry.TABLE_NAME, selection, selectionArgs);
@@ -248,6 +273,8 @@ public class ChannelDb {
     }
 
     public static void deleteAllFollows() {
+        Log.e("TEST", "deleteAllFollows");
+
         delete(FollowEntry.TABLE_NAME, null, null);
     }
 
