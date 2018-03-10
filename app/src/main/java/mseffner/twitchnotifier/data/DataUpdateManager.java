@@ -43,6 +43,12 @@ public class DataUpdateManager {
     public static void updateFollowsData(final Response.ErrorListener errorListener) {
         DataUpdateManager.errorListener = new ErrorWrapper(errorListener);
 
+        // If the rate limit hasn't reset since the last update, do nothing
+        if (!SettingsManager.rateLimitReset()) {
+            postFollowsUpdatedEvent();
+            return;
+        }
+
         if (followsUpdateInProgress || streamsUpdateInProgress || !SettingsManager.validUsername())
             return;
 
@@ -131,7 +137,12 @@ public class DataUpdateManager {
     public static void updateStreamsData(final Response.ErrorListener errorListener) {
         DataUpdateManager.errorListener = new ErrorWrapper(errorListener);
 
-        // If an update is already in progress, do nothing
+        // If the rate limit hasn't reset since the last update, do nothing
+        if (!SettingsManager.rateLimitReset()) {
+            postStreamsUpdatedEvent(false);
+            return;
+        }
+
         if (streamsUpdateInProgress || followsUpdateInProgress) return;
 
         streamsUpdateInProgress = true;
@@ -176,7 +187,7 @@ public class DataUpdateManager {
         long[][] gameIds = URLTools.splitIdArray(ChannelDb.getUnknownGameIds());
         // 0 indicates a null game, so ignore that
         if (gameIds.length == 0 || (gameIds[0].length == 1 && gameIds[0][0] == 0))  {
-            postStreamsUpdatedEvent();
+            postStreamsUpdatedEvent(true);
         } else {
             remainingGamesRequests = gameIds.length;
             for (long[] ids : gameIds)
@@ -194,7 +205,7 @@ public class DataUpdateManager {
                 remainingGamesRequests--;
                 ChannelDb.insertGamesData(response);
                 if (remainingGamesRequests == 0)
-                    postStreamsUpdatedEvent();
+                    postStreamsUpdatedEvent(true);
             });
         }
     }
@@ -232,8 +243,10 @@ public class DataUpdateManager {
         EventBus.getDefault().post(new FollowsUpdatedEvent());
     }
 
-    private static synchronized  void postStreamsUpdatedEvent() {
+    private static synchronized  void postStreamsUpdatedEvent(boolean updated) {
         streamsUpdateInProgress = false;
+        if (updated)
+            SettingsManager.setLastUpdated();
         EventBus.getDefault().post(new StreamsUpdatedEvent());
     }
 
