@@ -32,10 +32,8 @@
         <item>@string/pref_order_uptime</item>
     </string-array>
     <string-array name="pref_order_asc_desc_values">
-        <item>@string/pref_order_viewer_count</item>
-        <item>@string/pref_order_name</item>
-        <item>@string/pref_order_game</item>
-        <item>@string/pref_order_uptime</item>
+        <item>@string/pref_order_ascending</item>
+        <item>@string/pref_order_descending</item>
     </string-array>
 
 </resources>
