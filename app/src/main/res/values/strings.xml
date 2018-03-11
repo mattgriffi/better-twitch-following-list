@@ -27,6 +27,10 @@
     <string name="twitch_name">Twitch name</string>
     <!-- Settings option to change how vodcasts are displayed -->
     <string name="vodcast_display">Rerun display</string>
+    <!-- Settings option to change sort by -->
+    <string name="sort_by">Sort by</string>
+    <!-- Settings option to change sort order -->
+    <string name="sort_order">Sort order</string>
     <!-- Settings option to delete all of the user's set pins, also used for the positive confirmation button -->
     <string name="delete_pins">Remove pins</string>
     <!-- Title of the delete pins confirmation dialog -->
@@ -43,6 +47,13 @@
     <string name="pref_label_vodcast_online">Online</string>
     <string name="pref_label_vodcast_online_tag">Online with tag</string>
     <string name="pref_label_vodcast_offline">Offline</string>
+    <!-- Options to display for sort order -->
+    <string name="pref_label_order_name">Streamer name</string>
+    <string name="pref_label_order_game">Game name</string>
+    <string name="pref_label_order_uptime">Uptime</string>
+    <string name="pref_label_order_viewer_count">Viewer count</string>
+    <string name="pref_label_order_ascending">Ascending</string>
+    <string name="pref_label_order_descending">Descending</string>
 
     <!-- SharedPreferences keys and values -->
     <string name="pref_username_key" translatable="false">username</string>
@@ -52,6 +63,13 @@
     <string name="pref_vodcast_online_tag" translatable="false">tag</string>
     <string name="pref_vodcast_offline" translatable="false">offline</string>
     <string name="pref_dark_mode" translatable="false">dark</string>
-    <string name="last_updated" translatable="false">last_updated</string>
+    <string name="pref_order_by_key" translatable="false">order_by_key</string>
+    <string name="pref_order_ascending_key" translatable="false">order_ascending_key</string>
+    <string name="pref_order_ascending" translatable="false">order_ascending</string>
+    <string name="pref_order_descending" translatable="false">order_descending</string>
+    <string name="pref_order_name" translatable="false">order_name</string>
+    <string name="pref_order_game" translatable="false">order_game</string>
+    <string name="pref_order_uptime" translatable="false">order_uptime</string>
+    <string name="pref_order_viewer_count" translatable="false">order_viewer_count</string>
 
 </resources>
