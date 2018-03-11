@@ -30,6 +30,22 @@
         android:key="@string/pref_vodcast_key"
         android:title="@string/vodcast_display"/>
 
+    <!-- Sort by setting -->
+    <ListPreference
+        android:defaultValue="@string/pref_order_viewer_count"
+        android:entries="@array/pref_order_by_options"
+        android:entryValues="@array/pref_order_by_values"
+        android:key="@string/pref_order_by_key"
+        android:title="@string/sort_by"/>
+
+    <!-- Sort order setting -->
+    <ListPreference
+        android:defaultValue="@string/pref_order_descending"
+        android:entries="@array/pref_order_asc_desc_options"
+        android:entryValues="@array/pref_order_asc_desc_values"
+        android:key="@string/pref_order_ascending_key"
+        android:title="@string/sort_order"/>
+
     <!-- Clear pins button (not actually a preference) -->
     <mseffner.twitchnotifier.settings.ClearPinsDialogPreference
         android:dialogMessage="@string/delete_pin_warning"
