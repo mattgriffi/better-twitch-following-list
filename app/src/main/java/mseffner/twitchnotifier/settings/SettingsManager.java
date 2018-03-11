@@ -18,10 +18,16 @@ import mseffner.twitchnotifier.events.UsernameChangedEvent;
  */
 public class SettingsManager {
 
-    // Public constants returned by getRerunSetting
+    // Public constants for rerun settings
     public static final int RERUN_ONLINE = 0;
     public static final int RERUN_ONLINE_TAG = 1;
     public static final int RERUN_OFFLINE = 2;
+
+    //Public constants for sort order settings
+    public static final int SORT_BY_VIEWER_COUNT = 0;
+    public static final int SORT_BY_NAME = 1;
+    public static final int SORT_BY_GAME = 2;
+    public static final int SORT_BY_UPTIME = 3;
 
     // Public constant for invalid username id
     public static final long INVALID_USERNAME_ID = -1;
@@ -38,6 +44,8 @@ public class SettingsManager {
     private static String rerunKey;
     private static String darkmodeKey;
     private static String lastUpdatedKey;
+    private static String sortByKey;
+    private static String sortAscDescKey;
 
     private SettingsManager() {}
 
@@ -56,6 +64,8 @@ public class SettingsManager {
         SettingsManager.rerunKey = resources.getString(R.string.pref_vodcast_key);
         SettingsManager.darkmodeKey = resources.getString(R.string.pref_dark_mode);
         SettingsManager.lastUpdatedKey = resources.getString(R.string.last_updated);
+        SettingsManager.sortByKey = resources.getString(R.string.pref_order_by_key);
+        SettingsManager.sortAscDescKey = resources.getString(R.string.pref_order_ascending_key);
     }
 
     /**
@@ -116,6 +126,39 @@ public class SettingsManager {
             return RERUN_ONLINE_TAG;
         else
             return RERUN_OFFLINE;
+    }
+
+    /**
+     * Returns the current order by setting. Compare result to public constants
+     * SORT_BY_VIEWER_COUNT, SORT_BY_NAME, SORT_BY_GAME, and SORT_BY_UPTIME to
+     * determine what the setting is.
+     *
+     * @return the sort by setting
+     */
+    public static int getSortBySetting() {
+        String setting = sharedPreferences.getString(sortByKey, "");
+
+        String name = resources.getString(R.string.pref_order_name);
+        String game = resources.getString(R.string.pref_order_game);
+        String uptime = resources.getString(R.string.pref_order_uptime);
+
+        if (setting.equals(name))
+            return SORT_BY_NAME;
+        else if (setting.equals(game))
+            return SORT_BY_GAME;
+        else if (setting.equals(uptime))
+            return SORT_BY_UPTIME;
+        else
+            return SORT_BY_VIEWER_COUNT;
+    }
+
+    /**
+     * @return true if ascending, false if descending
+     */
+    public static boolean getSortAscendingSetting() {
+        String setting = sharedPreferences.getString(sortAscDescKey, "");
+        String asc = resources.getString(R.string.pref_order_ascending);
+        return setting.equals(asc);
     }
 
     /**
