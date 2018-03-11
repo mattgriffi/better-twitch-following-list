@@ -19,7 +19,7 @@ import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.data.ListEntrySorter;
 import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.events.FollowsUpdatedEvent;
-import mseffner.twitchnotifier.events.ListUpdatedEvent;
+import mseffner.twitchnotifier.events.ListRefreshedEvent;
 import mseffner.twitchnotifier.events.StreamsUpdatedEvent;
 import mseffner.twitchnotifier.networking.ErrorHandler;
 import mseffner.twitchnotifier.networking.PeriodicUpdater;
@@ -73,7 +73,7 @@ public class FollowingListFragment extends BaseListFragment {
             List<ListEntry> list = ChannelDb.getAllChannels();
             ListEntrySorter.sort(list);
             Log.e("list size", "" + list.size());
-            EventBus.getDefault().post(new ListUpdatedEvent(list));
+            EventBus.getDefault().post(new ListRefreshedEvent(list));
         });
     }
 
@@ -90,7 +90,7 @@ public class FollowingListFragment extends BaseListFragment {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onListUpdatedEvent(ListUpdatedEvent event) {
+    public void onListRefreshedEvent(ListRefreshedEvent event) {
         updateAdapter(event.list);
         // Show startMessage if adapter is empty, else hide it
         if (channelAdapter.getItemCount() == 0)
