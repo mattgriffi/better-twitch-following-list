@@ -67,7 +67,7 @@ public class ChannelDbHelper extends SQLiteOpenHelper {
             " (" +
                 StreamEntry._ID + " INTEGER PRIMARY KEY, " +
                 StreamEntry.COLUMN_GAME_ID + " INTEGER NOT NULL DEFAULT 0, " +
-                StreamEntry.COLUMN_TYPE + " TEXT NOT NULL DEFAULT " + StreamEntry.STREAM_TYPE_OFFLINE + ", " +
+                StreamEntry.COLUMN_TYPE + " INTEGER NOT NULL DEFAULT " + StreamEntry.STREAM_TYPE_OFFLINE + ", " +
                 StreamEntry.COLUMN_TITLE + " TEXT NOT NULL DEFAULT \"\", " +
                 StreamEntry.COLUMN_VIEWER_COUNT + " INTEGER NOT NULL DEFAULT 0, " +
                 StreamEntry.COLUMN_STARTED_AT + " INTEGER NOT NULL DEFAULT 0, " +
