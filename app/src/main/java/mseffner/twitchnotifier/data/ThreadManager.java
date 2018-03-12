@@ -3,7 +3,6 @@ package mseffner.twitchnotifier.data;
 
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.util.Log;
 
 /**
  * This class handles the boilerplate of starting and stopping the handler thread.
@@ -27,12 +26,10 @@ public class ThreadManager {
 
     public static void destroy() {
         initialized = false;
-        Log.e("TEST", "ThreadManager.destroy()");
         // Since HandlerThread.quitSafely is only API level 18, quit the
         // thread safely by posting a poison pill to the end of the queue
         post(() -> {
             if (!initialized) {
-                Log.e("TEST", "quitting thread");
                 handlerThread.quit();
                 handlerThread = null;
                 handler = null;
