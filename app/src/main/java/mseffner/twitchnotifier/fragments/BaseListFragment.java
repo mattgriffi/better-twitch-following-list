@@ -72,6 +72,7 @@ public abstract class BaseListFragment extends Fragment {
         // Set up the swipe refresh
         swipeRefreshLayout.setColorSchemeResources(R.color.colorWhiteAlpha);
         swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.colorPrimaryAlpha);
+        swipeRefreshLayout.setEnabled(false);
         swipeRefreshLayout.setOnRefreshListener(this::refreshList);
 
         // Set up floating action button animations

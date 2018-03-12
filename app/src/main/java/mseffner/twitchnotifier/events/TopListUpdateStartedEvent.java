@@ -1,4 +1,5 @@
 package mseffner.twitchnotifier.events;
 
-public class TopStreamsUpdatedEvent {
+
+public class TopListUpdateStartedEvent {
 }

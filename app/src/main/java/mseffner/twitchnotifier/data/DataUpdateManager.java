@@ -10,6 +10,7 @@ import mseffner.twitchnotifier.events.FollowsUpdateStartedEvent;
 import mseffner.twitchnotifier.events.FollowsUpdatedEvent;
 import mseffner.twitchnotifier.events.StreamsUpdateStartedEvent;
 import mseffner.twitchnotifier.events.StreamsUpdatedEvent;
+import mseffner.twitchnotifier.events.TopListUpdateStartedEvent;
 import mseffner.twitchnotifier.events.TopStreamsUpdatedEvent;
 import mseffner.twitchnotifier.networking.Containers;
 import mseffner.twitchnotifier.networking.ErrorHandler;
@@ -24,6 +25,9 @@ import mseffner.twitchnotifier.settings.SettingsManager;
  */
 public class DataUpdateManager {
 
+    private static final int UPDATE_TYPE_FOLLOWS = 0;
+    private static final int UPDATE_TYPE_TOP_STREAMS = 1;
+
     private static Response.ErrorListener errorListener;
 
     private static int remainingFollowsRequests;
@@ -33,6 +37,8 @@ public class DataUpdateManager {
 
     private static boolean followsUpdateInProgress = false;
     private static boolean streamsUpdateInProgress = false;
+    private static boolean topStreamsGamesUpdateInProgress = false;
+    private static boolean topStreamsUsersUpdateInProgress = false;
 
     private DataUpdateManager() {}
 
@@ -51,12 +57,6 @@ public class DataUpdateManager {
      */
     public static void updateFollowsData(final Response.ErrorListener errorListener) {
         DataUpdateManager.errorListener = new ErrorWrapper(errorListener);
-
-        // If the rate limit hasn't reset since the last update, do nothing
-        if (!SettingsManager.rateLimitReset()) {
-            postFollowsUpdatedEvent();
-            return;
-        }
 
         if (followsUpdateInProgress || streamsUpdateInProgress || !SettingsManager.validUsername())
             return;
@@ -98,7 +98,7 @@ public class DataUpdateManager {
                     Requests.getFollows(followsResponse.pagination.cursor, new FollowsListener(), errorListener);
                 else {  // We are done, clean follows and get the users data
                     ChannelDb.cleanFollows();
-                    updateUsersData();
+                    updateUsersData(UPDATE_TYPE_FOLLOWS);
                 }
             });
         }
@@ -110,14 +110,25 @@ public class DataUpdateManager {
      * already in the users table. Notifies the listener if there is no new
      * users data to fetch.
      */
-    private static void updateUsersData() {
-        long[][] userIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIdsFromFollows());
-        if (userIds.length == 0) {
-            postFollowsUpdatedEvent();
-        } else {
-            remainingUsersRequests = userIds.length;
-            for (long[] ids : userIds)
-                Requests.getUsers(ids, new UsersListener(), new ErrorHandler() {});
+    private static void updateUsersData(int type) {
+        if (type == UPDATE_TYPE_FOLLOWS) {
+            long[][] userIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIdsFromFollows());
+            if (userIds.length == 0) {
+                postFollowsUpdatedEvent();
+            } else {
+                remainingUsersRequests = userIds.length;
+                for (long[] ids : userIds)
+                    Requests.getUsers(ids, new UsersListener(type), new ErrorHandler() {});
+            }
+        } else if (type == UPDATE_TYPE_TOP_STREAMS) {
+            long[][] userIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIdsFromStreams());
+            if (userIds.length == 0) {
+                topStreamsUsersUpdateInProgress = false;
+                postTopStreamsUpdatedEvent();
+            } else {
+                for (long[] ids : userIds)
+                    Requests.getUsers(ids, new UsersListener(type), new ErrorHandler() {});
+            }
         }
     }
 
@@ -127,14 +138,27 @@ public class DataUpdateManager {
      */
     private static class UsersListener implements Response.Listener<Containers.Users> {
 
+        private int type;
+
+        UsersListener(int type) {
+            this.type = type;
+        }
+
         @Override
         public void onResponse(Containers.Users response) {
-            ThreadManager.post(() -> {
-                remainingUsersRequests--;
-                ChannelDb.insertUsersData(response);
-                if (remainingUsersRequests == 0)
-                    postFollowsUpdatedEvent();
-            });
+            if (type == UPDATE_TYPE_FOLLOWS)
+                ThreadManager.post(() -> {
+                    remainingUsersRequests--;
+                    ChannelDb.insertUsersData(response);
+                    if (remainingUsersRequests == 0)
+                        postFollowsUpdatedEvent();
+                });
+            else if (type == UPDATE_TYPE_TOP_STREAMS)
+                ThreadManager.post(() -> {
+                    ChannelDb.insertUsersData(response);
+                    topStreamsUsersUpdateInProgress = false;
+                    postTopStreamsUpdatedEvent();
+                });
         }
 
     }
@@ -146,12 +170,6 @@ public class DataUpdateManager {
      */
     public static void updateStreamsData(final Response.ErrorListener errorListener) {
         DataUpdateManager.errorListener = new ErrorWrapper(errorListener);
-
-        // If the rate limit hasn't reset since the last update, do nothing
-        if (!SettingsManager.rateLimitReset()) {
-            postStreamsUpdatedEvent(false);
-            return;
-        }
 
         if (streamsUpdateInProgress || followsUpdateInProgress) return;
 
@@ -166,11 +184,10 @@ public class DataUpdateManager {
      * Updates the streams and games data. This method should NOT be called on the main thread.
      */
     private static void performStreamsUpdate() {
-        ChannelDb.deleteAllStreams();
         long[][] userIds = URLTools.splitIdArray(ChannelDb.getAllFollowIds());
         remainingStreamsRequests = userIds.length;
         for (long[] ids : userIds)
-            Requests.getStreams(ids, new StreamsListener(), errorListener);
+            Requests.getStreams(ids, new StreamsListener(UPDATE_TYPE_FOLLOWS), errorListener);
     }
 
     /**
@@ -178,14 +195,28 @@ public class DataUpdateManager {
      * all of the streams data has been updated.
      */
     private static class StreamsListener implements Response.Listener<Containers.Streams> {
+
+        private int type;
+
+        StreamsListener(int type) {
+            this.type = type;
+        }
+
         @Override
         public void onResponse(Containers.Streams response) {
-            ThreadManager.post(() -> {
-                remainingStreamsRequests--;
-                ChannelDb.insertStreamsData(response);
-                if (remainingStreamsRequests == 0)
-                    updateGamesData();
-            });
+            if (type == UPDATE_TYPE_FOLLOWS)
+                ThreadManager.post(() -> {
+                    remainingStreamsRequests--;
+                    ChannelDb.insertStreamsData(response);
+                    if (remainingStreamsRequests == 0)
+                        updateGamesData(type);
+                });
+            else if (type == UPDATE_TYPE_TOP_STREAMS)
+                ThreadManager.post(() -> {
+                    ChannelDb.insertStreamsData(response);
+                    updateGamesData(type);
+                    updateUsersData(type);
+                });
         }
     }
 
@@ -194,15 +225,20 @@ public class DataUpdateManager {
      * already in the games table. Notifies the listener if there are no games
      * to fetch.
      */
-    private static void updateGamesData() {
+    private static void updateGamesData(int type) {
         long[][] gameIds = URLTools.splitIdArray(ChannelDb.getUnknownGameIds());
         // 0 indicates a null game, so ignore that
         if (gameIds.length == 0 || (gameIds[0].length == 1 && gameIds[0][0] == 0))  {
-            postStreamsUpdatedEvent(true);
+            if (type == UPDATE_TYPE_FOLLOWS) {
+                postFollowsStreamsUpdatedEvent(true);
+            } else if (type == UPDATE_TYPE_TOP_STREAMS) {
+                topStreamsGamesUpdateInProgress = false;
+                postTopStreamsUpdatedEvent();
+            }
         } else {
             remainingGamesRequests = gameIds.length;
             for (long[] ids : gameIds)
-                Requests.getGames(ids, new GamesListener(), new ErrorHandler() {});
+                Requests.getGames(ids, new GamesListener(type), new ErrorHandler() {});
         }
     }
 
@@ -210,44 +246,43 @@ public class DataUpdateManager {
      * Inserts games data into database, then notifies the listener.
      */
     private static class GamesListener implements Response.Listener<Containers.Games> {
+
+        private int type;
+
+        GamesListener(int type) {
+            this.type = type;
+        }
+
         @Override
         public void onResponse(Containers.Games response) {
-            ThreadManager.post(() -> {
-                remainingGamesRequests--;
-                ChannelDb.insertGamesData(response);
-                if (remainingGamesRequests == 0)
-                    postStreamsUpdatedEvent(true);
-            });
+            if (type == UPDATE_TYPE_FOLLOWS)
+                ThreadManager.post(() -> {
+                    remainingGamesRequests--;
+                    ChannelDb.insertGamesData(response);
+                    if (remainingGamesRequests == 0)
+                        postFollowsStreamsUpdatedEvent(true);
+                });
+            else if (type == UPDATE_TYPE_TOP_STREAMS)
+                ThreadManager.post(() -> {
+                    ChannelDb.insertGamesData(response);
+                    topStreamsGamesUpdateInProgress = false;
+                    postTopStreamsUpdatedEvent();
+                });
         }
     }
 
-    public static void getTopStreamsData(final Response.ErrorListener errorListener) {
-        ContainerParser parser = new ContainerParser();
-
+    public static void updateTopStreamsData(final Response.ErrorListener errorListener) {
+        if (topStreamsUsersUpdateInProgress || topStreamsGamesUpdateInProgress) return;
+        topStreamsGamesUpdateInProgress = true;
+        topStreamsUsersUpdateInProgress = true;
         // Get the top streams
-        Requests.getTopStreams(streamsResponse -> {
-            parser.setStreams(streamsResponse);
-            ThreadManager.post(() -> ChannelDb.insertStreamsData(streamsResponse));
-            // Get the game names
-            Requests.getGames(parser.getGameIdsFromStreams(),
-                    gamesResponse -> {
-                        ThreadManager.post(() -> ChannelDb.insertGamesData(gamesResponse));
-                        parser.setGames(gamesResponse);
-                        postTopStreamsUpdatedEvent(parser);
-                    }, errorListener);
-            // Get the streamer names
-            Requests.getUsers(parser.getUserIdsFromStreams(),
-                    usersResponse -> {
-                        ThreadManager.post(() -> ChannelDb.insertUsersData(usersResponse));
-                        parser.setUsers(usersResponse);
-                        postTopStreamsUpdatedEvent(parser);
-                    }, errorListener);
-        }, errorListener);
+        EventBus.getDefault().post(new TopListUpdateStartedEvent());
+        Requests.getTopStreams(new StreamsListener(UPDATE_TYPE_TOP_STREAMS), errorListener);
     }
 
-    private static synchronized void postTopStreamsUpdatedEvent(ContainerParser parser) {
-        if (parser == null || !parser.isDataComplete()) return;
-        EventBus.getDefault().post(new TopStreamsUpdatedEvent(parser.getChannelList()));
+    private static synchronized void postTopStreamsUpdatedEvent() {
+        if (topStreamsGamesUpdateInProgress || topStreamsUsersUpdateInProgress) return;
+        EventBus.getDefault().post(new TopStreamsUpdatedEvent());
     }
 
     private static synchronized  void postFollowsUpdatedEvent() {
@@ -255,7 +290,7 @@ public class DataUpdateManager {
         EventBus.getDefault().post(new FollowsUpdatedEvent());
     }
 
-    private static synchronized  void postStreamsUpdatedEvent(boolean updated) {
+    private static synchronized  void postFollowsStreamsUpdatedEvent(boolean updated) {
         streamsUpdateInProgress = false;
         if (updated)
             SettingsManager.setLastUpdated();
