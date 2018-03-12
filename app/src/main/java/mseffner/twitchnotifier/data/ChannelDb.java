@@ -171,6 +171,58 @@ public class ChannelDb {
         return list;
     }
 
+    public static List<ListEntry> getTopStreams() {
+        String selection =
+            "SELECT " +
+                StreamEntry.TABLE_NAME + "." + StreamEntry._ID + ", " +
+                UserEntry.TABLE_NAME + "." + UserEntry.COLUMN_LOGIN + ", " +
+                UserEntry.TABLE_NAME + "." + UserEntry.COLUMN_DISPLAY_NAME + ", " +
+                UserEntry.TABLE_NAME + "." + UserEntry.COLUMN_PROFILE_IMAGE_URL + ", " +
+                StreamEntry.TABLE_NAME + "." + StreamEntry.COLUMN_TYPE + ", " +
+                StreamEntry.TABLE_NAME + "." + StreamEntry.COLUMN_TITLE + ", " +
+                StreamEntry.TABLE_NAME + "." + StreamEntry.COLUMN_VIEWER_COUNT + ", " +
+                StreamEntry.TABLE_NAME + "." + StreamEntry.COLUMN_STARTED_AT + ", " +
+                StreamEntry.TABLE_NAME + "." + StreamEntry.COLUMN_LANGUAGE + ", " +
+                StreamEntry.TABLE_NAME + "." + StreamEntry.COLUMN_THUMBNAIL_URL + ", " +
+                GameEntry.TABLE_NAME + "." + GameEntry.COLUMN_NAME + ", " +
+                GameEntry.TABLE_NAME + "." + GameEntry.COLUMN_BOX_ART_URL +
+                " FROM " + StreamEntry.TABLE_NAME +
+                " INNER JOIN " + UserEntry.TABLE_NAME + " ON " +
+                StreamEntry.TABLE_NAME + "." + StreamEntry._ID + " = " +
+                UserEntry.TABLE_NAME + "." + UserEntry._ID +
+                " LEFT OUTER JOIN " + GameEntry.TABLE_NAME + " ON " +
+                StreamEntry.TABLE_NAME + "." + StreamEntry.COLUMN_GAME_ID + " = " +
+                GameEntry.TABLE_NAME + "." + GameEntry._ID +
+            " ORDER BY " + StreamEntry.TABLE_NAME + "." + StreamEntry.COLUMN_VIEWER_COUNT + " DESC;";
+
+        Cursor cursor = dbHelper.getReadableDatabase().rawQuery(selection, null);
+
+        List<ListEntry> list = new ArrayList<>();
+        int i = 0;
+        while (cursor.moveToNext() && i < 100 /* only get top 100 */) {
+            long id = cursor.getLong(cursor.getColumnIndex(StreamEntry._ID));
+            int pinned = FollowEntry.IS_NOT_PINNED;
+            String login = cursor.getString(cursor.getColumnIndex(UserEntry.COLUMN_LOGIN));
+            String displayName = cursor.getString(cursor.getColumnIndex(UserEntry.COLUMN_DISPLAY_NAME));
+            String profileImageUrl = cursor.getString(cursor.getColumnIndex(UserEntry.COLUMN_PROFILE_IMAGE_URL));
+            int type = cursor.getInt(cursor.getColumnIndex(StreamEntry.COLUMN_TYPE));
+            String title = cursor.getString(cursor.getColumnIndex(StreamEntry.COLUMN_TITLE));
+            int viewerCount = cursor.getInt(cursor.getColumnIndex(StreamEntry.COLUMN_VIEWER_COUNT));
+            long startedAt = cursor.getLong(cursor.getColumnIndex(StreamEntry.COLUMN_STARTED_AT));
+            String language = cursor.getString(cursor.getColumnIndex(StreamEntry.COLUMN_LANGUAGE));
+            String thumbnailUrl = cursor.getString(cursor.getColumnIndex(StreamEntry.COLUMN_THUMBNAIL_URL));
+            String gameName = cursor.getString(cursor.getColumnIndex(GameEntry.COLUMN_NAME));
+            String boxArtUrl = cursor.getString(cursor.getColumnIndex(GameEntry.COLUMN_BOX_ART_URL));
+
+            ListEntry listEntry = new ListEntry(id, pinned, login, displayName, profileImageUrl,
+                    type, title, viewerCount, startedAt, language, thumbnailUrl, gameName, boxArtUrl);
+            list.add(listEntry);
+            i++;
+        }
+        cursor.close();
+        return list;
+    }
+
     public static long[] getUnknownUserIds() {
         return getUnknownIds(FollowEntry.TABLE_NAME, FollowEntry._ID,
                 UserEntry.TABLE_NAME, UserEntry._ID);

@@ -1,8 +1,6 @@
 package mseffner.twitchnotifier.data;
 
 
-import android.util.Log;
-
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
@@ -229,6 +227,7 @@ public class DataUpdateManager {
         // Get the top streams
         Requests.getTopStreams(streamsResponse -> {
             parser.setStreams(streamsResponse);
+            ThreadManager.post(() -> ChannelDb.insertStreamsData(streamsResponse));
             // Get the game names
             Requests.getGames(parser.getGameIdsFromStreams(),
                     gamesResponse -> {
