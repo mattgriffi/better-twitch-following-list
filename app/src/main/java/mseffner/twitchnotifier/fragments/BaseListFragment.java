@@ -3,6 +3,8 @@ package mseffner.twitchnotifier.fragments;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -19,11 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mseffner.twitchnotifier.R;
-import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.data.ChannelAdapter;
-import mseffner.twitchnotifier.settings.SettingsManager;
+import mseffner.twitchnotifier.data.ListEntry;
 
 public abstract class BaseListFragment extends Fragment {
+
+    private static final String LAYOUT_MANAGER_STATE_KEY = "state";
 
     protected RecyclerView recyclerView;
     protected ChannelAdapter channelAdapter;
@@ -31,6 +34,9 @@ public abstract class BaseListFragment extends Fragment {
     protected FloatingActionButton scrollTopButton;
     protected FloatingActionButton refreshButton;
     protected LinearLayout startMessage;
+
+    protected boolean needToRestoreState = false;
+    protected Parcelable layoutManagerState;
 
     protected abstract void refreshList();
     protected abstract void cancelAsyncTasks();
@@ -50,6 +56,11 @@ public abstract class BaseListFragment extends Fragment {
         startMessage = rootView.findViewById(R.id.start_message);
 
         Context context = recyclerView.getContext();
+
+        // Check to see if layout manager state needs to be restored
+        needToRestoreState = savedInstanceState != null;
+        if (needToRestoreState)
+            layoutManagerState = savedInstanceState.getParcelable(LAYOUT_MANAGER_STATE_KEY);
 
         // Set up the recyclerView
         final LinearLayoutManager layoutManager = new LinearLayoutManager(context);
@@ -102,9 +113,20 @@ public abstract class BaseListFragment extends Fragment {
         cancelAsyncTasks();
     }
 
-    protected void updateAdapter(List<ListEntry> list) {
-        channelAdapter.clear();
-        channelAdapter.addAll(list);
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(LAYOUT_MANAGER_STATE_KEY, recyclerView.getLayoutManager().onSaveInstanceState());
+    }
+
+    protected void updateAdapter(@NonNull List<ListEntry> list) {
+        channelAdapter.setData(list);
+        // If we are updating for the first time after restoring state, restore
+        // linear layout state to save scroll position
+        if (needToRestoreState) {
+            recyclerView.getLayoutManager().onRestoreInstanceState(layoutManagerState);
+            needToRestoreState = false;
+        }
     }
 
     private Animation getScaleAnimation(Context context, FloatingActionButton floatingActionButton, int animResource) {
@@ -119,7 +141,7 @@ public abstract class BaseListFragment extends Fragment {
         return anim;
     }
 
-    private class FABAnimationListener implements Animation.AnimationListener {
+    private static class FABAnimationListener implements Animation.AnimationListener {
 
         private FloatingActionButton fab;
         private boolean up;

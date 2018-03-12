@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Vibrator;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,23 +31,15 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
     private final List<ListEntry> channelList;
     private Boolean allowLongClick;
 
-    public ChannelAdapter(List<ListEntry> channelList, Boolean allowLongClick) {
+    public ChannelAdapter(@NonNull List<ListEntry> channelList, Boolean allowLongClick) {
         this.channelList = channelList;
         this.allowLongClick = allowLongClick;
     }
 
-    public void clear() {
-        if (channelList != null) {
-            channelList.clear();
-            notifyDataSetChanged();
-        }
-    }
-
-    public void addAll(List<ListEntry> list) {
-        if (channelList != null && list != null) {
-            channelList.addAll(list);
-            notifyDataSetChanged();
-        }
+    public void setData(@NonNull List<ListEntry> list) {
+        channelList.clear();
+        channelList.addAll(list);
+        notifyDataSetChanged();
     }
 
     @Override
@@ -65,11 +58,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
 
     @Override
     public int getItemCount() {
-        if (channelList != null) {
-            return channelList.size();
-        } else {
-            return 0;
-        }
+        return channelList.size();
     }
 
     class ChannelViewHolder extends RecyclerView.ViewHolder {
