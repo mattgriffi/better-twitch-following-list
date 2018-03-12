@@ -55,7 +55,7 @@ public abstract class BaseListFragment extends Fragment {
         final LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-        channelAdapter = new ChannelAdapter(new ArrayList<>(), 0, getLongClickSetting());
+        channelAdapter = new ChannelAdapter(new ArrayList<>(), getLongClickSetting());
         recyclerView.setAdapter(channelAdapter);
 
         // Set up the swipe refresh
@@ -105,7 +105,6 @@ public abstract class BaseListFragment extends Fragment {
     protected void updateAdapter(List<ListEntry> list) {
         channelAdapter.clear();
         channelAdapter.addAll(list);
-        channelAdapter.updateVodcastSetting(SettingsManager.getRerunSetting());
     }
 
     private Animation getScaleAnimation(Context context, FloatingActionButton floatingActionButton, int animResource) {

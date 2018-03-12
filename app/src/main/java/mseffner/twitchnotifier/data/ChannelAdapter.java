@@ -28,17 +28,11 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
     public static final int VIBRATE_TIME = 3;
 
     private final List<ListEntry> channelList;
-    private int rerunSetting;
     private Boolean allowLongClick;
 
-    public ChannelAdapter(List<ListEntry> channelList, int rerunSetting, Boolean allowLongClick) {
+    public ChannelAdapter(List<ListEntry> channelList, Boolean allowLongClick) {
         this.channelList = channelList;
-        this.rerunSetting = rerunSetting;
         this.allowLongClick = allowLongClick;
-    }
-
-    public void updateVodcastSetting(int newSetting) {
-        rerunSetting = newSetting;
     }
 
     public void clear() {
@@ -149,7 +143,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             // Determine whether to treat stream as online or offline, and finish binding there
             if (listEntry.type == ChannelContract.StreamEntry.STREAM_TYPE_OFFLINE ||
                     (listEntry.type == ChannelContract.ChannelEntry.STREAM_TYPE_RERUN &&
-                    rerunSetting == SettingsManager.RERUN_OFFLINE)) {
+                    SettingsManager.getRerunSetting() == SettingsManager.RERUN_OFFLINE)) {
                 bindOfflineStream();
             } else {
                 bindOnlineStream(listEntry);
@@ -196,7 +190,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
 
             // Display vodcast tag depending on setting
             if (listEntry.type == ChannelContract.ChannelEntry.STREAM_TYPE_RERUN &&
-                    rerunSetting == SettingsManager.RERUN_ONLINE_TAG) {
+                    SettingsManager.getRerunSetting() == SettingsManager.RERUN_ONLINE_TAG) {
                 vodcastTag.setVisibility(View.VISIBLE);
             } else {
                 vodcastTag.setVisibility(View.INVISIBLE);
