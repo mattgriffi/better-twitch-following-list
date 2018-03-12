@@ -7,8 +7,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.util.Log;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -200,7 +198,7 @@ public class ChannelDb {
 
     public static long[] getAllFollowIds() {
         Cursor cursor = query(FollowEntry.TABLE_NAME, new String[]{FollowEntry._ID},
-                null, null, null);
+                null, null);
         long[] idArray = new long[cursor.getCount()];
         int idColumnIndex = cursor.getColumnIndex(FollowEntry._ID);
 
@@ -211,10 +209,22 @@ public class ChannelDb {
     }
 
     public static Set<Long> getFollowIdSet() {
-        Cursor cursor = query(FollowEntry.TABLE_NAME, new String[]{FollowEntry._ID},
-                null, null, null);
+        return getIdSet(FollowEntry.TABLE_NAME, FollowEntry._ID);
+    }
+
+    public static Set<Long> getUserIdSet() {
+        return getIdSet(UserEntry.TABLE_NAME, UserEntry._ID);
+    }
+
+    public static Set<Long> getGameIdSet() {
+        return getIdSet(GameEntry.TABLE_NAME, GameEntry._ID);
+    }
+
+    private static Set<Long> getIdSet(String tableName, String columnName) {
+        Cursor cursor = query(tableName, new String[]{columnName},
+                null, null);
         Set<Long> set = new HashSet<>();
-        int idColumnIndex = cursor.getColumnIndex(FollowEntry._ID);
+        int idColumnIndex = cursor.getColumnIndex(columnName);
 
         while (cursor.moveToNext())
             set.add(cursor.getLong(idColumnIndex));
@@ -226,7 +236,7 @@ public class ChannelDb {
         String selection = FollowEntry._ID + "=?";
         String[] selectionArgs = {Long.toString(id)};
         String[] projection = {FollowEntry.COLUMN_PINNED};
-        Cursor cursor = query(FollowEntry.TABLE_NAME, projection, selection, selectionArgs, null);
+        Cursor cursor = query(FollowEntry.TABLE_NAME, projection, selection, selectionArgs);
         // If the cursor is empty, then the channel somehow isn't in the db, so abort
         if (cursor == null || cursor.getCount() == 0) return;
         // Get current status
@@ -242,14 +252,12 @@ public class ChannelDb {
     }
 
     public static void removeAllPins() {
-        Log.e("TEST", "removeAllPins");
         ContentValues values = new ContentValues();
         values.put(FollowEntry.COLUMN_PINNED, FollowEntry.IS_NOT_PINNED);
         update(FollowEntry.TABLE_NAME, values, null, null);
     }
 
     public static void setFollowsDirty() {
-        Log.e("TEST", "setFollowsDirty");
         ContentValues values = new ContentValues();
         values.put(FollowEntry.COLUMN_DIRTY, FollowEntry.DIRTY);
         update(FollowEntry.TABLE_NAME, values, null, null);
@@ -262,7 +270,6 @@ public class ChannelDb {
     }
 
     public static void cleanFollows() {
-        Log.e("TEST", "cleanFollows");
         String selection = FollowEntry.COLUMN_DIRTY + "=?";
         String[] selectionArgs = {Integer.toString(FollowEntry.DIRTY)};
         delete(FollowEntry.TABLE_NAME, selection, selectionArgs);
@@ -273,15 +280,12 @@ public class ChannelDb {
     }
 
     public static void deleteAllFollows() {
-        Log.e("TEST", "deleteAllFollows");
-
         delete(FollowEntry.TABLE_NAME, null, null);
     }
 
-    private static Cursor query(String tableName, String[] projection, String selection, String[] selectionArgs,
-                                String sortOrder) {
+    private static Cursor query(String tableName, String[] projection, String selection, String[] selectionArgs) {
         SQLiteDatabase database = dbHelper.getReadableDatabase();
-        return database.query(tableName, projection, selection, selectionArgs, null, null, sortOrder);
+        return database.query(tableName, projection, selection, selectionArgs, null, null, null);
     }
 
     private static void insert(SQLiteDatabase database, String tableName, ContentValues contentValues, int conflict) {
