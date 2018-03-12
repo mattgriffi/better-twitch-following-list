@@ -48,15 +48,14 @@ public class FollowingListFragment extends BaseListFragment {
         super.onStart();
         EventBus.getDefault().register(this);
         updateList();
-        updater.okay = true;
-        ThreadManager.postDelayed(updater, 65 * 1000);
+        updater.start();
     }
 
     @Override
     public void onStop() {
         super.onStop();
         EventBus.getDefault().unregister(this);
-        updater.okay = false;
+        updater.stop();
     }
 
     @Override
