@@ -47,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
         Requests.initialize(this);
         ToastMaker.initialize(this);
 
+        // Update the follows on the first update
+        SettingsManager.setFollowsNeedUpdate(true);
+
         // Set the theme based on whether dark mode is on;
         boolean darkMode = SettingsManager.getDarkModeSetting();
         setTheme(darkMode ? R.style.AppTheme_Dark : R.style.AppTheme_Light);

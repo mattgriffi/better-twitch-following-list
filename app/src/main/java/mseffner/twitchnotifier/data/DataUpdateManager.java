@@ -98,6 +98,7 @@ public class DataUpdateManager {
                     Requests.getFollows(followsResponse.pagination.cursor, new FollowsListener(), errorListener);
                 else {  // We are done, clean follows and get the users data
                     ChannelDb.cleanFollows();
+                    SettingsManager.setFollowsNeedUpdate(false);
                     updateUsersData(UPDATE_TYPE_FOLLOWS);
                 }
             });
@@ -176,6 +177,7 @@ public class DataUpdateManager {
         streamsUpdateInProgress = true;
         remainingStreamsRequests = 0;
         remainingGamesRequests = 0;
+        remainingUsersRequests = 0;
         EventBus.getDefault().post(new StreamsUpdateStartedEvent());
         ThreadManager.post(DataUpdateManager::performStreamsUpdate);
     }
@@ -188,6 +190,12 @@ public class DataUpdateManager {
         remainingStreamsRequests = userIds.length;
         for (long[] ids : userIds)
             Requests.getStreams(ids, new StreamsListener(UPDATE_TYPE_FOLLOWS), errorListener);
+
+        // Check for unknown user ids in case follows update failed
+        long[][] unknownUserIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIdsFromFollows());
+        remainingUsersRequests = unknownUserIds.length;
+        for (long[] ids : unknownUserIds)
+            Requests.getUsers(ids, new UsersListener(UPDATE_TYPE_FOLLOWS), errorListener);
     }
 
     /**
