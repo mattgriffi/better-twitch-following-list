@@ -223,8 +223,13 @@ public class ChannelDb {
         return list;
     }
 
-    public static long[] getUnknownUserIds() {
+    public static long[] getUnknownUserIdsFromFollows() {
         return getUnknownIds(FollowEntry.TABLE_NAME, FollowEntry._ID,
+                UserEntry.TABLE_NAME, UserEntry._ID);
+    }
+
+    public static long[] getUnknownUserIdsFromStreams() {
+        return getUnknownIds(StreamEntry.TABLE_NAME, StreamEntry._ID,
                 UserEntry.TABLE_NAME, UserEntry._ID);
     }
 

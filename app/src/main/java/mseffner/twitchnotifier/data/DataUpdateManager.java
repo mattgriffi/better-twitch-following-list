@@ -111,7 +111,7 @@ public class DataUpdateManager {
      * users data to fetch.
      */
     private static void updateUsersData() {
-        long[][] userIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIds());
+        long[][] userIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIdsFromFollows());
         if (userIds.length == 0) {
             postFollowsUpdatedEvent();
         } else {
