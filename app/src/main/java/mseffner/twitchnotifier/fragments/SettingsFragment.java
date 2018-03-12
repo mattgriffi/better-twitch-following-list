@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import mseffner.twitchnotifier.R;
+import mseffner.twitchnotifier.settings.UpdateFollowsDialogPreference;
 
 
 public class SettingsFragment extends PreferenceFragment implements
@@ -59,7 +60,7 @@ public class SettingsFragment extends PreferenceFragment implements
         int count = preferenceScreen.getPreferenceCount();
         for (int i = 0; i < count; i++) {
             Preference preference = preferenceScreen.getPreference(i);
-            if (!(preference instanceof SwitchPreference)) {
+            if (!(preference instanceof SwitchPreference || preference instanceof UpdateFollowsDialogPreference)) {
                 String value = sharedPreferences.getString(preference.getKey(), "");
                 setPreferenceSummary(preference, value);
             }

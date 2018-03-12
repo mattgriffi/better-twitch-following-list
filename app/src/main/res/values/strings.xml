@@ -43,6 +43,12 @@
     <string name="save">Save</string>
     <!-- Negative button for changing the user's name and for deleting pins -->
     <string name="cancel">Cancel</string>
+    <!-- Fetch new follows data -->
+    <string name="fetch_follows_title">Update follows</string>
+    <string name="fetch_follows_description">The following list will be updated on the next automatic refresh.</string>
+    <string name="fetch_follows_summary">Use this if you\'ve followed or unfollowed any streams recently.</string>
+    <string name="fetch_follows_positive">Okay</string>
+
     <!-- Options for how to display vodcasts -->
     <string name="pref_label_vodcast_online">Online</string>
     <string name="pref_label_vodcast_online_tag">Online with tag</string>
@@ -72,5 +78,7 @@
     <string name="pref_order_uptime" translatable="false">order_uptime</string>
     <string name="pref_order_viewer_count" translatable="false">order_viewer_count</string>
     <string name="last_updated" translatable="false">last_updated</string>
+    <string name="need_follows_update_key" translatable="false">need_follows_update_key</string>
+
 
 </resources>

@@ -46,6 +46,7 @@ public class SettingsManager {
     private static String lastUpdatedKey;
     private static String sortByKey;
     private static String sortAscDescKey;
+    private static String followsNeedUpdateKey;
 
     private SettingsManager() {}
 
@@ -66,6 +67,7 @@ public class SettingsManager {
         SettingsManager.lastUpdatedKey = resources.getString(R.string.last_updated);
         SettingsManager.sortByKey = resources.getString(R.string.pref_order_by_key);
         SettingsManager.sortAscDescKey = resources.getString(R.string.pref_order_ascending_key);
+        SettingsManager.followsNeedUpdateKey = resources.getString(R.string.need_follows_update_key);
     }
 
     /**
@@ -175,6 +177,20 @@ public class SettingsManager {
      */
     public static void setLastUpdated() {
         sharedPreferences.edit().putLong(lastUpdatedKey, System.nanoTime()).apply();
+    }
+
+    /**
+     * @return whether or not the follows data needs to be updated
+     */
+    public static boolean getFollowsNeedUpdate() {
+        return sharedPreferences.getBoolean(followsNeedUpdateKey, false);
+    }
+
+    /**
+     * Sets whether or not the follows data needs to be updated.
+     */
+    public static void setFollowsNeedUpdate(boolean needsUpdate) {
+        sharedPreferences.edit().putBoolean(followsNeedUpdateKey, needsUpdate).apply();
     }
 
     /**

@@ -46,11 +46,22 @@
         android:key="@string/pref_order_ascending_key"
         android:title="@string/sort_order"/>
 
+    <!-- Fetch new follows data setting -->
+    <mseffner.twitchnotifier.settings.UpdateFollowsDialogPreference
+        android:dialogMessage="@string/fetch_follows_description"
+        android:dialogTitle="@string/fetch_follows_title"
+        android:negativeButtonText="@string/cancel"
+        android:persistent="false"
+        android:positiveButtonText="@string/fetch_follows_positive"
+        android:summary="@string/fetch_follows_summary"
+        android:title="@string/fetch_follows_title"/>
+
     <!-- Clear pins button (not actually a preference) -->
     <mseffner.twitchnotifier.settings.ClearPinsDialogPreference
         android:dialogMessage="@string/delete_pin_warning"
         android:dialogTitle="@string/delete_pins_title"
         android:negativeButtonText="@string/cancel"
+        android:persistent="false"
         android:positiveButtonText="@string/delete_pins"
         android:title="@string/delete_pins_title"/>
 
