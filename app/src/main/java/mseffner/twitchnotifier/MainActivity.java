@@ -24,12 +24,15 @@ import mseffner.twitchnotifier.events.DarkModeChangedEvent;
 import mseffner.twitchnotifier.events.UsernameChangedEvent;
 import mseffner.twitchnotifier.networking.Containers;
 import mseffner.twitchnotifier.networking.ErrorHandler;
+import mseffner.twitchnotifier.networking.PeriodicUpdater;
 import mseffner.twitchnotifier.networking.Requests;
 import mseffner.twitchnotifier.networking.URLTools;
 import mseffner.twitchnotifier.settings.SettingsManager;
 
 
 public class MainActivity extends AppCompatActivity {
+
+    private static PeriodicUpdater updater = new PeriodicUpdater();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +72,18 @@ public class MainActivity extends AppCompatActivity {
         Requests.destroy();
         ToastMaker.destroy();
         ThreadManager.destroy();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        updater.start();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        updater.stop();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

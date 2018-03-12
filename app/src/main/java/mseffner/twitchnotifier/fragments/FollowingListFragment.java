@@ -18,18 +18,15 @@ import mseffner.twitchnotifier.data.DataUpdateManager;
 import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.data.ListEntrySorter;
 import mseffner.twitchnotifier.data.ThreadManager;
+import mseffner.twitchnotifier.events.FollowsUpdateStartedEvent;
 import mseffner.twitchnotifier.events.FollowsUpdatedEvent;
 import mseffner.twitchnotifier.events.ListRefreshedEvent;
 import mseffner.twitchnotifier.events.StreamsUpdateStartedEvent;
 import mseffner.twitchnotifier.events.StreamsUpdatedEvent;
-import mseffner.twitchnotifier.events.FollowsUpdateStartedEvent;
 import mseffner.twitchnotifier.networking.ErrorHandler;
-import mseffner.twitchnotifier.networking.PeriodicUpdater;
-import mseffner.twitchnotifier.settings.SettingsManager;
 
 public class FollowingListFragment extends BaseListFragment {
 
-    private static PeriodicUpdater updater = new PeriodicUpdater();
     private static long start;
 
     @Override
@@ -52,14 +49,12 @@ public class FollowingListFragment extends BaseListFragment {
         EventBus.getDefault().register(this);
         updateList();
         DataUpdateManager.updateFollowsData(new ErrorHandler() {});
-        updater.start();
     }
 
     @Override
     public void onStop() {
         super.onStop();
         EventBus.getDefault().unregister(this);
-        updater.stop();
     }
 
     @Override
