@@ -51,9 +51,6 @@ public abstract class BaseListFragment extends Fragment {
 
         Context context = recyclerView.getContext();
 
-        // Start the refresh animation (will be stopped when child classes finish their stuff)
-        swipeRefreshLayout.setRefreshing(true);
-
         // Set up the recyclerView
         final LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(layoutManager);
