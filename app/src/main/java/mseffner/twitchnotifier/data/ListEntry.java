@@ -35,7 +35,7 @@ public class ListEntry {
         this.startedAt = startedAt;
         this.language = language;
         this.thumbnailUrl = thumbnailUrl;
-        this.gameName = gameName;
+        this.gameName = gameName != null ? gameName : "";
         this.boxArtUrl = boxArtUrl;
         this.streamUrl = URLTools.getStreamUrl(this.login);
     }

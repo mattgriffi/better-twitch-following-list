@@ -43,9 +43,9 @@ public class ListEntrySorter {
                 break;
             case SettingsManager.SORT_BY_UPTIME:
                 if (ascending)
-                    Collections.sort(list, Collections.reverseOrder(new UptimeComparator()));
-                else
                     Collections.sort(list, new UptimeComparator());
+                else
+                    Collections.sort(list, Collections.reverseOrder(new UptimeComparator()));
                 break;
         }
     }
