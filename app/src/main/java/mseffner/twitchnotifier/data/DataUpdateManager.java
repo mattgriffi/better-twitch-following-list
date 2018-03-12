@@ -1,12 +1,16 @@
 package mseffner.twitchnotifier.data;
 
 
+import android.util.Log;
+
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
 import org.greenrobot.eventbus.EventBus;
 
+import mseffner.twitchnotifier.events.FollowsUpdateStartedEvent;
 import mseffner.twitchnotifier.events.FollowsUpdatedEvent;
+import mseffner.twitchnotifier.events.StreamsUpdateStartedEvent;
 import mseffner.twitchnotifier.events.StreamsUpdatedEvent;
 import mseffner.twitchnotifier.events.TopStreamsUpdatedEvent;
 import mseffner.twitchnotifier.networking.Containers;
@@ -35,6 +39,13 @@ public class DataUpdateManager {
     private DataUpdateManager() {}
 
     /**
+     * @return whether or not there is an update in progress
+     */
+    public static boolean updateInProgress() {
+        return followsUpdateInProgress || streamsUpdateInProgress;
+    }
+
+    /**
      * Updates the follows table, removing any rows that no longer appear in the
      * follows response, then updates the users table if necessary.
      *
@@ -56,6 +67,7 @@ public class DataUpdateManager {
         remainingFollowsRequests = 0;
         remainingUsersRequests = 0;
         ChannelDb.setFollowsDirty();
+        EventBus.getDefault().post(new FollowsUpdateStartedEvent());
         ThreadManager.post(DataUpdateManager::performFollowsUpdate);
     }
 
@@ -148,6 +160,7 @@ public class DataUpdateManager {
         streamsUpdateInProgress = true;
         remainingStreamsRequests = 0;
         remainingGamesRequests = 0;
+        EventBus.getDefault().post(new StreamsUpdateStartedEvent());
         ThreadManager.post(DataUpdateManager::performStreamsUpdate);
     }
 

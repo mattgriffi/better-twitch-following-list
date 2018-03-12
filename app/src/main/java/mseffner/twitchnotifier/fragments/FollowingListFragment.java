@@ -20,9 +20,12 @@ import mseffner.twitchnotifier.data.ListEntrySorter;
 import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.events.FollowsUpdatedEvent;
 import mseffner.twitchnotifier.events.ListRefreshedEvent;
+import mseffner.twitchnotifier.events.StreamsUpdateStartedEvent;
 import mseffner.twitchnotifier.events.StreamsUpdatedEvent;
+import mseffner.twitchnotifier.events.FollowsUpdateStartedEvent;
 import mseffner.twitchnotifier.networking.ErrorHandler;
 import mseffner.twitchnotifier.networking.PeriodicUpdater;
+import mseffner.twitchnotifier.settings.SettingsManager;
 
 public class FollowingListFragment extends BaseListFragment {
 
@@ -34,7 +37,6 @@ public class FollowingListFragment extends BaseListFragment {
                              @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         start = System.nanoTime();
-        DataUpdateManager.updateFollowsData(new ErrorHandler() {});
         return view;
     }
 
@@ -48,6 +50,7 @@ public class FollowingListFragment extends BaseListFragment {
         super.onStart();
         EventBus.getDefault().register(this);
         updateList();
+        DataUpdateManager.updateFollowsData(new ErrorHandler() {});
         updater.start();
     }
 
@@ -67,13 +70,22 @@ public class FollowingListFragment extends BaseListFragment {
     protected void cancelAsyncTasks() {}
 
     private void updateList() {
-        swipeRefreshLayout.setRefreshing(true);
         ThreadManager.post(() -> {
             List<ListEntry> list = ChannelDb.getAllChannels();
             ListEntrySorter.sort(list);
             Log.e("list size", "" + list.size());
             EventBus.getDefault().post(new ListRefreshedEvent(list));
         });
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onFollowsUpdateStartedEvent(FollowsUpdateStartedEvent event) {
+        swipeRefreshLayout.setRefreshing(true);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onStreamsUpdateStartedEvent(StreamsUpdateStartedEvent event) {
+        swipeRefreshLayout.setRefreshing(true);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -96,7 +108,8 @@ public class FollowingListFragment extends BaseListFragment {
             startMessage.setVisibility(View.VISIBLE);
         else
             startMessage.setVisibility(View.GONE);
-        // Disable the refreshing animation if other tasks are not running
-        swipeRefreshLayout.setRefreshing(false);
+
+        if (!DataUpdateManager.updateInProgress())
+            swipeRefreshLayout.setRefreshing(false);
     }
 }
