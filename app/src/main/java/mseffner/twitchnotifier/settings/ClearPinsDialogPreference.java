@@ -1,11 +1,11 @@
 package mseffner.twitchnotifier.settings;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
 
 import mseffner.twitchnotifier.data.ChannelDb;
+import mseffner.twitchnotifier.data.ThreadManager;
 
 public class ClearPinsDialogPreference extends DialogPreference {
 
@@ -19,16 +19,7 @@ public class ClearPinsDialogPreference extends DialogPreference {
     protected void onDialogClosed(boolean positiveResult) {
         super.onDialogClosed(positiveResult);
         if (positiveResult) {
-            new DeletePinsAsyncTask().execute();
-        }
-    }
-
-    private class DeletePinsAsyncTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... strings) {
-            ChannelDb.removeAllPins();
-            return null;
+            ThreadManager.post(ChannelDb::removeAllPins);
         }
     }
 }
