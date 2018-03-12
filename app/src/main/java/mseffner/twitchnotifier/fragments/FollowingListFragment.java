@@ -67,7 +67,7 @@ public class FollowingListFragment extends BaseListFragment {
 
     private void updateList() {
         ThreadManager.post(() -> {
-            List<ListEntry> list = ChannelDb.getAllChannels();
+            List<ListEntry> list = ChannelDb.getAllFollows();
             ListEntrySorter.sort(list);
             Log.e("list size", "" + list.size());
             EventBus.getDefault().post(new ListRefreshedEvent(list));

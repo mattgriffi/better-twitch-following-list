@@ -118,7 +118,7 @@ public class ChannelDb {
         }
     }
 
-    public static List<ListEntry> getAllChannels() {
+    public static List<ListEntry> getAllFollows() {
         String selection =
             "SELECT " +
                 FollowEntry.TABLE_NAME + "." + FollowEntry._ID + ", " +
