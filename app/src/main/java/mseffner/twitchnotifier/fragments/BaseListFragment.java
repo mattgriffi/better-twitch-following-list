@@ -116,7 +116,8 @@ public abstract class BaseListFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(LAYOUT_MANAGER_STATE_KEY, recyclerView.getLayoutManager().onSaveInstanceState());
+        if (recyclerView != null)
+            outState.putParcelable(LAYOUT_MANAGER_STATE_KEY, recyclerView.getLayoutManager().onSaveInstanceState());
     }
 
     protected void updateAdapter(@NonNull List<ListEntry> list) {
