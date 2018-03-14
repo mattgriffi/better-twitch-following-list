@@ -1,6 +1,7 @@
 package mseffner.twitchnotifier.adapters;
 
 
+import android.os.Vibrator;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -15,8 +16,8 @@ public class VerboseViewHolder extends CompactViewHolder {
     private ImageView channelLogo;
     private TextView streamTitle;
 
-    public VerboseViewHolder(View itemView) {
-        super(itemView);
+    public VerboseViewHolder(View itemView, Vibrator vibrator) {
+        super(itemView, vibrator);
         channelLogo = itemView.findViewById(R.id.channel_logo);
         streamTitle = itemView.findViewById(R.id.title);
     }

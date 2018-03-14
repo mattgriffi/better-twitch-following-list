@@ -36,7 +36,7 @@ public class CompactViewHolder extends RecyclerView.ViewHolder {
     protected TextView vodcastTag;
     protected ImageView pinIcon;
 
-    public CompactViewHolder(View itemView) {
+    public CompactViewHolder(View itemView, Vibrator vibrator) {
         super(itemView);
         this.itemView = itemView;
         channelName = itemView.findViewById(R.id.display_name);
@@ -47,7 +47,7 @@ public class CompactViewHolder extends RecyclerView.ViewHolder {
         viewerCount = itemView.findViewById(R.id.viewer_count);
         uptime = itemView.findViewById(R.id.uptime);
         pinIcon = itemView.findViewById(R.id.pin_icon);
-        vibrator = (Vibrator) itemView.getContext().getSystemService(Context.VIBRATOR_SERVICE);
+        this.vibrator = vibrator;
     }
 
     public void bind(ListEntry listEntry, boolean allowLongClick, int vibrateTime) {

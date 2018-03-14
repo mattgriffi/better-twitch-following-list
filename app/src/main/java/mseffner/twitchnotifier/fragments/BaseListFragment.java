@@ -66,7 +66,7 @@ public abstract class BaseListFragment extends Fragment {
         final LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-        channelAdapter = new ChannelAdapter(new ArrayList<>(), getLongClickSetting());
+        channelAdapter = new ChannelAdapter(new ArrayList<>(), getLongClickSetting(), context);
         recyclerView.setAdapter(channelAdapter);
 
         // Set up the swipe refresh
