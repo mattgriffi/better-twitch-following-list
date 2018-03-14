@@ -23,6 +23,8 @@
     <string name="settings">Settings</string>
     <!-- Settings option to toggle dark mode -->
     <string name="dark_mode">Dark mode</string>
+    <!-- Settings option to toggle compact mode -->
+    <string name="compact_mode">Compact list</string>
     <!-- Settings option to change user's name -->
     <string name="twitch_name">Twitch name</string>
     <!-- Settings option to change how vodcasts are displayed -->
@@ -79,6 +81,7 @@
     <string name="pref_order_viewer_count" translatable="false">order_viewer_count</string>
     <string name="last_updated" translatable="false">last_updated</string>
     <string name="need_follows_update_key" translatable="false">need_follows_update_key</string>
+    <string name="pref_compact_key" translatable="false">pref_compact_key</string>
 
 
 </resources>

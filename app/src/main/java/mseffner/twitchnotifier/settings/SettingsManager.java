@@ -47,6 +47,7 @@ public class SettingsManager {
     private static String sortByKey;
     private static String sortAscDescKey;
     private static String followsNeedUpdateKey;
+    private static String compactKey;
 
     private SettingsManager() {}
 
@@ -68,6 +69,7 @@ public class SettingsManager {
         SettingsManager.sortByKey = resources.getString(R.string.pref_order_by_key);
         SettingsManager.sortAscDescKey = resources.getString(R.string.pref_order_ascending_key);
         SettingsManager.followsNeedUpdateKey = resources.getString(R.string.need_follows_update_key);
+        SettingsManager.compactKey = resources.getString(R.string.pref_compact_key);
     }
 
     /**
@@ -103,6 +105,7 @@ public class SettingsManager {
 
     /**
      * Writes a new username id into persistent storage.
+     *
      * @param newId the new username id
      */
     public static void setUsernameId(long newId) {
@@ -164,12 +167,17 @@ public class SettingsManager {
     }
 
     /**
-     * Returns the current dark mode setting.
-     *
      * @return true if dark mode is on, else false
      */
     public static boolean getDarkModeSetting() {
         return sharedPreferences.getBoolean(darkmodeKey, false);
+    }
+
+    /**
+     * @return true if compact is on, else false
+     */
+    public static boolean getCompactSetting() {
+        return sharedPreferences.getBoolean(compactKey, false);
     }
 
     /**

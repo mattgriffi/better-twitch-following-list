@@ -22,13 +22,19 @@
         android:textColor="?colorPrimary"
         android:title="@string/twitch_name"/>
 
-    <!-- Vodcast display setting -->
+    <!-- Rerun display setting -->
     <ListPreference
         android:defaultValue="@string/pref_vodcast_online_tag"
         android:entries="@array/pref_vodcast_options"
         android:entryValues="@array/pref_vodcast_values"
         android:key="@string/pref_vodcast_key"
         android:title="@string/vodcast_display"/>
+
+    <!-- Toggle compact mode -->
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="@string/pref_compact_key"
+        android:title="@string/compact_mode"/>
 
     <!-- Sort by setting -->
     <ListPreference
