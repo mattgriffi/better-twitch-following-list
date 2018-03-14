@@ -147,25 +147,39 @@ public class ChannelDb {
 
         Cursor cursor = dbHelper.getReadableDatabase().rawQuery(selection, null);
 
+        // Get column indices
+        int id = cursor.getColumnIndex(FollowEntry._ID);
+        int pinned = cursor.getColumnIndex(FollowEntry.COLUMN_PINNED);
+        int login = cursor.getColumnIndex(UserEntry.COLUMN_LOGIN);
+        int display_name = cursor.getColumnIndex(UserEntry.COLUMN_DISPLAY_NAME);
+        int profile_image_url = cursor.getColumnIndex(UserEntry.COLUMN_PROFILE_IMAGE_URL);
+        int type = cursor.getColumnIndex(StreamEntry.COLUMN_TYPE);
+        int title = cursor.getColumnIndex(StreamEntry.COLUMN_TITLE);
+        int viewer_count = cursor.getColumnIndex(StreamEntry.COLUMN_VIEWER_COUNT);
+        int started_at = cursor.getColumnIndex(StreamEntry.COLUMN_STARTED_AT);
+        int language = cursor.getColumnIndex(StreamEntry.COLUMN_LANGUAGE);
+        int thumbnail_url = cursor.getColumnIndex(StreamEntry.COLUMN_THUMBNAIL_URL);
+        int game_name = cursor.getColumnIndex(GameEntry.COLUMN_NAME);
+        int box_art_url = cursor.getColumnIndex(GameEntry.COLUMN_BOX_ART_URL);
+
         List<ListEntry> list = new ArrayList<>();
         while (cursor.moveToNext()) {
-            long id = cursor.getLong(cursor.getColumnIndex(FollowEntry._ID));
-            int pinned = cursor.getInt(cursor.getColumnIndex(FollowEntry.COLUMN_PINNED));
-            String login = cursor.getString(cursor.getColumnIndex(UserEntry.COLUMN_LOGIN));
-            String displayName = cursor.getString(cursor.getColumnIndex(UserEntry.COLUMN_DISPLAY_NAME));
-            String profileImageUrl = cursor.getString(cursor.getColumnIndex(UserEntry.COLUMN_PROFILE_IMAGE_URL));
-            int type = cursor.getInt(cursor.getColumnIndex(StreamEntry.COLUMN_TYPE));
-            String title = cursor.getString(cursor.getColumnIndex(StreamEntry.COLUMN_TITLE));
-            int viewerCount = cursor.getInt(cursor.getColumnIndex(StreamEntry.COLUMN_VIEWER_COUNT));
-            long startedAt = cursor.getLong(cursor.getColumnIndex(StreamEntry.COLUMN_STARTED_AT));
-            String language = cursor.getString(cursor.getColumnIndex(StreamEntry.COLUMN_LANGUAGE));
-            String thumbnailUrl = cursor.getString(cursor.getColumnIndex(StreamEntry.COLUMN_THUMBNAIL_URL));
-            String gameName = cursor.getString(cursor.getColumnIndex(GameEntry.COLUMN_NAME));
-            String boxArtUrl = cursor.getString(cursor.getColumnIndex(GameEntry.COLUMN_BOX_ART_URL));
-
-            ListEntry listEntry = new ListEntry(id, pinned, login, displayName, profileImageUrl,
-                    type, title, viewerCount, startedAt, language, thumbnailUrl, gameName, boxArtUrl);
-            list.add(listEntry);
+            list.add(new ListEntry(
+                    cursor.getLong(id),
+                    cursor.getInt(pinned),
+                    cursor.getString(login),
+                    cursor.getString(display_name),
+                    cursor.getString(profile_image_url),
+                    cursor.getInt(type),
+                    cursor.getString(title),
+                    cursor.getInt(viewer_count),
+                    cursor.getLong(started_at),
+                    cursor.getString(language),
+                    cursor.getString(thumbnail_url),
+                    cursor.getString(game_name),
+                    cursor.getString(box_art_url)
+                    )
+            );
         }
         cursor.close();
         return list;
@@ -197,26 +211,39 @@ public class ChannelDb {
 
         Cursor cursor = dbHelper.getReadableDatabase().rawQuery(selection, null);
 
+        // Get column indices
+        int id = cursor.getColumnIndex(StreamEntry._ID);
+        int login = cursor.getColumnIndex(UserEntry.COLUMN_LOGIN);
+        int display_name = cursor.getColumnIndex(UserEntry.COLUMN_DISPLAY_NAME);
+        int profile_image_url = cursor.getColumnIndex(UserEntry.COLUMN_PROFILE_IMAGE_URL);
+        int type = cursor.getColumnIndex(StreamEntry.COLUMN_TYPE);
+        int title = cursor.getColumnIndex(StreamEntry.COLUMN_TITLE);
+        int viewer_count = cursor.getColumnIndex(StreamEntry.COLUMN_VIEWER_COUNT);
+        int started_at = cursor.getColumnIndex(StreamEntry.COLUMN_STARTED_AT);
+        int language = cursor.getColumnIndex(StreamEntry.COLUMN_LANGUAGE);
+        int thumbnail_url = cursor.getColumnIndex(StreamEntry.COLUMN_THUMBNAIL_URL);
+        int game_name = cursor.getColumnIndex(GameEntry.COLUMN_NAME);
+        int box_art_url = cursor.getColumnIndex(GameEntry.COLUMN_BOX_ART_URL);
+
         List<ListEntry> list = new ArrayList<>();
         int i = 0;
         while (cursor.moveToNext() && i < 100 /* only get top 100 */) {
-            long id = cursor.getLong(cursor.getColumnIndex(StreamEntry._ID));
-            int pinned = FollowEntry.IS_NOT_PINNED;
-            String login = cursor.getString(cursor.getColumnIndex(UserEntry.COLUMN_LOGIN));
-            String displayName = cursor.getString(cursor.getColumnIndex(UserEntry.COLUMN_DISPLAY_NAME));
-            String profileImageUrl = cursor.getString(cursor.getColumnIndex(UserEntry.COLUMN_PROFILE_IMAGE_URL));
-            int type = cursor.getInt(cursor.getColumnIndex(StreamEntry.COLUMN_TYPE));
-            String title = cursor.getString(cursor.getColumnIndex(StreamEntry.COLUMN_TITLE));
-            int viewerCount = cursor.getInt(cursor.getColumnIndex(StreamEntry.COLUMN_VIEWER_COUNT));
-            long startedAt = cursor.getLong(cursor.getColumnIndex(StreamEntry.COLUMN_STARTED_AT));
-            String language = cursor.getString(cursor.getColumnIndex(StreamEntry.COLUMN_LANGUAGE));
-            String thumbnailUrl = cursor.getString(cursor.getColumnIndex(StreamEntry.COLUMN_THUMBNAIL_URL));
-            String gameName = cursor.getString(cursor.getColumnIndex(GameEntry.COLUMN_NAME));
-            String boxArtUrl = cursor.getString(cursor.getColumnIndex(GameEntry.COLUMN_BOX_ART_URL));
-
-            ListEntry listEntry = new ListEntry(id, pinned, login, displayName, profileImageUrl,
-                    type, title, viewerCount, startedAt, language, thumbnailUrl, gameName, boxArtUrl);
-            list.add(listEntry);
+            list.add(new ListEntry(
+                            cursor.getLong(id),
+                            FollowEntry.IS_NOT_PINNED,
+                            cursor.getString(login),
+                            cursor.getString(display_name),
+                            cursor.getString(profile_image_url),
+                            cursor.getInt(type),
+                            cursor.getString(title),
+                            cursor.getInt(viewer_count),
+                            cursor.getLong(started_at),
+                            cursor.getString(language),
+                            cursor.getString(thumbnail_url),
+                            cursor.getString(game_name),
+                            cursor.getString(box_art_url)
+                    )
+            );
             i++;
         }
         cursor.close();
