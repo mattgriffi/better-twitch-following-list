@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/transparent"
+    android:baselineAligned="false"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <!-- Channel information -->
+    <include layout="@layout/list_item_info_compact"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"/>
+
+    <!-- Channel pin icon -->
+    <include layout="@layout/list_item_pin"
+        android:paddingLeft="8dp"
+        tools:ignore="RtlHardcoded,RtlSymmetry"/>
+
+</LinearLayout>

@@ -46,7 +46,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
     public ChannelViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View view = inflater.inflate(R.layout.follower_list_item, parent, false);
+        View view = inflater.inflate(R.layout.layout_list_item_verbose, parent, false);
 
         return new ChannelViewHolder(view);
     }
@@ -83,12 +83,12 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             super(itemView);
             this.itemView = itemView;
             channelLogo = itemView.findViewById(R.id.channel_logo);
-            channelName = itemView.findViewById(R.id.channel_name);
-            currentGame = itemView.findViewById(R.id.current_game);
+            channelName = itemView.findViewById(R.id.display_name);
+            currentGame = itemView.findViewById(R.id.game_name);
             offlineText = itemView.findViewById(R.id.offline_text);
-            streamTitle = itemView.findViewById(R.id.stream_title);
+            streamTitle = itemView.findViewById(R.id.title);
             streamInfo = itemView.findViewById(R.id.live_stream_info);
-            vodcastTag = itemView.findViewById(R.id.vodcast_tag);
+            vodcastTag = itemView.findViewById(R.id.rerun_tag);
             viewerCount = itemView.findViewById(R.id.viewer_count);
             uptime = itemView.findViewById(R.id.uptime);
             pinIcon = itemView.findViewById(R.id.pin_icon);
