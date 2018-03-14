@@ -22,6 +22,7 @@ import java.util.List;
 
 import mseffner.twitchnotifier.R;
 import mseffner.twitchnotifier.adapters.ChannelAdapter;
+import mseffner.twitchnotifier.adapters.CompactViewHolder;
 import mseffner.twitchnotifier.data.ListEntry;
 
 public abstract class BaseListFragment extends Fragment {
@@ -68,6 +69,7 @@ public abstract class BaseListFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
         channelAdapter = new ChannelAdapter(new ArrayList<>(), getLongClickSetting(), context);
         recyclerView.setAdapter(channelAdapter);
+        recyclerView.getRecycledViewPool().setMaxRecycledViews(0, 20);
 
         // Set up the swipe refresh
         swipeRefreshLayout.setColorSchemeResources(R.color.colorWhiteAlpha);
