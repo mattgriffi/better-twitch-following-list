@@ -17,7 +17,7 @@ import mseffner.twitchnotifier.settings.SettingsManager;
 
 public class ChannelAdapter extends RecyclerView.Adapter<CompactViewHolder> {
 
-    private static final int VIBRATE_TIME = 3;
+    private static final int VIBRATE_TIME = 5;
     private Vibrator vibrator;
     private List<ListEntry> list;
     private Boolean allowLongClick;
