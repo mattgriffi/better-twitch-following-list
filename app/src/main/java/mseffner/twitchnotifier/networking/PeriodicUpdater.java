@@ -17,10 +17,10 @@ public class PeriodicUpdater implements Runnable {
         if (SettingsManager.rateLimitReset()) {
             ChannelDb.deleteAllStreams();
             if (SettingsManager.getFollowsNeedUpdate())
-                DataUpdateManager.updateFollowsData(new ErrorHandler() {});
+                DataUpdateManager.updateFollowsData(ErrorHandler.getInstance());
             else
-                DataUpdateManager.updateStreamsData(new ErrorHandler() {});
-            DataUpdateManager.updateTopStreamsData(new ErrorHandler() {});
+                DataUpdateManager.updateStreamsData(ErrorHandler.getInstance());
+            DataUpdateManager.updateTopStreamsData(ErrorHandler.getInstance());
         } else {
             EventBus.getDefault().post(new StreamsUpdatedEvent());
             EventBus.getDefault().post(new TopStreamsUpdatedEvent());

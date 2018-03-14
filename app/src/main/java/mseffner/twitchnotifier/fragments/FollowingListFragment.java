@@ -83,7 +83,7 @@ public class FollowingListFragment extends BaseListFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onFollowsUpdatedEvent(FollowsUpdatedEvent event) {
         Log.e("TEST", "Follows update time: " + (System.nanoTime() - start) / 1000000);
-        DataUpdateManager.updateStreamsData(new ErrorHandler() {});
+        DataUpdateManager.updateStreamsData(ErrorHandler.getInstance());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

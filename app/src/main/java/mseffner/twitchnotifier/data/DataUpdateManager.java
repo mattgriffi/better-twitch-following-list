@@ -119,7 +119,7 @@ public class DataUpdateManager {
             } else {
                 remainingUsersRequests = userIds.length;
                 for (long[] ids : userIds)
-                    Requests.getUsers(ids, new UsersListener(type), new ErrorHandler() {});
+                    Requests.getUsers(ids, new UsersListener(type), ErrorHandler.getInstance());
             }
         } else if (type == UPDATE_TYPE_TOP_STREAMS) {
             long[][] userIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIdsFromStreams());
@@ -128,7 +128,7 @@ public class DataUpdateManager {
                 postTopStreamsUpdatedEvent();
             } else {
                 for (long[] ids : userIds)
-                    Requests.getUsers(ids, new UsersListener(type), new ErrorHandler() {});
+                    Requests.getUsers(ids, new UsersListener(type), ErrorHandler.getInstance());
             }
         }
     }
@@ -246,7 +246,7 @@ public class DataUpdateManager {
         } else {
             remainingGamesRequests = gameIds.length;
             for (long[] ids : gameIds)
-                Requests.getGames(ids, new GamesListener(type), new ErrorHandler() {});
+                Requests.getGames(ids, new GamesListener(type), ErrorHandler.getInstance());
         }
     }
 

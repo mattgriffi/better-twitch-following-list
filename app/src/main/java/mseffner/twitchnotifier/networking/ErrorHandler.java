@@ -13,9 +13,18 @@ import com.android.volley.VolleyError;
 import mseffner.twitchnotifier.ToastMaker;
 
 
-public abstract class ErrorHandler implements Response.ErrorListener {
+public class ErrorHandler implements Response.ErrorListener {
 
     private static final String LOG_TAG = ErrorHandler.class.getSimpleName();
+    private static ErrorHandler instance;
+
+    private ErrorHandler() {}
+
+    public static synchronized ErrorHandler getInstance() {
+        if (instance == null)
+            instance = new ErrorHandler();
+        return instance;
+    }
 
     @Override
     public void onErrorResponse(VolleyError error) {

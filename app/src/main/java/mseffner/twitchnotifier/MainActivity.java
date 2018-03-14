@@ -115,16 +115,7 @@ public class MainActivity extends AppCompatActivity {
                         long newId = Long.parseLong(data.id);
                         SettingsManager.setUsernameId(newId);
                     }
-                }, new ErrorHandler() {
-                    @Override
-                    protected void handleServerError(ServerError error) {
-                        int code = error.networkResponse.statusCode;
-                        if (code == 400)
-                            ToastMaker.makeToastLong(ToastMaker.MESSAGE_INVALID_USERNAME);
-                        else
-                            ToastMaker.makeToastLong(ToastMaker.MESSAGE_SERVER_ERROR);
-                    }
-                });
+                }, ErrorHandler.getInstance());
     }
 
     private int getThemeId() {
