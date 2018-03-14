@@ -39,7 +39,7 @@ public class FollowingListFragment extends BaseListFragment {
 
     @Override
     protected void refreshList() {
-        DataUpdateManager.updateStreamsData(new ErrorHandler() {});
+        updateList();
     }
 
     @Override
