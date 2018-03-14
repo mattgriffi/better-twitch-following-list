@@ -19,25 +19,24 @@ public class ChannelAdapter extends RecyclerView.Adapter<CompactViewHolder> {
 
     private static final int VIBRATE_TIME = 3;
     private Vibrator vibrator;
-    private final List<ListEntry> channelList;
+    private List<ListEntry> list;
     private Boolean allowLongClick;
 
-    public ChannelAdapter(@NonNull List<ListEntry> channelList, Boolean allowLongClick, Context context) {
-        this.channelList = channelList;
+    public ChannelAdapter(@NonNull List<ListEntry> list, Boolean allowLongClick, Context context) {
+        this.list = list;
         this.allowLongClick = allowLongClick;
         vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
         setHasStableIds(true);
     }
 
     public void setData(@NonNull List<ListEntry> list) {
-        channelList.clear();
-        channelList.addAll(list);
+        this.list = list;
         notifyDataSetChanged();
     }
 
     @Override
     public long getItemId(int position) {
-        return channelList.get(position).id;
+        return list.get(position).id;
     }
 
     @Override
@@ -55,11 +54,11 @@ public class ChannelAdapter extends RecyclerView.Adapter<CompactViewHolder> {
 
     @Override
     public void onBindViewHolder(CompactViewHolder holder, int position) {
-        holder.bind(channelList.get(position), allowLongClick, VIBRATE_TIME);
+        holder.bind(list.get(position), allowLongClick, VIBRATE_TIME);
     }
 
     @Override
     public int getItemCount() {
-        return channelList.size();
+        return list.size();
     }
 }
