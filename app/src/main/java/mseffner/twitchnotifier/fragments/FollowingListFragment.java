@@ -45,14 +45,12 @@ public class FollowingListFragment extends BaseListFragment {
     @Override
     public void onStart() {
         super.onStart();
-        EventBus.getDefault().register(this);
         updateList();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        EventBus.getDefault().unregister(this);
     }
 
     @Override

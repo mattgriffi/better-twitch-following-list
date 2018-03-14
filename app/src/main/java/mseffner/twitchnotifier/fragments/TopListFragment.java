@@ -40,14 +40,12 @@ public class TopListFragment extends BaseListFragment {
     public void onStart() {
         super.onStart();
         startMessage.setVisibility(View.GONE);
-        EventBus.getDefault().register(this);
         updateList();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        EventBus.getDefault().unregister(this);
     }
 
     @Override
