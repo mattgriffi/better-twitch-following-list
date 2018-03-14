@@ -94,7 +94,7 @@ public class CompactViewHolder extends RecyclerView.ViewHolder {
         offlineText.setVisibility(View.VISIBLE);
 
         currentGame.setVisibility(View.INVISIBLE);
-        onlineInfo.setVisibility(View.GONE);
+        onlineInfo.setVisibility(View.INVISIBLE);
         vodcastTag.setVisibility(View.INVISIBLE);
 
         itemView.setOnClickListener(null);
