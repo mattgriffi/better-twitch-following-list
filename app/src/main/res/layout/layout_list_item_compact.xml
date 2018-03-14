@@ -10,12 +10,15 @@
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground"
     android:orientation="horizontal"
-    android:padding="8dp">
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp">
 
     <!-- Channel information -->
     <include layout="@layout/list_item_info_compact"
         android:layout_width="0dp"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
         android:layout_weight="1"/>
 
     <!-- Channel pin icon -->

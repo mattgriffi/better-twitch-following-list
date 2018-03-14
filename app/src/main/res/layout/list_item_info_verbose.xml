@@ -29,7 +29,7 @@
 
     <!-- Viewer count, uptime, and rerun tag -->
     <LinearLayout
-        android:id="@+id/live_stream_info"
+        android:id="@+id/online_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

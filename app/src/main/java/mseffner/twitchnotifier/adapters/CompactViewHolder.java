@@ -29,7 +29,7 @@ public class CompactViewHolder extends RecyclerView.ViewHolder {
     protected TextView channelName;
     protected TextView currentGame;
     protected TextView offlineText;
-    protected LinearLayout streamInfo;
+    protected LinearLayout onlineInfo;
     protected TextView viewerCount;
     protected TextView uptime;
     protected TextView vodcastTag;
@@ -41,7 +41,7 @@ public class CompactViewHolder extends RecyclerView.ViewHolder {
         channelName = itemView.findViewById(R.id.display_name);
         currentGame = itemView.findViewById(R.id.game_name);
         offlineText = itemView.findViewById(R.id.offline_text);
-        streamInfo = itemView.findViewById(R.id.live_stream_info);
+        onlineInfo = itemView.findViewById(R.id.online_info);
         vodcastTag = itemView.findViewById(R.id.rerun_tag);
         viewerCount = itemView.findViewById(R.id.viewer_count);
         uptime = itemView.findViewById(R.id.uptime);
@@ -90,7 +90,7 @@ public class CompactViewHolder extends RecyclerView.ViewHolder {
         offlineText.setVisibility(View.VISIBLE);
 
         currentGame.setVisibility(View.INVISIBLE);
-        streamInfo.setVisibility(View.INVISIBLE);
+        onlineInfo.setVisibility(View.GONE);
         vodcastTag.setVisibility(View.INVISIBLE);
 
         itemView.setOnClickListener(null);
@@ -111,7 +111,7 @@ public class CompactViewHolder extends RecyclerView.ViewHolder {
         offlineText.setVisibility(View.GONE);
 
         currentGame.setVisibility(View.VISIBLE);
-        streamInfo.setVisibility(View.VISIBLE);
+        onlineInfo.setVisibility(View.VISIBLE);
 
         currentGame.setText(listEntry.gameName);
         viewerCount.setText(Integer.toString(listEntry.viewerCount));

@@ -6,6 +6,7 @@
     android:layout_height="36dp">
 
     <LinearLayout
+        android:id="@+id/display_name_and_game"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -26,11 +27,10 @@
 
     <!-- Viewer count, uptime, and rerun tag -->
     <LinearLayout
-        android:id="@+id/live_stream_info"
+        android:id="@+id/online_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
+        android:layout_below="@id/display_name_and_game"
         android:baselineAligned="false"
         android:orientation="horizontal"
         tools:ignore="RtlHardcoded">
