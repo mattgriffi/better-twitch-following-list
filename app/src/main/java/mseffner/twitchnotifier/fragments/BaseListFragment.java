@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mseffner.twitchnotifier.R;
-import mseffner.twitchnotifier.data.ChannelAdapter;
+import mseffner.twitchnotifier.adapters.ChannelAdapter;
 import mseffner.twitchnotifier.data.ListEntry;
 
 public abstract class BaseListFragment extends Fragment {

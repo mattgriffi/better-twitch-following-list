@@ -1,4 +1,4 @@
-package mseffner.twitchnotifier.data;
+package mseffner.twitchnotifier.adapters;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import mseffner.twitchnotifier.R;
+import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.settings.SettingsManager;
 
 

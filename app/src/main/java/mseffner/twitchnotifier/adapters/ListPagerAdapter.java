@@ -1,9 +1,10 @@
-package mseffner.twitchnotifier;
+package mseffner.twitchnotifier.adapters;
 
 import android.app.FragmentManager;
 import android.content.Context;
 import android.support.v13.app.FragmentPagerAdapter;
 
+import mseffner.twitchnotifier.R;
 import mseffner.twitchnotifier.fragments.FollowingListFragment;
 import mseffner.twitchnotifier.fragments.SettingsFragment;
 import mseffner.twitchnotifier.fragments.TopListFragment;

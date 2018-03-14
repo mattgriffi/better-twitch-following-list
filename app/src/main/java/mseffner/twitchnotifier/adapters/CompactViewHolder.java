@@ -1,4 +1,4 @@
-package mseffner.twitchnotifier.data;
+package mseffner.twitchnotifier.adapters;
 
 
 import android.annotation.SuppressLint;
@@ -15,6 +15,9 @@ import android.widget.TextView;
 import java.util.Locale;
 
 import mseffner.twitchnotifier.R;
+import mseffner.twitchnotifier.data.ChannelContract;
+import mseffner.twitchnotifier.data.ChannelDb;
+import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.settings.SettingsManager;
 
 
@@ -32,7 +35,7 @@ public class CompactViewHolder extends RecyclerView.ViewHolder {
     protected TextView vodcastTag;
     protected ImageView pinIcon;
 
-    CompactViewHolder(View itemView) {
+    public CompactViewHolder(View itemView) {
         super(itemView);
         this.itemView = itemView;
         channelName = itemView.findViewById(R.id.display_name);
@@ -46,7 +49,7 @@ public class CompactViewHolder extends RecyclerView.ViewHolder {
         vibrator = (Vibrator) itemView.getContext().getSystemService(Context.VIBRATOR_SERVICE);
     }
 
-    protected void bind(ListEntry listEntry, boolean allowLongClick, int vibrateTime) {
+    public void bind(ListEntry listEntry, boolean allowLongClick, int vibrateTime) {
 
         // Set the channel name and pin icon
         channelName.setText(listEntry.displayName);

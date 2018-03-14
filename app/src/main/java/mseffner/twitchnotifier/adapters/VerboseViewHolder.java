@@ -1,4 +1,4 @@
-package mseffner.twitchnotifier.data;
+package mseffner.twitchnotifier.adapters;
 
 
 import android.view.View;
@@ -8,20 +8,21 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import mseffner.twitchnotifier.R;
+import mseffner.twitchnotifier.data.ListEntry;
 
-class VerboseViewHolder extends CompactViewHolder {
+public class VerboseViewHolder extends CompactViewHolder {
 
     private ImageView channelLogo;
     private TextView streamTitle;
 
-    VerboseViewHolder(View itemView) {
+    public VerboseViewHolder(View itemView) {
         super(itemView);
         channelLogo = itemView.findViewById(R.id.channel_logo);
         streamTitle = itemView.findViewById(R.id.title);
     }
 
     @Override
-    protected void bind(ListEntry listEntry, boolean allowLongClick, int vibrateTime) {
+    public void bind(ListEntry listEntry, boolean allowLongClick, int vibrateTime) {
         super.bind(listEntry, allowLongClick, vibrateTime);
         // Set up Picasso to load the channel logo
         Picasso.with(itemView.getContext())

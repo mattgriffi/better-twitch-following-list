@@ -18,6 +18,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.lang.reflect.Method;
 
+import mseffner.twitchnotifier.adapters.ListPagerAdapter;
 import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.events.DarkModeChangedEvent;
