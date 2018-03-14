@@ -1,11 +1,7 @@
 package mseffner.twitchnotifier.fragments;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.View;
-
-import com.android.volley.ServerError;
-import com.android.volley.VolleyError;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -14,18 +10,14 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
-import mseffner.twitchnotifier.ToastMaker;
+import mseffner.twitchnotifier.data.ChannelContract;
 import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.data.ListEntry;
-import mseffner.twitchnotifier.data.ChannelContract;
-import mseffner.twitchnotifier.data.DataUpdateManager;
-import mseffner.twitchnotifier.data.ListEntrySorter;
 import mseffner.twitchnotifier.data.ThreadManager;
-import mseffner.twitchnotifier.events.ListRefreshedEvent;
+import mseffner.twitchnotifier.events.CompactModeChangedEvent;
 import mseffner.twitchnotifier.events.TopListRefreshedEvent;
 import mseffner.twitchnotifier.events.TopListUpdateStartedEvent;
 import mseffner.twitchnotifier.events.TopStreamsUpdatedEvent;
-import mseffner.twitchnotifier.networking.ErrorHandler;
 import mseffner.twitchnotifier.settings.SettingsManager;
 
 public class TopListFragment extends BaseListFragment {
@@ -83,6 +75,12 @@ public class TopListFragment extends BaseListFragment {
     public void onTopListRefreshedEvent(TopListRefreshedEvent event) {
         updateAdapter(event.list);
         swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onCompactModeChangedEvent(CompactModeChangedEvent event) {
+        // Force recyclerView to redraw with new layout
+        recyclerView.setAdapter(channelAdapter);
     }
 
     private List<ListEntry> removeNonliveChannels(@NonNull List<ListEntry> list) {

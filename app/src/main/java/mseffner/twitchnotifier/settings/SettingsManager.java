@@ -7,6 +7,7 @@ import android.content.res.Resources;
 import org.greenrobot.eventbus.EventBus;
 
 import mseffner.twitchnotifier.R;
+import mseffner.twitchnotifier.events.CompactModeChangedEvent;
 import mseffner.twitchnotifier.events.DarkModeChangedEvent;
 import mseffner.twitchnotifier.events.UsernameChangedEvent;
 
@@ -218,5 +219,7 @@ public class SettingsManager {
             EventBus.getDefault().post(new UsernameChangedEvent());
         else if (key.equals(darkmodeKey))
             EventBus.getDefault().post(new DarkModeChangedEvent(getDarkModeSetting()));
+        else if (key.equals(compactKey))
+            EventBus.getDefault().post(new CompactModeChangedEvent());
     }
 }
