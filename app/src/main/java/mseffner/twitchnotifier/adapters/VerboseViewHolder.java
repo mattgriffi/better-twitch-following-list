@@ -28,6 +28,7 @@ public class VerboseViewHolder extends CompactViewHolder {
         Picasso.with(itemView.getContext())
                 .load(listEntry.profileImageUrl)
                 .placeholder(R.drawable.default_logo_300x300)
+                .fit()
                 .into(channelLogo);
     }
 
