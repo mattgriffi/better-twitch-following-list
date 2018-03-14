@@ -18,6 +18,7 @@ import mseffner.twitchnotifier.R;
 import mseffner.twitchnotifier.data.ChannelContract;
 import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.data.ListEntry;
+import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.settings.SettingsManager;
 
 
@@ -68,9 +69,12 @@ public class CompactViewHolder extends RecyclerView.ViewHolder {
             itemView.setOnLongClickListener(view -> {
                 if (vibrator != null)
                     vibrator.vibrate(vibrateTime);
-                ChannelDb.toggleChannelPin(listEntry.id);
+                ThreadManager.post(() -> ChannelDb.toggleChannelPin(listEntry.id));
                 listEntry.togglePinned();
-                updatePinIcon(listEntry, pinIcon);
+                if (listEntry.pinned)
+                    pinIcon.setVisibility(View.VISIBLE);
+                else
+                    pinIcon.setVisibility(View.INVISIBLE);
                 return true;
             });
         }
@@ -123,15 +127,6 @@ public class CompactViewHolder extends RecyclerView.ViewHolder {
             vodcastTag.setVisibility(View.VISIBLE);
         } else {
             vodcastTag.setVisibility(View.INVISIBLE);
-        }
-    }
-
-    private void updatePinIcon(ListEntry listEntry, View pinIconView) {
-        // This is used to visually toggle the pin icon without refreshing the whole list
-        if (listEntry.pinned) {
-            pinIconView.setVisibility(View.VISIBLE);
-        } else {
-            pinIcon.setVisibility(View.INVISIBLE);
         }
     }
 
