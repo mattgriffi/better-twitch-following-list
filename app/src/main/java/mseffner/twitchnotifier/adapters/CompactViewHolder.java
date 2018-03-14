@@ -108,7 +108,7 @@ public class CompactViewHolder extends RecyclerView.ViewHolder {
                 view.getContext().startActivity(intent);
         });
 
-        offlineText.setVisibility(View.INVISIBLE);
+        offlineText.setVisibility(View.GONE);
 
         currentGame.setVisibility(View.VISIBLE);
         streamInfo.setVisibility(View.VISIBLE);

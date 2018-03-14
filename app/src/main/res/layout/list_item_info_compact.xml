@@ -16,13 +16,13 @@
         <!-- Channel name -->
         <include layout="@layout/list_item_display_name"/>
 
+        <!-- Offline text -->
+        <include layout="@layout/list_item_offline"/>
+
         <!-- Current game -->
         <include layout="@layout/list_item_game_name"/>
 
     </LinearLayout>
-
-    <!-- Offline text -->
-    <include layout="@layout/list_item_offline"/>
 
     <!-- Viewer count, uptime, and rerun tag -->
     <LinearLayout
