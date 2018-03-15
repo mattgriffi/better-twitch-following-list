@@ -59,9 +59,6 @@ public class FollowingListFragment extends BaseListFragment {
         return true;
     }
 
-    @Override
-    protected void cancelAsyncTasks() {}
-
     private void updateList() {
         ThreadManager.post(() -> {
             List<ListEntry> list = ChannelDb.getAllFollows();

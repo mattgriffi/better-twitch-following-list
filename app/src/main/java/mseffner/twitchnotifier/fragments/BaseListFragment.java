@@ -42,7 +42,6 @@ public abstract class BaseListFragment extends Fragment {
     protected Parcelable layoutManagerState;
 
     protected abstract void refreshList();
-    protected abstract void cancelAsyncTasks();
     protected abstract boolean getLongClickSetting();
 
     @Override
@@ -122,7 +121,6 @@ public abstract class BaseListFragment extends Fragment {
     public void onStop() {
         super.onStop();
         EventBus.getDefault().unregister(this);
-        cancelAsyncTasks();
     }
 
     @Override

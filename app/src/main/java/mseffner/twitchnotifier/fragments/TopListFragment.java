@@ -47,9 +47,6 @@ public class TopListFragment extends BaseListFragment {
         return false;
     }
 
-    @Override
-    protected void cancelAsyncTasks() {}
-
     private void updateList() {
         ThreadManager.post(() -> {
             List<ListEntry> list = ChannelDb.getTopStreams();
