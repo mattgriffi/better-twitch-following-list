@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 27
     defaultConfig {
         applicationId "mseffner.twitchnotifier"
         minSdkVersion 15
@@ -28,17 +28,20 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
-    compile 'com.android.support:appcompat-v7:26.+'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.6.1'
+
+    compile 'com.android.support:appcompat-v7:27.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.android.support:recyclerview-v7:26.+'
+    compile 'com.android.support:recyclerview-v7:27.+'
     compile 'com.squareup.picasso:picasso:2.5.2'
-    compile 'com.android.support:support-v4:26.+'
-    compile 'com.android.support:support-v13:26.+'
-    compile 'com.android.support:design:26.+'
+    compile 'com.android.support:support-v4:27.+'
+    compile 'com.android.support:support-v13:27.+'
+    compile 'com.android.support:design:27.+'
     compile 'com.android.volley:volley:1.1.0'
     compile 'com.google.code.gson:gson:2.8.2'
     compile 'org.greenrobot:eventbus:3.1.1'
     compile 'com.readystatesoftware.sqliteasset:sqliteassethelper:+'
+    compile 'com.github.bumptech.glide:glide:4.6.1'
 
     testCompile 'junit:junit:4.12'
 }

@@ -6,7 +6,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.GenericTransitionOptions;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 
 import mseffner.twitchnotifier.R;
 import mseffner.twitchnotifier.data.ListEntry;
@@ -25,11 +26,11 @@ public class VerboseViewHolder extends CompactViewHolder {
     @Override
     public void bind(ListEntry listEntry, boolean allowLongClick, int vibrateTime) {
         super.bind(listEntry, allowLongClick, vibrateTime);
-        // Set up Picasso to load the channel logo
-        Picasso.with(itemView.getContext())
+        // Set up Glide to load the profile image
+        GlideApp.with(itemView.getContext())
                 .load(listEntry.profileImageUrl)
                 .placeholder(R.drawable.default_logo_300x300)
-                .fit()
+                .transition(DrawableTransitionOptions.withCrossFade(200))
                 .into(channelLogo);
     }
 
