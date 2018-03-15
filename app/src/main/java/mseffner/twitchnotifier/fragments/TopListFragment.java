@@ -1,7 +1,6 @@
 package mseffner.twitchnotifier.fragments;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.View;
 
 import org.greenrobot.eventbus.EventBus;

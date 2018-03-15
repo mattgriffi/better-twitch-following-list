@@ -6,7 +6,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.GenericTransitionOptions;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 
 import mseffner.twitchnotifier.R;
