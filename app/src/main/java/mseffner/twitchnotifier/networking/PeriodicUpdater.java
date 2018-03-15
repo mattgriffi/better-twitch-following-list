@@ -26,7 +26,7 @@ public class PeriodicUpdater implements Runnable {
             EventBus.getDefault().post(new StreamsUpdatedEvent());
             EventBus.getDefault().post(new TopStreamsUpdatedEvent());
         }
-        ThreadManager.postDelayed(this, 70 * 1000);
+        ThreadManager.postDelayed(this, 20 * 1000);
     }
 
     public void start() {
