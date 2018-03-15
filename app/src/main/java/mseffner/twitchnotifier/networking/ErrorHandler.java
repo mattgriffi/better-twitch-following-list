@@ -10,13 +10,17 @@ import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 
+import org.greenrobot.eventbus.EventBus;
+
 import mseffner.twitchnotifier.ToastMaker;
+import mseffner.twitchnotifier.events.NetworkErrorEvent;
 
 
 public class ErrorHandler implements Response.ErrorListener {
 
     private static final String LOG_TAG = ErrorHandler.class.getSimpleName();
     private static ErrorHandler instance;
+    private static boolean errorShown = false;
 
     private ErrorHandler() {}
 
@@ -26,13 +30,13 @@ public class ErrorHandler implements Response.ErrorListener {
         return instance;
     }
 
+    public static void reset() {
+        errorShown = false;
+    }
+
     @Override
     public void onErrorResponse(VolleyError error) {
         Log.e(LOG_TAG, null, error);
-
-        boolean handled = customHandling(error);
-        if (handled) return;
-
         if (error instanceof NoConnectionError)
             handleNoConnectionError((NoConnectionError) error);
         else if (error instanceof NetworkError)
@@ -43,32 +47,46 @@ public class ErrorHandler implements Response.ErrorListener {
             handleServerError((ServerError) error);
         else if (error instanceof ParseError)
             handleParseError((ParseError) error);
+        errorShown = true;
     }
 
-    protected void handleParseError(ParseError error) {
-        ToastMaker.makeToastLong(ToastMaker.MESSAGE_NETWORK_ERROR);
+    private void handleParseError(ParseError error) {
+        if (!errorShown)
+            networkError();
     }
 
-    protected void handleNoConnectionError(NoConnectionError error) {
-        ToastMaker.makeToastLong(ToastMaker.MESSAGE_NETWORK_ERROR);
+    private void handleNoConnectionError(NoConnectionError error) {
+        if (!errorShown)
+            networkError();
     }
 
-    protected void handleTimeoutError(TimeoutError error) {
-        ToastMaker.makeToastLong(ToastMaker.MESSAGE_NETWORK_ERROR);
+    private void handleTimeoutError(TimeoutError error) {
+        if (!errorShown)
+            networkError();
     }
 
-    protected void handleNetworkError(NetworkError error) {
-        ToastMaker.makeToastLong(ToastMaker.MESSAGE_NETWORK_ERROR);
+    private void handleNetworkError(NetworkError error) {
+        if (!errorShown)
+            networkError();
     }
 
-    protected void handleServerError(ServerError error) {
+    private void handleServerError(ServerError error) {
+        if (errorShown) return;
         if (error.networkResponse.statusCode >= 500 && error.networkResponse.statusCode < 600)
-            ToastMaker.makeToastLong(ToastMaker.MESSAGE_SERVER_ERROR);
+            serverError();
+        else if (error.networkResponse.statusCode == 400)
+            ToastMaker.makeToastLong(ToastMaker.MESSAGE_INVALID_USERNAME);
         else
-            ToastMaker.makeToastLong(ToastMaker.MESSAGE_NETWORK_ERROR);
+            networkError();
     }
 
-    protected boolean customHandling(VolleyError error) {
-        return false;
+    private static void networkError() {
+        ToastMaker.makeToastLong(ToastMaker.MESSAGE_NETWORK_ERROR);
+        EventBus.getDefault().post(new NetworkErrorEvent());
+    }
+
+    private static void serverError() {
+        ToastMaker.makeToastLong(ToastMaker.MESSAGE_SERVER_ERROR);
+        EventBus.getDefault().post(new NetworkErrorEvent());
     }
 }

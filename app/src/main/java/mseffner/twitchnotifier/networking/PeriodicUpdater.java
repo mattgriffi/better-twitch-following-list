@@ -16,6 +16,7 @@ public class PeriodicUpdater implements Runnable {
     public void run() {
         if (SettingsManager.rateLimitReset()) {
             ChannelDb.deleteAllStreams();
+            ErrorHandler.reset();
             if (SettingsManager.getFollowsNeedUpdate())
                 DataUpdateManager.updateFollowsData(ErrorHandler.getInstance());
             else

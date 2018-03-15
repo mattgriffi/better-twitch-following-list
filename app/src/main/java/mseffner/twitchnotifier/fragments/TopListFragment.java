@@ -1,6 +1,7 @@
 package mseffner.twitchnotifier.fragments;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.View;
 
 import org.greenrobot.eventbus.EventBus;
@@ -15,6 +16,7 @@ import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.events.CompactModeChangedEvent;
+import mseffner.twitchnotifier.events.NetworkErrorEvent;
 import mseffner.twitchnotifier.events.TopListRefreshedEvent;
 import mseffner.twitchnotifier.events.TopListUpdateStartedEvent;
 import mseffner.twitchnotifier.events.TopStreamsUpdatedEvent;
@@ -81,6 +83,11 @@ public class TopListFragment extends BaseListFragment {
     public void onCompactModeChangedEvent(CompactModeChangedEvent event) {
         // Force recyclerView to redraw with new layout
         recyclerView.setAdapter(channelAdapter);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onNetworkErrorEvent(NetworkErrorEvent event) {
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     private List<ListEntry> removeNonliveChannels(@NonNull List<ListEntry> list) {

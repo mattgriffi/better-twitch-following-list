@@ -21,6 +21,7 @@ import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.events.FollowsUpdateStartedEvent;
 import mseffner.twitchnotifier.events.FollowsUpdatedEvent;
 import mseffner.twitchnotifier.events.ListRefreshedEvent;
+import mseffner.twitchnotifier.events.NetworkErrorEvent;
 import mseffner.twitchnotifier.events.StreamsUpdateStartedEvent;
 import mseffner.twitchnotifier.events.StreamsUpdatedEvent;
 import mseffner.twitchnotifier.networking.ErrorHandler;
@@ -90,6 +91,12 @@ public class FollowingListFragment extends BaseListFragment {
     public void onStreamsUpdatedEvent(StreamsUpdatedEvent event) {
         Log.e("TEST", "Total update time: "  + (System.nanoTime() - start) / 1000000);
         updateList();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onNetworkErrorEvent(NetworkErrorEvent event) {
+        Log.e("TEST", "Total update time: "  + (System.nanoTime() - start) / 1000000);
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
