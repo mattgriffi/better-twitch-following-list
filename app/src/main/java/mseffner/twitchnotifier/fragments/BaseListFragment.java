@@ -24,7 +24,6 @@ import java.util.List;
 
 import mseffner.twitchnotifier.R;
 import mseffner.twitchnotifier.adapters.ChannelAdapter;
-import mseffner.twitchnotifier.adapters.CompactViewHolder;
 import mseffner.twitchnotifier.data.ListEntry;
 
 public abstract class BaseListFragment extends Fragment {
@@ -35,7 +34,6 @@ public abstract class BaseListFragment extends Fragment {
     protected ChannelAdapter channelAdapter;
     protected SwipeRefreshLayout swipeRefreshLayout;
     protected FloatingActionButton scrollTopButton;
-    protected FloatingActionButton refreshButton;
     protected LinearLayout startMessage;
 
     protected boolean needToRestoreState = false;
@@ -54,7 +52,6 @@ public abstract class BaseListFragment extends Fragment {
         recyclerView = rootView.findViewById(R.id.list_recyclerview);
         swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh);
         scrollTopButton = rootView.findViewById(R.id.scroll_top_fab);
-        refreshButton = rootView.findViewById(R.id.refresh_fab);
         startMessage = rootView.findViewById(R.id.start_message);
 
         Context context = recyclerView.getContext();
@@ -80,9 +77,7 @@ public abstract class BaseListFragment extends Fragment {
 
         // Set up floating action button animations
         final Animation scrollScaleUp = getScaleAnimation(context, scrollTopButton, R.anim.scale_up);
-        final Animation refreshScaleUp = getScaleAnimation(context, refreshButton, R.anim.scale_up);
         final Animation scrollScaleDown = getScaleAnimation(context, scrollTopButton, R.anim.scale_down);
-        final Animation refreshScaleDown = getScaleAnimation(context, refreshButton, R.anim.scale_down);
 
         // Animate the floating action buttons
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -93,20 +88,17 @@ public abstract class BaseListFragment extends Fragment {
                         scrollTopButton.getVisibility() == View.VISIBLE &&
                         scrollTopButton.getAnimation() == null) {
                     scrollTopButton.startAnimation(scrollScaleDown);
-                    refreshButton.startAnimation(refreshScaleDown);
                 } else if (layoutManager.findFirstVisibleItemPosition() != 0 &&
                         scrollTopButton.getAnimation() == null &&
                         scrollTopButton.getVisibility() == View.INVISIBLE &&
                         scrollTopButton.getAnimation() == null){
                     scrollTopButton.startAnimation(scrollScaleUp);
-                    refreshButton.startAnimation(refreshScaleUp);
                 }
             }
         });
 
         // Add click listeners to buttons
         scrollTopButton.setOnClickListener(view -> layoutManager.smoothScrollToPosition(recyclerView, null, 0));
-        refreshButton.setOnClickListener(view -> refreshList());
 
         return rootView;
     }
