@@ -6,12 +6,14 @@ import com.android.volley.VolleyError;
 
 import org.greenrobot.eventbus.EventBus;
 
+import mseffner.twitchnotifier.ToastMaker;
 import mseffner.twitchnotifier.events.FollowsUpdateStartedEvent;
 import mseffner.twitchnotifier.events.FollowsUpdatedEvent;
 import mseffner.twitchnotifier.events.StreamsUpdateStartedEvent;
 import mseffner.twitchnotifier.events.StreamsUpdatedEvent;
 import mseffner.twitchnotifier.events.TopListUpdateStartedEvent;
 import mseffner.twitchnotifier.events.TopStreamsUpdatedEvent;
+import mseffner.twitchnotifier.events.UserIdUpdatedEvent;
 import mseffner.twitchnotifier.networking.Containers;
 import mseffner.twitchnotifier.networking.ErrorHandler;
 import mseffner.twitchnotifier.networking.Requests;
@@ -47,6 +49,29 @@ public class DataUpdateManager {
      */
     public static boolean updateInProgress() {
         return followsUpdateInProgress || streamsUpdateInProgress;
+    }
+
+    /**
+     * Updates the stored user id.
+     */
+    public static void updateUserId() {
+        Requests.makeRequest(Requests.REQUEST_TYPE_USERS, URLTools.getUserIdUrl(),
+                new UserIdListener(), ErrorHandler.getInstance());
+    }
+
+    /**
+     * Updates the stored user id then notifies listeners.
+     */
+    private static class UserIdListener implements Response.Listener<Containers.Users> {
+        @Override
+        public void onResponse(Containers.Users response) {
+            if (response.data.isEmpty()) {
+                ToastMaker.makeToastLong(ToastMaker.MESSAGE_INVALID_USERNAME);
+                return;
+            }
+            SettingsManager.setUsernameId(Long.parseLong(response.data.get(0).id));
+            EventBus.getDefault().post(new UserIdUpdatedEvent());
+        }
     }
 
     /**

@@ -7,9 +7,11 @@ import android.content.res.Resources;
 import org.greenrobot.eventbus.EventBus;
 
 import mseffner.twitchnotifier.R;
+import mseffner.twitchnotifier.data.ChannelDb;
+import mseffner.twitchnotifier.data.DataUpdateManager;
+import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.events.CompactModeChangedEvent;
 import mseffner.twitchnotifier.events.DarkModeChangedEvent;
-import mseffner.twitchnotifier.events.UsernameChangedEvent;
 
 /**
  * SettingsManager is a class with static methods allowing all of the preferences
@@ -94,14 +96,20 @@ public class SettingsManager {
      * @return  the user's id or INVALID_USERNAME_ID
      */
     public static long getUsernameId() {
-        return sharedPreferences.getLong(usernameIdKey, INVALID_USERNAME_ID);
+        long id = sharedPreferences.getLong(usernameIdKey, INVALID_USERNAME_ID);
+        /* If we get the default value, then the key is not in the sharedPreferences,
+        which means that the user set their username in an older version of the app,
+        so we need to get their user id */
+        if (id == INVALID_USERNAME_ID)
+            DataUpdateManager.updateUserId();
+        return id;
     }
 
     /**
      * @return whether a valid username is set
      */
     public static boolean validUsername() {
-        return !getUsername().equals("");
+        return !getUsername().equals("") && getUsernameId() != INVALID_USERNAME_ID;
     }
 
     /**
@@ -215,9 +223,11 @@ public class SettingsManager {
      * Notifies all OnSettingsChangedListeners.
      */
     private static void onSharedPreferenceChanged(String key) {
-        if (key.equals(usernameKey))
-            EventBus.getDefault().post(new UsernameChangedEvent());
-        else if (key.equals(darkmodeKey))
+        if (key.equals(usernameKey)) {
+            setFollowsNeedUpdate(true);
+            DataUpdateManager.updateUserId();
+            ThreadManager.post(ChannelDb::deleteAllFollows);
+        } else if (key.equals(darkmodeKey))
             EventBus.getDefault().post(new DarkModeChangedEvent(getDarkModeSetting()));
         else if (key.equals(compactKey))
             EventBus.getDefault().post(new CompactModeChangedEvent());

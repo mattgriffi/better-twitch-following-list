@@ -7,10 +7,6 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-
-import com.android.volley.Response;
-import com.android.volley.ServerError;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -22,12 +18,8 @@ import mseffner.twitchnotifier.adapters.ListPagerAdapter;
 import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.events.DarkModeChangedEvent;
-import mseffner.twitchnotifier.events.UsernameChangedEvent;
-import mseffner.twitchnotifier.networking.Containers;
-import mseffner.twitchnotifier.networking.ErrorHandler;
 import mseffner.twitchnotifier.networking.PeriodicUpdater;
 import mseffner.twitchnotifier.networking.Requests;
-import mseffner.twitchnotifier.networking.URLTools;
 import mseffner.twitchnotifier.settings.SettingsManager;
 
 
@@ -97,25 +89,6 @@ public class MainActivity extends AppCompatActivity {
             recreate();
         else if (!event.darkModeEnabled && themeID != R.style.AppTheme_Light)
             recreate();
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onUsernameChanged(UsernameChangedEvent event) {
-        ChannelDb.deleteAllFollows();
-        Requests.makeRequest(Requests.REQUEST_TYPE_USERS, URLTools.getUserIdUrl(),
-                new Response.Listener<Containers.Users>() {
-                    @Override
-                    public void onResponse(Containers.Users response) {
-                        if (response.data.isEmpty()) {
-                            ToastMaker.makeToastLong(ToastMaker.MESSAGE_INVALID_USERNAME);
-                            return;
-                        }
-                        Containers.Users.Data data = response.data.get(0);
-                        Log.e("New username", data.display_name);
-                        long newId = Long.parseLong(data.id);
-                        SettingsManager.setUsernameId(newId);
-                    }
-                }, ErrorHandler.getInstance());
     }
 
     private int getThemeId() {
