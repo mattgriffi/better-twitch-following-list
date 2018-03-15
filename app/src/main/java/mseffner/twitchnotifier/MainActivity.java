@@ -40,9 +40,6 @@ public class MainActivity extends AppCompatActivity {
         Requests.initialize(this);
         ToastMaker.initialize(this);
 
-        // Update the follows on the first update
-        SettingsManager.setFollowsNeedUpdate(true);
-
         // Set the theme based on whether dark mode is on;
         boolean darkMode = SettingsManager.getDarkModeSetting();
         setTheme(darkMode ? R.style.AppTheme_Dark : R.style.AppTheme_Light);
@@ -51,8 +48,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Set up ViewPager and TabLayout
-        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        ViewPager viewPager = findViewById(R.id.viewpager);
+        TabLayout tabLayout = findViewById(R.id.tabs);
         ListPagerAdapter adapter = new ListPagerAdapter(this, getFragmentManager());
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
@@ -92,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private int getThemeId() {
-        // Thank you StackOverflow for helping me to work around Android's garbage API
+        // Thank you Stack Overflow for helping me to work around Android's garbage API
         try {
             Class<?> wrapper = Context.class;
             Method method = wrapper.getMethod("getThemeResId");
