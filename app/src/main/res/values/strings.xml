@@ -6,6 +6,13 @@
     <string name="following_tab">Following</string>
     <string name="top_tab">Top</string>
 
+    <!-- Toast messages -->
+    <string name="message_invalid_username">Invalid username</string>
+    <string name="message_network_error">Network error</string>
+    <string name="message_server_error">Twitch server error</string>
+    <string name="message_too_many_follows">Cannot have more than 2500 follows due to Twitch API limits</string>
+    <string name="message_rate_limit">Twitch API limit hit, data may be incomplete for now</string>
+
     <!-- Following list -->
     <!-- contentDescription for the pin icon -->
     <string name="pin_icon">Channel pin icon</string>
@@ -82,6 +89,5 @@
     <string name="last_updated" translatable="false">last_updated</string>
     <string name="need_follows_update_key" translatable="false">need_follows_update_key</string>
     <string name="pref_compact_key" translatable="false">pref_compact_key</string>
-
 
 </resources>
