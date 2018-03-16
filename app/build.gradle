@@ -38,7 +38,7 @@ dependencies {
     compile 'com.android.volley:volley:1.1.0'
     compile 'com.google.code.gson:gson:2.8.2'
     compile 'org.greenrobot:eventbus:3.1.1'
-    compile 'com.readystatesoftware.sqliteasset:sqliteassethelper:+'
+    compile 'com.readystatesoftware.sqliteasset:sqliteassethelper:2.0.1'
     compile 'com.github.bumptech.glide:glide:4.6.1'
 
     testCompile 'junit:junit:4.12'
