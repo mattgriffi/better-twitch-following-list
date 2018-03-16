@@ -76,17 +76,19 @@ public class ErrorHandler implements Response.ErrorListener {
             serverError();
         else if (error.networkResponse.statusCode == 400)
             ToastMaker.makeToastLong(ToastMaker.MESSAGE_INVALID_USERNAME);
+        else if (error.networkResponse.statusCode == 429)
+            ToastMaker.makeToastLong(ToastMaker.MESSAGE_RATE_LIMIT);
         else
             networkError();
     }
 
     private static void networkError() {
-        ToastMaker.makeToastLong(ToastMaker.MESSAGE_NETWORK_ERROR);
+        ToastMaker.makeToastShort(ToastMaker.MESSAGE_NETWORK_ERROR);
         EventBus.getDefault().post(new NetworkErrorEvent());
     }
 
     private static void serverError() {
-        ToastMaker.makeToastLong(ToastMaker.MESSAGE_SERVER_ERROR);
+        ToastMaker.makeToastShort(ToastMaker.MESSAGE_SERVER_ERROR);
         EventBus.getDefault().post(new NetworkErrorEvent());
     }
 }

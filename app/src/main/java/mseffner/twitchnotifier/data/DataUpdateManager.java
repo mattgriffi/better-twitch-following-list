@@ -29,6 +29,9 @@ public class DataUpdateManager {
 
     private static final int UPDATE_TYPE_FOLLOWS = 0;
     private static final int UPDATE_TYPE_TOP_STREAMS = 1;
+    /* Limit the max number of follows to fetch, since more than 25
+    requests would risk hitting the rate limit. */
+    private static final int MAX_FOLLOW_COUNT = 25;
 
     private static Response.ErrorListener errorListener;
 
@@ -36,6 +39,8 @@ public class DataUpdateManager {
     private static int remainingUsersRequests;
     private static int remainingStreamsRequests;
     private static int remainingGamesRequests;
+
+    private static int followsFetched = 0;
 
     private static boolean followsUpdateInProgress = false;
     private static boolean streamsUpdateInProgress = false;
@@ -89,6 +94,7 @@ public class DataUpdateManager {
         followsUpdateInProgress = true;
         remainingFollowsRequests = 0;
         remainingUsersRequests = 0;
+        followsFetched = 0;
         ChannelDb.setFollowsDirty();
         EventBus.getDefault().post(new FollowsUpdateStartedEvent());
         ThreadManager.post(DataUpdateManager::performFollowsUpdate);
@@ -110,25 +116,33 @@ public class DataUpdateManager {
 
         @Override
         public void onResponse(Containers.Follows followsResponse) {
-            ThreadManager.post(() -> {
-                // Track progress of the follows requests
-                if (remainingFollowsRequests == 0)  // This is the first request
-                    remainingFollowsRequests = (int) Math.ceil(followsResponse.total / 100.0);
-                remainingFollowsRequests--;
+            // Track progress of the follows requests
+            if (remainingFollowsRequests == 0)  // This is the first request
+                remainingFollowsRequests = (int) Math.ceil(followsResponse.total / 100.0);
+            remainingFollowsRequests--;
+            followsFetched++;
 
-                // Insert into database
-                ChannelDb.insertFollowsData(followsResponse);
-
-                if (remainingFollowsRequests > 0)  // There is still more to fetch
-                    Requests.getFollows(followsResponse.pagination.cursor, new FollowsListener(), errorListener);
-                else {  // We are done, clean follows and get the users data
+            // Fetch more if we haven't reached the limit yet
+            if (followsFetched < MAX_FOLLOW_COUNT) {
+                ThreadManager.post(() -> {
+                    ChannelDb.insertFollowsData(followsResponse);
+                    if (remainingFollowsRequests > 0)  // There is still more to fetch
+                        Requests.getFollows(followsResponse.pagination.cursor, new FollowsListener(), errorListener);
+                    else {  // We are done, clean follows and get the users data
+                        ChannelDb.cleanFollows();
+                        SettingsManager.setFollowsNeedUpdate(false);
+                        updateUsersData(UPDATE_TYPE_FOLLOWS);
+                    }
+                });
+            } else {  // If we hit the limit, call it quits
+                ThreadManager.post(() -> {
+                    ToastMaker.makeToastLong(ToastMaker.MESSAGE_TOO_MANY_FOLLOWS);
                     ChannelDb.cleanFollows();
                     SettingsManager.setFollowsNeedUpdate(false);
                     updateUsersData(UPDATE_TYPE_FOLLOWS);
-                }
-            });
+                });
+            }
         }
-
     }
 
     /**

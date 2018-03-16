@@ -12,6 +12,8 @@ public class ToastMaker {
     public static final String MESSAGE_INVALID_USERNAME = "Invalid username";
     public static final String MESSAGE_NETWORK_ERROR = "A network error has occurred";
     public static final String MESSAGE_SERVER_ERROR = "A Twitch server error has occurred";
+    public static final String MESSAGE_TOO_MANY_FOLLOWS = "Cannot have more than 2500 follows due to Twitch API limits";
+    public static final String MESSAGE_RATE_LIMIT = "Twitch API limit hit, data may be incomplete for now";
 
     private static Context appContext;
 
