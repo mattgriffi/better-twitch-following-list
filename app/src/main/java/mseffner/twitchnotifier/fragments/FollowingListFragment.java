@@ -1,10 +1,6 @@
 package mseffner.twitchnotifier.fragments;
 
-import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -20,7 +16,6 @@ import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.events.FollowsUpdateStartedEvent;
 import mseffner.twitchnotifier.events.FollowsUpdatedEvent;
 import mseffner.twitchnotifier.events.ListRefreshedEvent;
-import mseffner.twitchnotifier.events.NetworkErrorEvent;
 import mseffner.twitchnotifier.events.StreamsUpdateStartedEvent;
 import mseffner.twitchnotifier.events.StreamsUpdatedEvent;
 import mseffner.twitchnotifier.networking.ErrorHandler;
@@ -28,33 +23,12 @@ import mseffner.twitchnotifier.networking.ErrorHandler;
 public class FollowingListFragment extends BaseListFragment {
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        return super.onCreateView(inflater, container, savedInstanceState);
-    }
-
-    @Override
-    protected void refreshList() {
-        updateList();
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        updateList();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-
-    @Override
     protected boolean getLongClickSetting() {
         return true;
     }
 
-    private void updateList() {
+    @Override
+    protected void updateList() {
         ThreadManager.post(() -> {
             List<ListEntry> list = ChannelDb.getAllFollows();
             ListEntrySorter.sort(list);
@@ -80,11 +54,6 @@ public class FollowingListFragment extends BaseListFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onStreamsUpdatedEvent(StreamsUpdatedEvent event) {
         updateList();
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onNetworkErrorEvent(NetworkErrorEvent event) {
-        swipeRefreshLayout.setRefreshing(false);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

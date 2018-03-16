@@ -18,6 +18,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,7 @@ import java.util.List;
 import mseffner.twitchnotifier.R;
 import mseffner.twitchnotifier.adapters.ChannelAdapter;
 import mseffner.twitchnotifier.data.ListEntry;
+import mseffner.twitchnotifier.events.NetworkErrorEvent;
 
 public abstract class BaseListFragment extends Fragment {
 
@@ -39,8 +42,8 @@ public abstract class BaseListFragment extends Fragment {
     protected boolean needToRestoreState = false;
     protected Parcelable layoutManagerState;
 
-    protected abstract void refreshList();
     protected abstract boolean getLongClickSetting();
+    protected abstract void updateList();
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -73,17 +76,15 @@ public abstract class BaseListFragment extends Fragment {
         swipeRefreshLayout.setColorSchemeResources(R.color.colorWhiteAlpha);
         swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.colorPrimaryAlpha);
         swipeRefreshLayout.setEnabled(false);
-        swipeRefreshLayout.setOnRefreshListener(this::refreshList);
 
         // Set up floating action button animations
         final Animation scrollScaleUp = getScaleAnimation(context, scrollTopButton, R.anim.scale_up);
         final Animation scrollScaleDown = getScaleAnimation(context, scrollTopButton, R.anim.scale_down);
 
-        // Animate the floating action buttons
+        // Animate the floating action button
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                // Both buttons will behave the same, so only need to check the state of one
                 if (layoutManager.findFirstVisibleItemPosition() == 0 &&
                         scrollTopButton.getVisibility() == View.VISIBLE &&
                         scrollTopButton.getAnimation() == null) {
@@ -97,7 +98,7 @@ public abstract class BaseListFragment extends Fragment {
             }
         });
 
-        // Add click listeners to buttons
+        // Add click listeners to button
         scrollTopButton.setOnClickListener(view -> layoutManager.smoothScrollToPosition(recyclerView, null, 0));
 
         return rootView;
@@ -107,6 +108,7 @@ public abstract class BaseListFragment extends Fragment {
     public void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
+        updateList();
     }
 
     @Override
@@ -142,6 +144,11 @@ public abstract class BaseListFragment extends Fragment {
             anim.setAnimationListener(new FABAnimationListener(floatingActionButton, false));
         }
         return anim;
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onNetworkErrorEvent(NetworkErrorEvent event) {
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     private static class FABAnimationListener implements Animation.AnimationListener {

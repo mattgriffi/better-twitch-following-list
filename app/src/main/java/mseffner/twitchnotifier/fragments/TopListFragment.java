@@ -15,7 +15,6 @@ import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.events.CompactModeChangedEvent;
-import mseffner.twitchnotifier.events.NetworkErrorEvent;
 import mseffner.twitchnotifier.events.TopListRefreshedEvent;
 import mseffner.twitchnotifier.events.TopListUpdateStartedEvent;
 import mseffner.twitchnotifier.events.TopStreamsUpdatedEvent;
@@ -26,19 +25,9 @@ public class TopListFragment extends BaseListFragment {
     private static final int NUM_TOP_STREAMS = 25;
 
     @Override
-    protected void refreshList() {
-    }
-
-    @Override
     public void onStart() {
         super.onStart();
         startMessage.setVisibility(View.GONE);
-        updateList();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
     }
 
     @Override
@@ -46,7 +35,8 @@ public class TopListFragment extends BaseListFragment {
         return false;
     }
 
-    private void updateList() {
+    @Override
+    protected void updateList() {
         ThreadManager.post(() -> {
             List<ListEntry> list = ChannelDb.getTopStreams();
             // If reruns are set to be shown as offline, remove them from the top list entirely
@@ -79,11 +69,6 @@ public class TopListFragment extends BaseListFragment {
     public void onCompactModeChangedEvent(CompactModeChangedEvent event) {
         // Force recyclerView to redraw with new layout
         recyclerView.setAdapter(channelAdapter);
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onNetworkErrorEvent(NetworkErrorEvent event) {
-        swipeRefreshLayout.setRefreshing(false);
     }
 
     private List<ListEntry> removeNonliveChannels(@NonNull List<ListEntry> list) {
