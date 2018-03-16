@@ -74,6 +74,7 @@ public class DataUpdateManager {
                 ToastMaker.makeToastLong(ToastMaker.MESSAGE_INVALID_USERNAME);
                 return;
             }
+            ToastMaker.makeToastLong(ToastMaker.MESSAGE_USERNAME_CHANGE);
             SettingsManager.setUsernameId(Long.parseLong(response.data.get(0).id));
             EventBus.getDefault().post(new UserIdUpdatedEvent());
         }

@@ -10,8 +10,9 @@
     <string name="message_invalid_username">Invalid username</string>
     <string name="message_network_error">Network error</string>
     <string name="message_server_error">Twitch server error</string>
-    <string name="message_too_many_follows">Cannot have more than 2500 follows due to Twitch API limits</string>
+    <string name="message_too_many_follows">Max list size is 2500 due to Twitch API limits</string>
     <string name="message_rate_limit">Twitch API limit hit, data may be incomplete for now</string>
+    <string name="message_username_change">Your list will be fetched in a moment</string>
 
     <!-- Following list -->
     <!-- contentDescription for the pin icon -->

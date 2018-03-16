@@ -15,6 +15,7 @@ public class ToastMaker {
     public static String MESSAGE_SERVER_ERROR;
     public static String MESSAGE_TOO_MANY_FOLLOWS;
     public static String MESSAGE_RATE_LIMIT;
+    public static String MESSAGE_USERNAME_CHANGE;
 
     private static Context appContext;
 
@@ -27,6 +28,7 @@ public class ToastMaker {
         MESSAGE_SERVER_ERROR = res.getString(R.string.message_server_error);
         MESSAGE_TOO_MANY_FOLLOWS = res.getString(R.string.message_too_many_follows);
         MESSAGE_RATE_LIMIT = res.getString(R.string.message_rate_limit);
+        MESSAGE_USERNAME_CHANGE = res.getString(R.string.message_username_change);
     }
 
     public static void destroy() {
