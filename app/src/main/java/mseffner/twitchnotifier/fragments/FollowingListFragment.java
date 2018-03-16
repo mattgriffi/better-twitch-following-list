@@ -2,7 +2,6 @@ package mseffner.twitchnotifier.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,14 +27,10 @@ import mseffner.twitchnotifier.networking.ErrorHandler;
 
 public class FollowingListFragment extends BaseListFragment {
 
-    private static long start;
-
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = super.onCreateView(inflater, container, savedInstanceState);
-        start = System.nanoTime();
-        return view;
+        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override
@@ -63,7 +58,6 @@ public class FollowingListFragment extends BaseListFragment {
         ThreadManager.post(() -> {
             List<ListEntry> list = ChannelDb.getAllFollows();
             ListEntrySorter.sort(list);
-            Log.e("list size", "" + list.size());
             EventBus.getDefault().post(new ListRefreshedEvent(list));
         });
     }
@@ -80,19 +74,16 @@ public class FollowingListFragment extends BaseListFragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onFollowsUpdatedEvent(FollowsUpdatedEvent event) {
-        Log.e("TEST", "Follows update time: " + (System.nanoTime() - start) / 1000000);
         DataUpdateManager.updateStreamsData(ErrorHandler.getInstance());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onStreamsUpdatedEvent(StreamsUpdatedEvent event) {
-        Log.e("TEST", "Total update time: "  + (System.nanoTime() - start) / 1000000);
         updateList();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onNetworkErrorEvent(NetworkErrorEvent event) {
-        Log.e("TEST", "Total update time: "  + (System.nanoTime() - start) / 1000000);
         swipeRefreshLayout.setRefreshing(false);
     }
 

@@ -44,7 +44,7 @@ public class GsonRequest<T> extends Request<T> {
             String json = new String(
                     response.data,
                     HttpHeaderParser.parseCharset(response.headers));
-            Log.e("TEST", json);
+            Log.i(GsonRequest.class.getSimpleName(), json);
             // Build object with gson and return it
             return Response.success(
                     gson.fromJson(json, clazz),
