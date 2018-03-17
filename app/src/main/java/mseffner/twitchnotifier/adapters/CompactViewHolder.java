@@ -56,14 +56,13 @@ public class CompactViewHolder extends RecyclerView.ViewHolder {
         channelName.setText(listEntry.displayName);
 
         // Set the pin
-        if (allowLongClick) {
+        if (allowLongClick)
             setPinDisplay(listEntry);
-        } else {
+        else
             pinIcon.setVisibility(View.GONE);
-        }
 
         // LongClickListener to toggle pin (does not apply to top streams list)
-        if (allowLongClick) {
+        if (allowLongClick)
             itemView.setOnLongClickListener(view -> {
                 if (vibrator != null)
                     vibrator.vibrate(vibrateTime);
@@ -72,16 +71,15 @@ public class CompactViewHolder extends RecyclerView.ViewHolder {
                 setPinDisplay(listEntry);
                 return true;
             });
-        }
 
         // Determine whether to treat stream as online or offline, and finish binding there
-        if (listEntry.type == ChannelContract.StreamEntry.STREAM_TYPE_OFFLINE ||
-                (listEntry.type == ChannelContract.ChannelEntry.STREAM_TYPE_RERUN &&
-                        SettingsManager.getRerunSetting() == SettingsManager.RERUN_OFFLINE)) {
+        boolean offline = listEntry.type == ChannelContract.StreamEntry.STREAM_TYPE_OFFLINE;
+        boolean rerun = listEntry.type == ChannelContract.ChannelEntry.STREAM_TYPE_RERUN;
+        boolean rerunOffline = SettingsManager.getRerunSetting() == SettingsManager.RERUN_OFFLINE;
+        if (offline || (rerun && rerunOffline))
             bindOfflineStream();
-        } else {
+        else
             bindOnlineStream(listEntry);
-        }
     }
 
     private void setPinDisplay(ListEntry listEntry) {
@@ -131,11 +129,10 @@ public class CompactViewHolder extends RecyclerView.ViewHolder {
 
         // Display vodcast tag depending on setting
         if (listEntry.type == ChannelContract.ChannelEntry.STREAM_TYPE_RERUN &&
-                SettingsManager.getRerunSetting() == SettingsManager.RERUN_ONLINE_TAG) {
+                SettingsManager.getRerunSetting() == SettingsManager.RERUN_ONLINE_TAG)
             vodcastTag.setVisibility(View.VISIBLE);
-        } else {
+        else
             vodcastTag.setVisibility(View.INVISIBLE);
-        }
     }
 
     private String getUptime(long createdAt) {
