@@ -52,21 +52,14 @@ public class CompactViewHolder extends RecyclerView.ViewHolder {
 
     public void bind(ListEntry listEntry, boolean allowLongClick, int vibrateTime) {
 
-        // Set the channel name and pin icon
+        // Set the display name
         channelName.setText(listEntry.displayName);
-        if (listEntry.pinned) {
-            pinIcon.setVisibility(View.VISIBLE);
-            if (SettingsManager.getDarkModeSetting())
-                itemView.setBackgroundColor(Color.argb(75, 75, 54, 124));
-            else
-                itemView.setBackgroundColor(Color.argb(25, 177, 157, 216));
-        } else if (!allowLongClick){
-            // If pins are disabled, remove the pin icon space
-            pinIcon.setVisibility(View.GONE);
+
+        // Set the pin
+        if (allowLongClick) {
+            setPinDisplay(listEntry);
         } else {
-            // If pins are enabled, leave the pin icon space
-            pinIcon.setVisibility(View.INVISIBLE);
-            itemView.setBackgroundColor(Color.argb(0, 0, 0, 0));
+            pinIcon.setVisibility(View.GONE);
         }
 
         // LongClickListener to toggle pin (does not apply to top streams list)
@@ -76,10 +69,7 @@ public class CompactViewHolder extends RecyclerView.ViewHolder {
                     vibrator.vibrate(vibrateTime);
                 ThreadManager.post(() -> ChannelDb.toggleChannelPin(listEntry.id));
                 listEntry.togglePinned();
-                if (listEntry.pinned)
-                    pinIcon.setVisibility(View.VISIBLE);
-                else
-                    pinIcon.setVisibility(View.INVISIBLE);
+                setPinDisplay(listEntry);
                 return true;
             });
         }
@@ -91,6 +81,19 @@ public class CompactViewHolder extends RecyclerView.ViewHolder {
             bindOfflineStream();
         } else {
             bindOnlineStream(listEntry);
+        }
+    }
+
+    private void setPinDisplay(ListEntry listEntry) {
+        if (listEntry.pinned) {
+            pinIcon.setVisibility(View.VISIBLE);
+            if (SettingsManager.getDarkModeSetting())
+                itemView.setBackgroundColor(Color.argb(75, 75, 54, 124));
+            else
+                itemView.setBackgroundColor(Color.argb(25, 177, 157, 216));
+        } else {
+            pinIcon.setVisibility(View.INVISIBLE);
+            itemView.setBackgroundColor(Color.argb(0, 0, 0, 0));
         }
     }
 
