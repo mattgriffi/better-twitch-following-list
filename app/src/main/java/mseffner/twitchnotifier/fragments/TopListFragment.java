@@ -28,6 +28,7 @@ public class TopListFragment extends BaseListFragment {
     public void onStart() {
         super.onStart();
         startMessage.setVisibility(View.GONE);
+        updateList();
     }
 
     @Override

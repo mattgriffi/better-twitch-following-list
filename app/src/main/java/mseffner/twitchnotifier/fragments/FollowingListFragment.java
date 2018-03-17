@@ -16,11 +16,28 @@ import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.events.FollowsUpdateStartedEvent;
 import mseffner.twitchnotifier.events.FollowsUpdatedEvent;
 import mseffner.twitchnotifier.events.ListRefreshedEvent;
+import mseffner.twitchnotifier.events.PreStreamUpdateEvent;
 import mseffner.twitchnotifier.events.StreamsUpdateStartedEvent;
 import mseffner.twitchnotifier.events.StreamsUpdatedEvent;
 import mseffner.twitchnotifier.networking.ErrorHandler;
 
 public class FollowingListFragment extends BaseListFragment {
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        /* If the PreStreamUpdateEvent is present, then PeriodicUpdater was just
+        started and the streams data has probably been deleted, so use the list
+        provided in the event. This prevents the list from showing everything as
+        offline for a second before the streams update completes. */
+        PreStreamUpdateEvent stickyEvent = EventBus.getDefault().getStickyEvent(PreStreamUpdateEvent.class);
+        if (stickyEvent != null) {
+            sortList(stickyEvent.list);
+            EventBus.getDefault().removeStickyEvent(stickyEvent);
+        } else {
+            updateList();
+        }
+    }
 
     @Override
     protected boolean getLongClickSetting() {
@@ -29,8 +46,11 @@ public class FollowingListFragment extends BaseListFragment {
 
     @Override
     protected void updateList() {
+        ThreadManager.post(() -> sortList(ChannelDb.getAllFollows()));
+    }
+
+    private void sortList(List<ListEntry> list) {
         ThreadManager.post(() -> {
-            List<ListEntry> list = ChannelDb.getAllFollows();
             ListEntrySorter.sort(list);
             EventBus.getDefault().post(new ListRefreshedEvent(list));
         });

@@ -108,7 +108,6 @@ public abstract class BaseListFragment extends Fragment {
     public void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
-        updateList();
     }
 
     @Override
