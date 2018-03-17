@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:background="@android:color/transparent"
     android:baselineAligned="false"
     android:orientation="horizontal">
 
@@ -12,15 +12,17 @@
         android:layout_height="16dp"
         android:layout_gravity="center_vertical"
         android:layout_marginRight="2dp"
+        android:background="@android:color/transparent"
         android:scaleType="centerCrop"
         android:src="?attr/clock"
-        tools:ignore="ContentDescription,RtlHardcoded"/>
+        tools:ignore="ContentDescription,RtlHardcoded" />
 
     <TextView
         android:id="@+id/uptime"
         android:layout_width="60dp"
         android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
         android:textColor="?android:textColorSecondary"
-        tools:text="4:46"/>
+        tools:text="4:46" />
 
 </LinearLayout>

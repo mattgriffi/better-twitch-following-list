@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -17,25 +16,25 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/list_recyclerview"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
     <!-- The start message telling the user how to get started -->
     <LinearLayout
         android:id="@+id/start_message"
-        android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:gravity="center"
-        android:layout_gravity="center">
+        android:orientation="vertical">
 
         <!-- Main message -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/get_started_message_main"
             android:layout_marginBottom="8dp"
+            android:text="@string/get_started_message_main"
             android:textAlignment="center"
             android:textColor="@color/colorPrimary"
             android:textSize="24sp" />
@@ -48,7 +47,7 @@
             android:layout_marginRight="36dp"
             android:text="@string/get_started_message_sub"
             android:textAlignment="center"
-            android:textColor="?android:textColorSecondary"/>
+            android:textColor="?android:textColorSecondary" />
 
     </LinearLayout>
 
@@ -63,7 +62,7 @@
         android:src="@drawable/ic_up_arrow_24dp"
         android:visibility="invisible"
         app:fabSize="mini"
-        tools:visibility="visible"/>
+        tools:visibility="visible" />
 
 </android.support.design.widget.CoordinatorLayout>
 

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -13,17 +12,19 @@
     android:padding="8dp">
 
     <!-- Channel logo -->
-    <include layout="@layout/list_item_channel_logo"/>
+    <include layout="@layout/list_item_channel_logo" />
 
     <!-- Channel information -->
-    <include layout="@layout/list_item_info_verbose"
+    <include
+        layout="@layout/list_item_info_verbose"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1"/>
+        android:layout_weight="1" />
 
     <!-- Channel pin icon -->
-    <include layout="@layout/list_item_pin"
+    <include
+        layout="@layout/list_item_pin"
         android:paddingLeft="8dp"
-        tools:ignore="RtlHardcoded,RtlSymmetry"/>
+        tools:ignore="RtlHardcoded,RtlSymmetry" />
 
 </LinearLayout>

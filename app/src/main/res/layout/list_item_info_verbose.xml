@@ -1,31 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
-    android:layout_height="64dp">
+    android:layout_height="64dp"
+    android:background="@android:color/transparent">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
+        android:background="@android:color/transparent"
         android:baselineAligned="false"
         android:orientation="horizontal"
         tools:ignore="RtlHardcoded">
 
         <!-- Channel name -->
-        <include layout="@layout/list_item_display_name"/>
+        <include layout="@layout/list_item_display_name" />
 
         <!-- Current game -->
-        <include layout="@layout/list_item_game_name"/>
+        <include layout="@layout/list_item_game_name" />
 
     </LinearLayout>
 
     <!-- Offline text -->
-    <include layout="@layout/list_item_offline"/>
+    <include layout="@layout/list_item_offline" />
 
     <!-- Stream title -->
-    <include layout="@layout/list_item_title"/>
+    <include layout="@layout/list_item_title" />
 
     <!-- Viewer count, uptime, and rerun tag -->
     <LinearLayout
@@ -34,18 +35,19 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
+        android:background="@android:color/transparent"
         android:baselineAligned="false"
         android:orientation="horizontal"
         tools:ignore="RtlHardcoded">
 
         <!-- Current viewer count -->
-        <include layout="@layout/list_item_viewer_count"/>
+        <include layout="@layout/list_item_viewer_count" />
 
         <!-- Current uptime -->
-        <include layout="@layout/list_item_uptime"/>
+        <include layout="@layout/list_item_uptime" />
 
         <!-- Rerun tag -->
-        <include layout="@layout/list_item_rerun_tag"/>
+        <include layout="@layout/list_item_rerun_tag" />
 
     </LinearLayout>
 
