@@ -3,6 +3,7 @@ package mseffner.twitchnotifier.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Vibrator;
 import android.support.v7.widget.RecyclerView;
@@ -55,12 +56,17 @@ public class CompactViewHolder extends RecyclerView.ViewHolder {
         channelName.setText(listEntry.displayName);
         if (listEntry.pinned) {
             pinIcon.setVisibility(View.VISIBLE);
+            if (SettingsManager.getDarkModeSetting())
+                itemView.setBackgroundColor(Color.argb(75, 75, 54, 124));
+            else
+                itemView.setBackgroundColor(Color.argb(25, 177, 157, 216));
         } else if (!allowLongClick){
             // If pins are disabled, remove the pin icon space
             pinIcon.setVisibility(View.GONE);
         } else {
             // If pins are enabled, leave the pin icon space
             pinIcon.setVisibility(View.INVISIBLE);
+            itemView.setBackgroundColor(Color.argb(0, 0, 0, 0));
         }
 
         // LongClickListener to toggle pin (does not apply to top streams list)
