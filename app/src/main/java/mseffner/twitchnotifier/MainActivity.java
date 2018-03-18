@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
         // Set up static classes
         EventBus.getDefault().register(this);
@@ -43,9 +44,6 @@ public class MainActivity extends AppCompatActivity {
         // Set the theme based on whether dark mode is on;
         boolean darkMode = SettingsManager.getDarkModeSetting();
         setTheme(darkMode ? R.style.AppTheme_Dark : R.style.AppTheme_Light);
-
-        // Set the content view
-        setContentView(R.layout.activity_main);
 
         // Set up ViewPager and TabLayout
         ViewPager viewPager = findViewById(R.id.viewpager);

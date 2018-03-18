@@ -35,9 +35,9 @@ public class ListPagerAdapter extends FragmentPagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         switch (position) {
-            case 0: return context.getString(R.string.following_tab);
-            case 1: return context.getString(R.string.top_tab);
-            default: return context.getString(R.string.settings);
+            case 0: return context.getResources().getString(R.string.following_tab);
+            case 1: return context.getResources().getString(R.string.top_tab);
+            default: return context.getResources().getString(R.string.settings);
         }
     }
 }
