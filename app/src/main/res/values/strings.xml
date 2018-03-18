@@ -31,8 +31,6 @@
     <string name="settings">Settings</string>
     <!-- Settings option to toggle dark mode -->
     <string name="dark_mode">Dark mode</string>
-    <!-- Settings option to toggle compact mode -->
-    <string name="compact_mode">Compact list</string>
     <!-- Settings option to change user's name -->
     <string name="twitch_name">Twitch name</string>
     <!-- Settings option to change how vodcasts are displayed -->
@@ -41,6 +39,8 @@
     <string name="sort_by">Sort by</string>
     <!-- Settings option to change sort order -->
     <string name="sort_order">Sort order</string>
+    <!-- Settings option for the list mode -->
+    <string name="list_mode">List mode</string>
     <!-- Settings option to delete all of the user's set pins, also used for the positive confirmation button -->
     <string name="delete_pins">Remove pins</string>
     <!-- Title of the delete pins confirmation dialog -->
@@ -63,6 +63,7 @@
     <string name="pref_label_vodcast_online">Online</string>
     <string name="pref_label_vodcast_online_tag">Online with tag</string>
     <string name="pref_label_vodcast_offline">Offline</string>
+
     <!-- Options to display for sort order -->
     <string name="pref_label_order_name">Streamer name</string>
     <string name="pref_label_order_game">Game name</string>
@@ -70,6 +71,11 @@
     <string name="pref_label_order_viewer_count">Viewer count</string>
     <string name="pref_label_order_ascending">Ascending</string>
     <string name="pref_label_order_descending">Descending</string>
+
+    <!-- Options for list mode -->
+    <string name="pref_label_list_mode_full">Full</string>
+    <string name="pref_label_list_mode_compact">Compact</string>
+    <string name="pref_label_list_mode_minimal">Minimal</string>
 
     <!-- SharedPreferences keys and values -->
     <string name="pref_username_key" translatable="false">username</string>
@@ -89,6 +95,9 @@
     <string name="pref_order_viewer_count" translatable="false">order_viewer_count</string>
     <string name="last_updated" translatable="false">last_updated</string>
     <string name="need_follows_update_key" translatable="false">need_follows_update_key</string>
-    <string name="pref_compact_key" translatable="false">pref_compact_key</string>
+    <string name="pref_list_mode_key" translatable="false">list_mode_key</string>
+    <string name="pref_list_mode_full" translatable="false">list_mode_full</string>
+    <string name="pref_list_mode_compact" translatable="false">list_mode_compact</string>
+    <string name="pref_list_mode_minimal" translatable="false">list_mode_minimal</string>
 
 </resources>

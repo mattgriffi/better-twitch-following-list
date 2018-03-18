@@ -30,8 +30,15 @@
         <!-- Offline text -->
         <include layout="@layout/list_item_offline" />
 
+        <!-- Rerun tag -->
+        <include layout="@layout/list_item_rerun_tag"
+            tools:visibility="visible"/>
+
         <!-- Current game -->
-        <include layout="@layout/list_item_game_name" />
+        <include layout="@layout/list_item_game_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"/>
 
     </LinearLayout>
 

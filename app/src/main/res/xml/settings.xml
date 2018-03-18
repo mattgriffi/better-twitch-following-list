@@ -30,11 +30,13 @@
         android:key="@string/pref_vodcast_key"
         android:title="@string/vodcast_display"/>
 
-    <!-- Toggle compact mode -->
-    <SwitchPreference
-        android:defaultValue="false"
-        android:key="@string/pref_compact_key"
-        android:title="@string/compact_mode"/>
+    <!-- List mode setting -->
+    <ListPreference
+        android:defaultValue="@string/pref_list_mode_full"
+        android:entries="@array/pref_list_mode_options"
+        android:entryValues="@array/pref_list_mode_values"
+        android:key="@string/pref_list_mode_key"
+        android:title="@string/list_mode"/>
 
     <!-- Sort by setting -->
     <ListPreference

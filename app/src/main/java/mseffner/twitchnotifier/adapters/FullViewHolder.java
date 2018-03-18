@@ -11,38 +11,38 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import mseffner.twitchnotifier.R;
 import mseffner.twitchnotifier.data.ListEntry;
 
-public class VerboseViewHolder extends CompactViewHolder {
+public class FullViewHolder extends CompactViewHolder {
 
-    private ImageView channelLogo;
-    private TextView streamTitle;
+    private ImageView profileImage;
+    private TextView title;
 
-    public VerboseViewHolder(View itemView, Vibrator vibrator) {
+    public FullViewHolder(View itemView, Vibrator vibrator) {
         super(itemView, vibrator);
-        channelLogo = itemView.findViewById(R.id.channel_logo);
-        streamTitle = itemView.findViewById(R.id.title);
+        profileImage = itemView.findViewById(R.id.channel_logo);
+        title = itemView.findViewById(R.id.title);
     }
 
     @Override
     public void bind(ListEntry listEntry, boolean allowLongClick, int vibrateTime) {
         super.bind(listEntry, allowLongClick, vibrateTime);
         // Set up Glide to load the profile image
-        GlideApp.with(itemView.getContext())
+        GlideApp.with(profileImage.getContext())
                 .load(listEntry.profileImageUrl)
                 .placeholder(R.drawable.default_logo_300x300)
                 .transition(DrawableTransitionOptions.withCrossFade(200))
-                .into(channelLogo);
+                .into(profileImage);
     }
 
     @Override
     protected void bindOfflineStream() {
         super.bindOfflineStream();
-        streamTitle.setVisibility(View.INVISIBLE);
+        title.setVisibility(View.INVISIBLE);
     }
 
     @Override
     protected void bindOnlineStream(final ListEntry listEntry) {
         super.bindOnlineStream(listEntry);
-        streamTitle.setVisibility(View.VISIBLE);
-        streamTitle.setText(listEntry.title);
+        title.setVisibility(View.VISIBLE);
+        title.setText(listEntry.title);
     }
 }

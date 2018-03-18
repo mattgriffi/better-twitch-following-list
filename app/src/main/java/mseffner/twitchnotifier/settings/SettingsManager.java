@@ -10,7 +10,7 @@ import mseffner.twitchnotifier.R;
 import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.data.DataUpdateManager;
 import mseffner.twitchnotifier.data.ThreadManager;
-import mseffner.twitchnotifier.events.CompactModeChangedEvent;
+import mseffner.twitchnotifier.events.ListModeChangedEvent;
 import mseffner.twitchnotifier.events.DarkModeChangedEvent;
 
 /**
@@ -26,11 +26,16 @@ public class SettingsManager {
     public static final int RERUN_ONLINE_TAG = 1;
     public static final int RERUN_OFFLINE = 2;
 
-    //Public constants for sort order settings
+    // Public constants for sort order settings
     public static final int SORT_BY_VIEWER_COUNT = 0;
     public static final int SORT_BY_NAME = 1;
     public static final int SORT_BY_GAME = 2;
     public static final int SORT_BY_UPTIME = 3;
+
+    // Public constants for list mode setting
+    public static final int LIST_MODE_FULL = 0;
+    public static final int LIST_MODE_COMPACT = 1;
+    public static final int LIST_MODE_MINIMAL = 2;
 
     // Public constant for invalid username id
     public static final long INVALID_USERNAME_ID = -1;
@@ -50,7 +55,7 @@ public class SettingsManager {
     private static String sortByKey;
     private static String sortAscDescKey;
     private static String followsNeedUpdateKey;
-    private static String compactKey;
+    private static String listModeKey;
 
     private SettingsManager() {}
 
@@ -72,7 +77,7 @@ public class SettingsManager {
         SettingsManager.sortByKey = resources.getString(R.string.pref_order_by_key);
         SettingsManager.sortAscDescKey = resources.getString(R.string.pref_order_ascending_key);
         SettingsManager.followsNeedUpdateKey = resources.getString(R.string.need_follows_update_key);
-        SettingsManager.compactKey = resources.getString(R.string.pref_compact_key);
+        SettingsManager.listModeKey = resources.getString(R.string.pref_list_mode_key);
     }
 
     /**
@@ -185,8 +190,18 @@ public class SettingsManager {
     /**
      * @return true if compact is on, else false
      */
-    public static boolean getCompactSetting() {
-        return sharedPreferences.getBoolean(compactKey, false);
+    public static int getListModeSetting() {
+        String setting = sharedPreferences.getString(listModeKey, "");
+
+        String compact = resources.getString(R.string.pref_list_mode_compact);
+        String minimal = resources.getString(R.string.pref_list_mode_minimal);
+
+        if (setting.equals(compact))
+            return LIST_MODE_COMPACT;
+        else if (setting.equals(minimal))
+            return LIST_MODE_MINIMAL;
+        else
+            return LIST_MODE_FULL;
     }
 
     /**
@@ -229,7 +244,7 @@ public class SettingsManager {
             ThreadManager.post(ChannelDb::deleteAllFollows);
         } else if (key.equals(darkmodeKey))
             EventBus.getDefault().post(new DarkModeChangedEvent(getDarkModeSetting()));
-        else if (key.equals(compactKey))
-            EventBus.getDefault().post(new CompactModeChangedEvent());
+        else if (key.equals(listModeKey))
+            EventBus.getDefault().post(new ListModeChangedEvent());
     }
 }

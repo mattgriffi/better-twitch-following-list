@@ -14,7 +14,7 @@ import mseffner.twitchnotifier.data.ChannelContract;
 import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.data.ThreadManager;
-import mseffner.twitchnotifier.events.CompactModeChangedEvent;
+import mseffner.twitchnotifier.events.ListModeChangedEvent;
 import mseffner.twitchnotifier.events.TopListRefreshedEvent;
 import mseffner.twitchnotifier.events.TopListUpdateStartedEvent;
 import mseffner.twitchnotifier.events.TopStreamsUpdatedEvent;
@@ -67,7 +67,7 @@ public class TopListFragment extends BaseListFragment {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onCompactModeChangedEvent(CompactModeChangedEvent event) {
+    public void onCompactModeChangedEvent(ListModeChangedEvent event) {
         // Force recyclerView to redraw with new layout
         recyclerView.setAdapter(channelAdapter);
     }

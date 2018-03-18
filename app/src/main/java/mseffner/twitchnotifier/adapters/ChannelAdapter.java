@@ -15,7 +15,7 @@ import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.settings.SettingsManager;
 
 
-public class ChannelAdapter extends RecyclerView.Adapter<CompactViewHolder> {
+public class ChannelAdapter extends RecyclerView.Adapter<MinimalViewHolder> {
 
     private static final int VIBRATE_TIME = 5;
     private Vibrator vibrator;
@@ -39,21 +39,24 @@ public class ChannelAdapter extends RecyclerView.Adapter<CompactViewHolder> {
         return list.get(position).id;
     }
 
+    @NonNull
     @Override
-    public CompactViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
+    public MinimalViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        if (SettingsManager.getCompactSetting()) {
+        if (SettingsManager.getListModeSetting() == SettingsManager.LIST_MODE_COMPACT) {
             View view = inflater.inflate(R.layout.layout_list_item_compact, parent, false);
             return new CompactViewHolder(view, vibrator);
+        } else if (SettingsManager.getListModeSetting() == SettingsManager.LIST_MODE_MINIMAL) {
+            View view = inflater.inflate(R.layout.layout_list_item_minimal, parent, false);
+            return new MinimalViewHolder(view, vibrator);
         } else {
             View view = inflater.inflate(R.layout.layout_list_item_verbose, parent, false);
-            return new VerboseViewHolder(view, vibrator);
+            return new FullViewHolder(view, vibrator);
         }
     }
 
     @Override
-    public void onBindViewHolder(CompactViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MinimalViewHolder holder, int position) {
         holder.bind(list.get(position), allowLongClick, VIBRATE_TIME);
     }
 

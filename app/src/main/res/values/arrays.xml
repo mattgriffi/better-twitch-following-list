@@ -17,7 +17,11 @@
         <item>@string/pref_label_order_ascending</item>
         <item>@string/pref_label_order_descending</item>
     </string-array>
-
+    <string-array name="pref_list_mode_options">
+        <item>@string/pref_label_list_mode_full</item>
+        <item>@string/pref_label_list_mode_compact</item>
+        <item>@string/pref_label_list_mode_minimal</item>
+    </string-array>
 
     <!-- These are the values stored in SharedPreferences -->
     <string-array name="pref_vodcast_values">
@@ -34,6 +38,11 @@
     <string-array name="pref_order_asc_desc_values">
         <item>@string/pref_order_ascending</item>
         <item>@string/pref_order_descending</item>
+    </string-array>
+    <string-array name="pref_list_mode_values">
+        <item>@string/pref_list_mode_full</item>
+        <item>@string/pref_list_mode_compact</item>
+        <item>@string/pref_list_mode_minimal</item>
     </string-array>
 
 </resources>
