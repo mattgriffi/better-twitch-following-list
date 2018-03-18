@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/transparent"
+    android:baselineAligned="false"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    android:orientation="horizontal"
+    android:paddingBottom="2dp"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp"
+    android:paddingTop="2dp">
+
+    <LinearLayout
+        android:id="@+id/display_name_and_game"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:baselineAligned="false"
+        android:orientation="horizontal"
+        tools:ignore="RtlHardcoded">
+
+        <!-- Channel name -->
+        <include layout="@layout/list_item_display_name" />
+
+        <!-- Offline text -->
+        <include layout="@layout/list_item_offline" />
+
+        <!-- Current game -->
+        <include layout="@layout/list_item_game_name" />
+
+    </LinearLayout>
+
+    <!-- Channel pin icon -->
+    <include
+        layout="@layout/list_item_pin"
+        android:paddingLeft="8dp"
+        tools:ignore="RtlHardcoded,RtlSymmetry" />
+
+</LinearLayout>
