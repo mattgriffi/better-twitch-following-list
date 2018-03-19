@@ -107,8 +107,9 @@ public class MinimalViewHolder extends RecyclerView.ViewHolder {
         currentGame.setText(listEntry.gameName);
 
         // Display vodcast tag depending on setting
-        if (listEntry.type == ChannelContract.ChannelEntry.STREAM_TYPE_RERUN &&
-                SettingsManager.getRerunSetting() == SettingsManager.RERUN_ONLINE_TAG)
+        boolean rerun = listEntry.type == ChannelContract.StreamEntry.STREAM_TYPE_RERUN;
+        boolean rerunTagged = SettingsManager.getRerunSetting() == SettingsManager.RERUN_ONLINE_TAG;
+        if (rerun && rerunTagged)
             rerunTag.setVisibility(View.VISIBLE);
         else
             rerunTag.setVisibility(View.GONE);

@@ -22,13 +22,14 @@
         android:textColor="?colorPrimary"
         android:title="@string/twitch_name"/>
 
-    <!-- Rerun display setting -->
+<!-- Twitch removed support for reruns from the API on March 2, 2018, so this feature is now impossible
     <ListPreference
         android:defaultValue="@string/pref_vodcast_online_tag"
         android:entries="@array/pref_vodcast_options"
         android:entryValues="@array/pref_vodcast_values"
         android:key="@string/pref_vodcast_key"
         android:title="@string/vodcast_display"/>
+    -->
 
     <!-- List mode setting -->
     <ListPreference
