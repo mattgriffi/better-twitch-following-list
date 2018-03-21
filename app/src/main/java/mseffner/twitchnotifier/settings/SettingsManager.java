@@ -3,6 +3,7 @@ package mseffner.twitchnotifier.settings;
 
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.os.SystemClock;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -10,8 +11,8 @@ import mseffner.twitchnotifier.R;
 import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.data.DataUpdateManager;
 import mseffner.twitchnotifier.data.ThreadManager;
-import mseffner.twitchnotifier.events.ListModeChangedEvent;
 import mseffner.twitchnotifier.events.DarkModeChangedEvent;
+import mseffner.twitchnotifier.events.ListModeChangedEvent;
 
 /**
  * SettingsManager is a class with static methods allowing all of the preferences
@@ -208,7 +209,7 @@ public class SettingsManager {
      * Sets the last updated time.
      */
     public static void setLastUpdated() {
-        sharedPreferences.edit().putLong(lastUpdatedKey, System.nanoTime()).apply();
+        sharedPreferences.edit().putLong(lastUpdatedKey, SystemClock.elapsedRealtime()).apply();
     }
 
     /**
@@ -230,7 +231,11 @@ public class SettingsManager {
      */
     public static boolean rateLimitReset() {
         long lastTime = sharedPreferences.getLong(lastUpdatedKey, 0L);
-        return (System.nanoTime() - lastTime) / 1000000 > RATE_LIMIT_MILLISECONDS;
+        /* Previous versions of the app incorrectly used System.nanoTime to track
+        when it was last updated. nanoTime can return negative values, so we need to
+        take the abs of this difference to ensure that the rate limit is not permanently
+        stuck when the user updates the app from older versions. */
+        return Math.abs(SystemClock.elapsedRealtime() - lastTime) > RATE_LIMIT_MILLISECONDS;
     }
 
     /**
