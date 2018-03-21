@@ -278,7 +278,7 @@ public class DataUpdateManager {
         // 0 indicates a null game, so ignore that
         if (gameIds.length == 0 || (gameIds[0].length == 1 && gameIds[0][0] == 0))  {
             if (type == UPDATE_TYPE_FOLLOWS) {
-                postFollowsStreamsUpdatedEvent(true);
+                postFollowsStreamsUpdatedEvent();
             } else if (type == UPDATE_TYPE_TOP_STREAMS) {
                 topStreamsGamesUpdateInProgress = false;
                 postTopStreamsUpdatedEvent();
@@ -308,7 +308,7 @@ public class DataUpdateManager {
                     remainingGamesRequests--;
                     ChannelDb.insertGamesData(response);
                     if (remainingGamesRequests == 0)
-                        postFollowsStreamsUpdatedEvent(true);
+                        postFollowsStreamsUpdatedEvent();
                 });
             else if (type == UPDATE_TYPE_TOP_STREAMS)
                 ThreadManager.post(() -> {
@@ -338,10 +338,9 @@ public class DataUpdateManager {
         EventBus.getDefault().post(new FollowsUpdatedEvent());
     }
 
-    private static synchronized  void postFollowsStreamsUpdatedEvent(boolean updated) {
+    private static synchronized  void postFollowsStreamsUpdatedEvent() {
         streamsUpdateInProgress = false;
-        if (updated)
-            SettingsManager.setLastUpdated();
+        SettingsManager.setLastUpdated();
         EventBus.getDefault().post(new StreamsUpdatedEvent());
     }
 
