@@ -30,7 +30,7 @@
 
     <!-- Tab style -->
     <style name="TabStyle" parent="Widget.Design.TabLayout">
-        <item name="android:background">?android:colorPrimary</item>
+        <item name="android:background">@color/colorPrimary</item>
         <item name="tabIndicatorColor">@android:color/primary_text_dark</item>
         <item name="tabSelectedTextColor">@android:color/primary_text_dark</item>
         <item name="tabTextAppearance">@style/TabTextAppearance</item>
