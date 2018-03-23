@@ -14,12 +14,10 @@ import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.data.ListEntrySorter;
 import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.events.FollowsUpdateStartedEvent;
-import mseffner.twitchnotifier.events.FollowsUpdatedEvent;
 import mseffner.twitchnotifier.events.ListRefreshedEvent;
 import mseffner.twitchnotifier.events.PreStreamUpdateEvent;
 import mseffner.twitchnotifier.events.StreamsUpdateStartedEvent;
 import mseffner.twitchnotifier.events.StreamsUpdatedEvent;
-import mseffner.twitchnotifier.networking.ErrorHandler;
 
 public class FollowingListFragment extends BaseListFragment {
 
@@ -64,11 +62,6 @@ public class FollowingListFragment extends BaseListFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onStreamsUpdateStartedEvent(StreamsUpdateStartedEvent event) {
         swipeRefreshLayout.setRefreshing(true);
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onFollowsUpdatedEvent(FollowsUpdatedEvent event) {
-        DataUpdateManager.updateStreamsData(ErrorHandler.getInstance());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

@@ -19,6 +19,7 @@ public class PeriodicUpdater implements Runnable {
     public void run() {
         // If we are ready for a new update
         if (SettingsManager.rateLimitReset()) {
+            SettingsManager.setLastUpdated();
             /* Fetch the follows before deleting streams data when first starting so the follows
             list doesn't show everything as offline before the new update completes. */
             if (needPreStreamData) {

@@ -8,7 +8,6 @@ import org.greenrobot.eventbus.EventBus;
 
 import mseffner.twitchnotifier.ToastMaker;
 import mseffner.twitchnotifier.events.FollowsUpdateStartedEvent;
-import mseffner.twitchnotifier.events.FollowsUpdatedEvent;
 import mseffner.twitchnotifier.events.StreamsUpdateStartedEvent;
 import mseffner.twitchnotifier.events.StreamsUpdatedEvent;
 import mseffner.twitchnotifier.events.TopListUpdateStartedEvent;
@@ -89,7 +88,7 @@ public class DataUpdateManager {
     public static void updateFollowsData(final Response.ErrorListener errorListener) {
         DataUpdateManager.errorListener = new ErrorWrapper(errorListener);
 
-        if (followsUpdateInProgress || streamsUpdateInProgress || !SettingsManager.validUsername())
+        if (!SettingsManager.validUsername())
             return;
 
         followsUpdateInProgress = true;
@@ -130,17 +129,13 @@ public class DataUpdateManager {
                     if (remainingFollowsRequests > 0)  // There is still more to fetch
                         Requests.getFollows(followsResponse.pagination.cursor, new FollowsListener(), errorListener);
                     else {  // We are done, clean follows and get the users data
-                        ChannelDb.cleanFollows();
-                        SettingsManager.setFollowsNeedUpdate(false);
-                        updateUsersData(UPDATE_TYPE_FOLLOWS);
+                        followsUpdateComplete();
                     }
                 });
             } else {  // If we hit the limit, call it quits
                 ThreadManager.post(() -> {
                     ToastMaker.makeToastLong(ToastMaker.MESSAGE_TOO_MANY_FOLLOWS);
-                    ChannelDb.cleanFollows();
-                    SettingsManager.setFollowsNeedUpdate(false);
-                    updateUsersData(UPDATE_TYPE_FOLLOWS);
+                    followsUpdateComplete();
                 });
             }
         }
@@ -154,13 +149,9 @@ public class DataUpdateManager {
     private static void updateUsersData(int type) {
         if (type == UPDATE_TYPE_FOLLOWS) {
             long[][] userIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIdsFromFollows());
-            if (userIds.length == 0) {
-                postFollowsUpdatedEvent();
-            } else {
-                remainingUsersRequests = userIds.length;
-                for (long[] ids : userIds)
-                    Requests.getUsers(ids, new UsersListener(type), ErrorHandler.getInstance());
-            }
+            remainingUsersRequests = userIds.length;
+            for (long[] ids : userIds)
+                Requests.getUsers(ids, new UsersListener(type), ErrorHandler.getInstance());
         } else if (type == UPDATE_TYPE_TOP_STREAMS) {
             long[][] userIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIdsFromStreams());
             if (userIds.length == 0) {
@@ -191,8 +182,6 @@ public class DataUpdateManager {
                 ThreadManager.post(() -> {
                     remainingUsersRequests--;
                     ChannelDb.insertUsersData(response);
-                    if (remainingUsersRequests == 0)
-                        postFollowsUpdatedEvent();
                 });
             else if (type == UPDATE_TYPE_TOP_STREAMS)
                 ThreadManager.post(() -> {
@@ -201,7 +190,6 @@ public class DataUpdateManager {
                     postTopStreamsUpdatedEvent();
                 });
         }
-
     }
 
     /**
@@ -211,8 +199,6 @@ public class DataUpdateManager {
      */
     public static void updateStreamsData(final Response.ErrorListener errorListener) {
         DataUpdateManager.errorListener = new ErrorWrapper(errorListener);
-
-        if (streamsUpdateInProgress || followsUpdateInProgress) return;
 
         streamsUpdateInProgress = true;
         remainingStreamsRequests = 0;
@@ -228,6 +214,12 @@ public class DataUpdateManager {
     private static void performStreamsUpdate() {
         long[][] userIds = URLTools.splitIdArray(ChannelDb.getAllFollowIds());
         remainingStreamsRequests = userIds.length;
+        // If there are none, then we're already done. Yay!
+        if (remainingStreamsRequests == 0) {
+            postFollowsStreamsUpdatedEvent();
+            return;
+        }
+
         for (long[] ids : userIds)
             Requests.getStreams(ids, new StreamsListener(UPDATE_TYPE_FOLLOWS), errorListener);
 
@@ -333,14 +325,15 @@ public class DataUpdateManager {
         EventBus.getDefault().post(new TopStreamsUpdatedEvent());
     }
 
-    private static synchronized  void postFollowsUpdatedEvent() {
+    private static synchronized void followsUpdateComplete() {
         followsUpdateInProgress = false;
-        EventBus.getDefault().post(new FollowsUpdatedEvent());
+        SettingsManager.setFollowsNeedUpdate(false);
+        ThreadManager.post(ChannelDb::cleanFollows);
+        updateStreamsData(errorListener);
     }
 
-    private static synchronized  void postFollowsStreamsUpdatedEvent() {
+    private static synchronized void postFollowsStreamsUpdatedEvent() {
         streamsUpdateInProgress = false;
-        SettingsManager.setLastUpdated();
         EventBus.getDefault().post(new StreamsUpdatedEvent());
     }
 
