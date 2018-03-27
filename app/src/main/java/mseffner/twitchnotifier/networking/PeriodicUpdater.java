@@ -17,6 +17,7 @@ public class PeriodicUpdater implements Runnable {
 
     @Override
     public void run() {
+        RequestTracker.log();
         // If we are ready for a new update
         if (SettingsManager.rateLimitReset()) {
             SettingsManager.setLastUpdated();
@@ -31,6 +32,7 @@ public class PeriodicUpdater implements Runnable {
             // Prepare for the update
             ChannelDb.deleteAllStreams();
             ErrorHandler.reset();
+            RequestTracker.reset();
             // Update either the follows or just streams
             if (SettingsManager.getFollowsNeedUpdate())
                 DataUpdateManager.updateFollowsData(ErrorHandler.getInstance());

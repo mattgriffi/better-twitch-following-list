@@ -20,15 +20,19 @@ public class RequestFactory {
         GsonRequest request = null;
         switch (requestType) {
             case Requests.REQUEST_TYPE_USERS:
+                RequestTracker.incrementUsers();
                 request = getUsersRequest(url, listener, errorListener);
                 break;
             case Requests.REQUEST_TYPE_STREAMS:
+                RequestTracker.incrementStreams();
                 request = getStreamsRequest(url, listener, errorListener);
                 break;
             case Requests.REQUEST_TYPE_FOLLOWS:
+                RequestTracker.incrementFollows();
                 request = getFollowsRequest(url, listener, errorListener);
                 break;
             case Requests.REQUEST_TYPE_GAMES:
+                RequestTracker.incrementGames();
                 request = getGamesRequest(url, listener, errorListener);
                 break;
         }

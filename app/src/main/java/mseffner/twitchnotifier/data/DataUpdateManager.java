@@ -15,6 +15,7 @@ import mseffner.twitchnotifier.events.TopStreamsUpdatedEvent;
 import mseffner.twitchnotifier.events.UserIdUpdatedEvent;
 import mseffner.twitchnotifier.networking.Containers;
 import mseffner.twitchnotifier.networking.ErrorHandler;
+import mseffner.twitchnotifier.networking.RequestTracker;
 import mseffner.twitchnotifier.networking.Requests;
 import mseffner.twitchnotifier.networking.URLTools;
 import mseffner.twitchnotifier.settings.SettingsManager;
@@ -69,6 +70,7 @@ public class DataUpdateManager {
     private static class UserIdListener implements Response.Listener<Containers.Users> {
         @Override
         public void onResponse(Containers.Users response) {
+            RequestTracker.decrementUsers();
             if (response.data.isEmpty()) {
                 ToastMaker.makeToastLong(ToastMaker.MESSAGE_INVALID_USERNAME);
                 return;
@@ -116,6 +118,7 @@ public class DataUpdateManager {
 
         @Override
         public void onResponse(Containers.Follows followsResponse) {
+            RequestTracker.decrementFollows();
             // Track progress of the follows requests
             if (remainingFollowsRequests == 0)  // This is the first request
                 remainingFollowsRequests = (int) Math.ceil(followsResponse.total / 100.0);
@@ -178,6 +181,7 @@ public class DataUpdateManager {
 
         @Override
         public void onResponse(Containers.Users response) {
+            RequestTracker.decrementUsers();
             if (type == UPDATE_TYPE_FOLLOWS)
                 ThreadManager.post(() -> {
                     remainingUsersRequests--;
@@ -244,6 +248,7 @@ public class DataUpdateManager {
 
         @Override
         public void onResponse(Containers.Streams response) {
+            RequestTracker.decrementStreams();
             if (type == UPDATE_TYPE_FOLLOWS)
                 ThreadManager.post(() -> {
                     remainingStreamsRequests--;
@@ -295,6 +300,7 @@ public class DataUpdateManager {
 
         @Override
         public void onResponse(Containers.Games response) {
+            RequestTracker.decrementGames();
             if (type == UPDATE_TYPE_FOLLOWS)
                 ThreadManager.post(() -> {
                     remainingGamesRequests--;
