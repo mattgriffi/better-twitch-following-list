@@ -179,8 +179,7 @@ public class DataUpdateManager {
     }
 
     /**
-     * Inserts the streams data into the database, then starts the games update after
-     * all of the streams data has been updated.
+     * Inserts the streams data into the database.
      */
     private static class StreamsListener implements Response.Listener<Containers.Streams> {
         @Override
@@ -194,24 +193,14 @@ public class DataUpdateManager {
 
     /**
      * Requests the games data for any games id in the streams table that is not
-     * already in the games table. Notifies the listener if there are no games
-     * to fetch.
+     * already in the games table.
      */
     private static void updateGamesData(int type) {
         long[][] gameIds = URLTools.splitIdArray(ChannelDb.getUnknownGameIds());
-        // 0 indicates a null game, so ignore that
-        if (gameIds.length == 0 || (gameIds[0].length == 1 && gameIds[0][0] == 0))  {
-            if (type == UPDATE_TYPE_FOLLOWS) {
-                postFollowsStreamsUpdatedEvent();
-            } else if (type == UPDATE_TYPE_TOP_STREAMS) {
-                topStreamsGamesUpdateInProgress = false;
-                postTopStreamsUpdatedEvent();
-            }
-        } else {
-            remainingGamesRequests = gameIds.length;
-            for (long[] ids : gameIds)
-                Requests.getGames(ids, new GamesListener(type));
-        }
+        // 0 is a null game, so ignore that
+        if (gameIds.length == 0 || (gameIds[0].length == 1 && gameIds[0][0] == 0)) return;
+        for (long[] ids : gameIds)
+            Requests.getGames(ids, new GamesListener(type));
     }
 
     /**
