@@ -35,11 +35,11 @@ public class PeriodicUpdater implements Runnable {
             RequestTracker.reset();
             // Update either the follows or just streams
             if (SettingsManager.getFollowsNeedUpdate())
-                DataUpdateManager.updateFollowsData(ErrorHandler.getInstance());
+                DataUpdateManager.updateFollowsData();
             else
-                DataUpdateManager.updateStreamsData(ErrorHandler.getInstance());
+                DataUpdateManager.updateStreamsData();
             // Update top streams
-            DataUpdateManager.updateTopStreamsData(ErrorHandler.getInstance());
+            DataUpdateManager.updateTopStreamsData();
         } else {  // If we shouldn't update yet, refresh with old data
             EventBus.getDefault().post(new StreamsUpdatedEvent());
             EventBus.getDefault().post(new TopStreamsUpdatedEvent());

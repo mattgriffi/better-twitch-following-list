@@ -19,15 +19,12 @@ import mseffner.twitchnotifier.events.NetworkErrorEvent;
 public class ErrorHandler implements Response.ErrorListener {
 
     private static final String LOG_TAG = ErrorHandler.class.getSimpleName();
-    private static ErrorHandler instance;
     private static boolean errorShown = false;
 
-    private ErrorHandler() {}
+    private int type;
 
-    public static synchronized ErrorHandler getInstance() {
-        if (instance == null)
-            instance = new ErrorHandler();
-        return instance;
+    public ErrorHandler(int requestType) {
+        type = requestType;
     }
 
     public static void reset() {
@@ -37,6 +34,22 @@ public class ErrorHandler implements Response.ErrorListener {
     @Override
     public void onErrorResponse(VolleyError error) {
         Log.e(LOG_TAG, null, error);
+
+        switch (type) {
+            case Requests.REQUEST_TYPE_FOLLOWS:
+                RequestTracker.decrementFollows();
+                break;
+            case Requests.REQUEST_TYPE_STREAMS:
+                RequestTracker.decrementStreams();
+                break;
+            case Requests.REQUEST_TYPE_USERS:
+                RequestTracker.decrementUsers();
+                break;
+            case Requests.REQUEST_TYPE_GAMES:
+                RequestTracker.decrementGames();
+                break;
+        }
+
         if (error instanceof NoConnectionError)
             handleNoConnectionError((NoConnectionError) error);
         else if (error instanceof NetworkError)

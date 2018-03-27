@@ -33,8 +33,6 @@ public class DataUpdateManager {
     requests would risk hitting the rate limit. */
     private static final int MAX_FOLLOW_COUNT = 25;
 
-    private static Response.ErrorListener errorListener;
-
     private static int remainingFollowsRequests;
     private static int remainingUsersRequests;
     private static int remainingStreamsRequests;
@@ -60,8 +58,7 @@ public class DataUpdateManager {
      * Updates the stored user id.
      */
     public static void updateUserId() {
-        Requests.makeRequest(Requests.REQUEST_TYPE_USERS, URLTools.getUserIdUrl(),
-                new UserIdListener(), ErrorHandler.getInstance());
+        Requests.makeRequest(Requests.REQUEST_TYPE_USERS, URLTools.getUserIdUrl(), new UserIdListener());
     }
 
     /**
@@ -84,12 +81,8 @@ public class DataUpdateManager {
     /**
      * Updates the follows table, removing any rows that no longer appear in the
      * follows response, then updates the users table if necessary.
-     *
-     * @param errorListener notified if any network operation goes wrong
      */
-    public static void updateFollowsData(final Response.ErrorListener errorListener) {
-        DataUpdateManager.errorListener = new ErrorWrapper(errorListener);
-
+    public static void updateFollowsData() {
         if (!SettingsManager.validUsername())
             return;
 
@@ -106,7 +99,7 @@ public class DataUpdateManager {
      * Updates the follows and users data. This method should NOT be called on the main thread.
      */
     private static void performFollowsUpdate() {
-        Requests.getFollows(null, new FollowsListener(), errorListener);
+        Requests.getFollows(null, new FollowsListener());
     }
 
     /**
@@ -130,7 +123,7 @@ public class DataUpdateManager {
                 ThreadManager.post(() -> {
                     ChannelDb.insertFollowsData(followsResponse);
                     if (remainingFollowsRequests > 0)  // There is still more to fetch
-                        Requests.getFollows(followsResponse.pagination.cursor, new FollowsListener(), errorListener);
+                        Requests.getFollows(followsResponse.pagination.cursor, new FollowsListener());
                     else {  // We are done, clean follows and get the users data
                         followsUpdateComplete();
                     }
@@ -154,7 +147,7 @@ public class DataUpdateManager {
             long[][] userIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIdsFromFollows());
             remainingUsersRequests = userIds.length;
             for (long[] ids : userIds)
-                Requests.getUsers(ids, new UsersListener(type), ErrorHandler.getInstance());
+                Requests.getUsers(ids, new UsersListener(type));
         } else if (type == UPDATE_TYPE_TOP_STREAMS) {
             long[][] userIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIdsFromStreams());
             if (userIds.length == 0) {
@@ -162,7 +155,7 @@ public class DataUpdateManager {
                 postTopStreamsUpdatedEvent();
             } else {
                 for (long[] ids : userIds)
-                    Requests.getUsers(ids, new UsersListener(type), ErrorHandler.getInstance());
+                    Requests.getUsers(ids, new UsersListener(type));
             }
         }
     }
@@ -198,12 +191,8 @@ public class DataUpdateManager {
 
     /**
      * Updates the streams table then updates the games table if necessary.
-     *
-     * @param errorListener notified if any network operation goes wrong
      */
-    public static void updateStreamsData(final Response.ErrorListener errorListener) {
-        DataUpdateManager.errorListener = new ErrorWrapper(errorListener);
-
+    public static void updateStreamsData() {
         streamsUpdateInProgress = true;
         remainingStreamsRequests = 0;
         remainingGamesRequests = 0;
@@ -225,13 +214,13 @@ public class DataUpdateManager {
         }
 
         for (long[] ids : userIds)
-            Requests.getStreams(ids, new StreamsListener(UPDATE_TYPE_FOLLOWS), errorListener);
+            Requests.getStreams(ids, new StreamsListener(UPDATE_TYPE_FOLLOWS));
 
         // Check for unknown user ids in case follows update failed
         long[][] unknownUserIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIdsFromFollows());
         remainingUsersRequests = unknownUserIds.length;
         for (long[] ids : unknownUserIds)
-            Requests.getUsers(ids, new UsersListener(UPDATE_TYPE_FOLLOWS), errorListener);
+            Requests.getUsers(ids, new UsersListener(UPDATE_TYPE_FOLLOWS));
     }
 
     /**
@@ -283,7 +272,7 @@ public class DataUpdateManager {
         } else {
             remainingGamesRequests = gameIds.length;
             for (long[] ids : gameIds)
-                Requests.getGames(ids, new GamesListener(type), ErrorHandler.getInstance());
+                Requests.getGames(ids, new GamesListener(type));
         }
     }
 
@@ -317,13 +306,13 @@ public class DataUpdateManager {
         }
     }
 
-    public static void updateTopStreamsData(final Response.ErrorListener errorListener) {
+    public static void updateTopStreamsData() {
         if (topStreamsUsersUpdateInProgress || topStreamsGamesUpdateInProgress) return;
         topStreamsGamesUpdateInProgress = true;
         topStreamsUsersUpdateInProgress = true;
         // Get the top streams
         EventBus.getDefault().post(new TopListUpdateStartedEvent());
-        Requests.getTopStreams(new StreamsListener(UPDATE_TYPE_TOP_STREAMS), errorListener);
+        Requests.getTopStreams(new StreamsListener(UPDATE_TYPE_TOP_STREAMS));
     }
 
     private static synchronized void postTopStreamsUpdatedEvent() {
@@ -335,27 +324,11 @@ public class DataUpdateManager {
         followsUpdateInProgress = false;
         SettingsManager.setFollowsNeedUpdate(false);
         ThreadManager.post(ChannelDb::cleanFollows);
-        updateStreamsData(errorListener);
+        updateStreamsData();
     }
 
     private static synchronized void postFollowsStreamsUpdatedEvent() {
         streamsUpdateInProgress = false;
         EventBus.getDefault().post(new StreamsUpdatedEvent());
-    }
-
-    private static class ErrorWrapper implements Response.ErrorListener {
-
-        private Response.ErrorListener errorListener;
-
-        ErrorWrapper(Response.ErrorListener errorListener) {
-            this.errorListener = errorListener;
-        }
-
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            followsUpdateInProgress = false;
-            streamsUpdateInProgress = false;
-            errorListener.onErrorResponse(error);
-        }
     }
 }
