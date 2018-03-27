@@ -137,41 +137,22 @@ public class DataUpdateManager {
 
     /**
      * Requests the users data for any user id in the follows table that is not
-     * already in the users table. Notifies the listener if there is no new
-     * users data to fetch.
+     * already in the users table.
      */
-    private static void updateUsersData(int type) {
+    private static void updateUsersData() {
         long[][] userIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIds());
         for (long[] ids : userIds)
-            Requests.getUsers(ids, new UsersListener(type));
+            Requests.getUsers(ids, new UsersListener());
     }
 
     /**
-     * Inserts the users data into the database and notifies the follows listener
-     * if all of the users requests have completed.
+     * Inserts the users data into the database.
      */
     private static class UsersListener implements Response.Listener<Containers.Users> {
-
-        private int type;
-
-        UsersListener(int type) {
-            this.type = type;
-        }
-
         @Override
         public void onResponse(Containers.Users response) {
             RequestTracker.decrementUsers();
-            if (type == UPDATE_TYPE_FOLLOWS)
-                ThreadManager.post(() -> {
-                    remainingUsersRequests--;
-                    ChannelDb.insertUsersData(response);
-                });
-            else if (type == UPDATE_TYPE_TOP_STREAMS)
-                ThreadManager.post(() -> {
-                    ChannelDb.insertUsersData(response);
-                    topStreamsUsersUpdateInProgress = false;
-                    postTopStreamsUpdatedEvent();
-                });
+            ThreadManager.post(() -> ChannelDb.insertUsersData(response));
         }
     }
 
@@ -205,7 +186,7 @@ public class DataUpdateManager {
         long[][] unknownUserIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIds());
         remainingUsersRequests = unknownUserIds.length;
         for (long[] ids : unknownUserIds)
-            Requests.getUsers(ids, new UsersListener(UPDATE_TYPE_FOLLOWS));
+            Requests.getUsers(ids, new UsersListener());
     }
 
     /**
@@ -234,7 +215,7 @@ public class DataUpdateManager {
                 ThreadManager.post(() -> {
                     ChannelDb.insertStreamsData(response);
                     updateGamesData(type);
-                    updateUsersData(type);
+                    updateUsersData();
                 });
         }
     }
