@@ -32,7 +32,6 @@ public class DataUpdateManager {
     private static final int MAX_FOLLOW_COUNT = 25;
 
     private static int remainingFollowsRequests;
-    private static int remainingUsersRequests;
     private static int remainingStreamsRequests;
     private static int remainingGamesRequests;
 
@@ -86,7 +85,6 @@ public class DataUpdateManager {
 
         followsUpdateInProgress = true;
         remainingFollowsRequests = 0;
-        remainingUsersRequests = 0;
         followsFetched = 0;
         ChannelDb.setFollowsDirty();
         EventBus.getDefault().post(new FollowsUpdateStartedEvent());
@@ -163,7 +161,6 @@ public class DataUpdateManager {
         streamsUpdateInProgress = true;
         remainingStreamsRequests = 0;
         remainingGamesRequests = 0;
-        remainingUsersRequests = 0;
         EventBus.getDefault().post(new StreamsUpdateStartedEvent());
         ThreadManager.post(DataUpdateManager::performStreamsUpdate);
     }
@@ -183,10 +180,7 @@ public class DataUpdateManager {
         for (long[] ids : userIds)
             Requests.getStreams(ids, new StreamsListener(UPDATE_TYPE_FOLLOWS));
 
-        long[][] unknownUserIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIds());
-        remainingUsersRequests = unknownUserIds.length;
-        for (long[] ids : unknownUserIds)
-            Requests.getUsers(ids, new UsersListener());
+        ThreadManager.post(DataUpdateManager::updateUsersData);
     }
 
     /**
