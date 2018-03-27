@@ -149,8 +149,10 @@ public class DataUpdateManager {
     private static class UsersListener implements Response.Listener<Containers.Users> {
         @Override
         public void onResponse(Containers.Users response) {
-            RequestTracker.decrementUsers();
-            ThreadManager.post(() -> ChannelDb.insertUsersData(response));
+            ThreadManager.post(() -> {
+                ChannelDb.insertUsersData(response);
+                RequestTracker.decrementUsers();
+            });
         }
     }
 
@@ -170,15 +172,8 @@ public class DataUpdateManager {
      */
     private static void performStreamsUpdate() {
         long[][] userIds = URLTools.splitIdArray(ChannelDb.getAllFollowIds());
-        remainingStreamsRequests = userIds.length;
-        // If there are none, then we're already done. Yay!
-        if (remainingStreamsRequests == 0) {
-            postFollowsStreamsUpdatedEvent();
-            return;
-        }
-
         for (long[] ids : userIds)
-            Requests.getStreams(ids, new StreamsListener(UPDATE_TYPE_FOLLOWS));
+            Requests.getStreams(ids, new StreamsListener());
 
         ThreadManager.post(DataUpdateManager::updateUsersData);
     }
@@ -188,29 +183,12 @@ public class DataUpdateManager {
      * all of the streams data has been updated.
      */
     private static class StreamsListener implements Response.Listener<Containers.Streams> {
-
-        private int type;
-
-        StreamsListener(int type) {
-            this.type = type;
-        }
-
         @Override
         public void onResponse(Containers.Streams response) {
-            RequestTracker.decrementStreams();
-            if (type == UPDATE_TYPE_FOLLOWS)
-                ThreadManager.post(() -> {
-                    remainingStreamsRequests--;
-                    ChannelDb.insertStreamsData(response);
-                    if (remainingStreamsRequests == 0)
-                        updateGamesData(type);
-                });
-            else if (type == UPDATE_TYPE_TOP_STREAMS)
-                ThreadManager.post(() -> {
-                    ChannelDb.insertStreamsData(response);
-                    updateGamesData(type);
-                    updateUsersData();
-                });
+            ThreadManager.post(() -> {
+                ChannelDb.insertStreamsData(response);
+                RequestTracker.decrementStreams();
+            });
         }
     }
 
@@ -272,7 +250,7 @@ public class DataUpdateManager {
         topStreamsUsersUpdateInProgress = true;
         // Get the top streams
         EventBus.getDefault().post(new TopListUpdateStartedEvent());
-        Requests.getTopStreams(new StreamsListener(UPDATE_TYPE_TOP_STREAMS));
+        Requests.getTopStreams(new StreamsListener());
     }
 
     private static synchronized void postTopStreamsUpdatedEvent() {
