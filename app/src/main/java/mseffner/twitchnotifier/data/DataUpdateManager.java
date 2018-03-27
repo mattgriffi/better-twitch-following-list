@@ -195,41 +195,24 @@ public class DataUpdateManager {
      * Requests the games data for any games id in the streams table that is not
      * already in the games table.
      */
-    private static void updateGamesData(int type) {
+    private static void updateGamesData() {
         long[][] gameIds = URLTools.splitIdArray(ChannelDb.getUnknownGameIds());
         // 0 is a null game, so ignore that
         if (gameIds.length == 0 || (gameIds[0].length == 1 && gameIds[0][0] == 0)) return;
         for (long[] ids : gameIds)
-            Requests.getGames(ids, new GamesListener(type));
+            Requests.getGames(ids, new GamesListener());
     }
 
     /**
-     * Inserts games data into database, then notifies the listener.
+     * Inserts games data into database.
      */
     private static class GamesListener implements Response.Listener<Containers.Games> {
-
-        private int type;
-
-        GamesListener(int type) {
-            this.type = type;
-        }
-
         @Override
         public void onResponse(Containers.Games response) {
-            RequestTracker.decrementGames();
-            if (type == UPDATE_TYPE_FOLLOWS)
-                ThreadManager.post(() -> {
-                    remainingGamesRequests--;
-                    ChannelDb.insertGamesData(response);
-                    if (remainingGamesRequests == 0)
-                        postFollowsStreamsUpdatedEvent();
-                });
-            else if (type == UPDATE_TYPE_TOP_STREAMS)
-                ThreadManager.post(() -> {
-                    ChannelDb.insertGamesData(response);
-                    topStreamsGamesUpdateInProgress = false;
-                    postTopStreamsUpdatedEvent();
-                });
+            ThreadManager.post(() -> {
+                ChannelDb.insertGamesData(response);
+                RequestTracker.decrementGames();
+            });
         }
     }
 
