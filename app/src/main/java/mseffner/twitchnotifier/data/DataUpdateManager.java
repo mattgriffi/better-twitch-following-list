@@ -24,16 +24,11 @@ import mseffner.twitchnotifier.settings.SettingsManager;
  * will notify listeners when the requests are completed.
  */
 public class DataUpdateManager {
-
-    private static final int UPDATE_TYPE_FOLLOWS = 0;
-    private static final int UPDATE_TYPE_TOP_STREAMS = 1;
     /* Limit the max number of follows to fetch, since more than 25
     requests would risk hitting the rate limit. */
     private static final int MAX_FOLLOW_COUNT = 25;
 
     private static int remainingFollowsRequests;
-    private static int remainingStreamsRequests;
-    private static int remainingGamesRequests;
 
     private static int followsFetched = 0;
 
@@ -135,7 +130,7 @@ public class DataUpdateManager {
 
     /**
      * Requests the users data for any user id in the follows table that is not
-     * already in the users table.
+     * already in the users table. This method should NOT be called on the main thread.
      */
     private static void updateUsersData() {
         long[][] userIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIds());
@@ -161,8 +156,6 @@ public class DataUpdateManager {
      */
     public static void updateStreamsData() {
         streamsUpdateInProgress = true;
-        remainingStreamsRequests = 0;
-        remainingGamesRequests = 0;
         EventBus.getDefault().post(new StreamsUpdateStartedEvent());
         ThreadManager.post(DataUpdateManager::performStreamsUpdate);
     }
@@ -193,7 +186,7 @@ public class DataUpdateManager {
 
     /**
      * Requests the games data for any games id in the streams table that is not
-     * already in the games table.
+     * already in the games table. This method should NOT be called on the main thread.
      */
     private static void updateGamesData() {
         long[][] gameIds = URLTools.splitIdArray(ChannelDb.getUnknownGameIds());
@@ -225,20 +218,10 @@ public class DataUpdateManager {
         Requests.getTopStreams(new StreamsListener());
     }
 
-    private static synchronized void postTopStreamsUpdatedEvent() {
-        if (topStreamsGamesUpdateInProgress || topStreamsUsersUpdateInProgress) return;
-        EventBus.getDefault().post(new TopStreamsUpdatedEvent());
-    }
-
     private static synchronized void followsUpdateComplete() {
         followsUpdateInProgress = false;
         SettingsManager.setFollowsNeedUpdate(false);
         ThreadManager.post(ChannelDb::cleanFollows);
         updateStreamsData();
-    }
-
-    private static synchronized void postFollowsStreamsUpdatedEvent() {
-        streamsUpdateInProgress = false;
-        EventBus.getDefault().post(new StreamsUpdatedEvent());
     }
 }
