@@ -250,12 +250,24 @@ public class ChannelDb {
         return list;
     }
 
-    public static long[] getUnknownUserIdsFromFollows() {
+    public static long[] getUnknownUserIds() {
+        long[] fromFollows = getUnknownUserIdsFromFollows();
+        long[] fromStreams = getUnknownUserIdsFromStreams();
+        long[] userIds = new long[fromFollows.length + fromStreams.length];
+        int i = 0;
+        for (long id : fromFollows)
+            userIds[i++] = id;
+        for (long id : fromStreams)
+            userIds[i++] = id;
+        return userIds;
+    }
+
+    private static long[] getUnknownUserIdsFromFollows() {
         return getUnknownIds(FollowEntry.TABLE_NAME, FollowEntry._ID,
                 UserEntry.TABLE_NAME, UserEntry._ID);
     }
 
-    public static long[] getUnknownUserIdsFromStreams() {
+    private static long[] getUnknownUserIdsFromStreams() {
         return getUnknownIds(StreamEntry.TABLE_NAME, StreamEntry._ID,
                 UserEntry.TABLE_NAME, UserEntry._ID);
     }

@@ -2,7 +2,6 @@ package mseffner.twitchnotifier.data;
 
 
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -14,7 +13,6 @@ import mseffner.twitchnotifier.events.TopListUpdateStartedEvent;
 import mseffner.twitchnotifier.events.TopStreamsUpdatedEvent;
 import mseffner.twitchnotifier.events.UserIdUpdatedEvent;
 import mseffner.twitchnotifier.networking.Containers;
-import mseffner.twitchnotifier.networking.ErrorHandler;
 import mseffner.twitchnotifier.networking.RequestTracker;
 import mseffner.twitchnotifier.networking.Requests;
 import mseffner.twitchnotifier.networking.URLTools;
@@ -143,21 +141,9 @@ public class DataUpdateManager {
      * users data to fetch.
      */
     private static void updateUsersData(int type) {
-        if (type == UPDATE_TYPE_FOLLOWS) {
-            long[][] userIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIdsFromFollows());
-            remainingUsersRequests = userIds.length;
-            for (long[] ids : userIds)
-                Requests.getUsers(ids, new UsersListener(type));
-        } else if (type == UPDATE_TYPE_TOP_STREAMS) {
-            long[][] userIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIdsFromStreams());
-            if (userIds.length == 0) {
-                topStreamsUsersUpdateInProgress = false;
-                postTopStreamsUpdatedEvent();
-            } else {
-                for (long[] ids : userIds)
-                    Requests.getUsers(ids, new UsersListener(type));
-            }
-        }
+        long[][] userIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIds());
+        for (long[] ids : userIds)
+            Requests.getUsers(ids, new UsersListener(type));
     }
 
     /**
@@ -216,8 +202,7 @@ public class DataUpdateManager {
         for (long[] ids : userIds)
             Requests.getStreams(ids, new StreamsListener(UPDATE_TYPE_FOLLOWS));
 
-        // Check for unknown user ids in case follows update failed
-        long[][] unknownUserIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIdsFromFollows());
+        long[][] unknownUserIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIds());
         remainingUsersRequests = unknownUserIds.length;
         for (long[] ids : unknownUserIds)
             Requests.getUsers(ids, new UsersListener(UPDATE_TYPE_FOLLOWS));
