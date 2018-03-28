@@ -115,7 +115,11 @@ public class URLTools {
     }
 
     public static long[][] splitIdArray(long[] array) {
-        int chunkSize = Integer.parseInt(FIRST_MAX);
+        /* The Twitch API is supposed to allow you to request data in batches of 100.
+        However, because Twitch is complete fucking garbage, if you actually request
+        100, it will return an incomplete result. The true limit is more like 90.
+        This was tested on March 28, 2018. */
+        int chunkSize = Integer.parseInt(FIRST_MAX) - 10;
         // Get the number of chunks to split array into
         int chunks = (int) Math.ceil(array.length / (double) chunkSize);
 

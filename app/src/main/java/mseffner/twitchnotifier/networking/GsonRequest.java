@@ -34,6 +34,7 @@ public class GsonRequest<T> extends Request<T> {
         this.headers = headers;
         this.clazz = clazz;
         this.listener = listener;
+        Log.i(GsonRequest.class.getSimpleName(), url);
         setRetryPolicy(new DefaultRetryPolicy(TIMEOUT_MS, RETRIES, BACKOFF_MUL));
     }
 
