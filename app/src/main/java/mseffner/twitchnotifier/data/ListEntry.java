@@ -28,7 +28,10 @@ public class ListEntry {
         this.pinned = pinned == FollowEntry.IS_PINNED;
         this.login = login;
         this.displayName = displayName;
-        this.profileImageUrl = profileImageUrl;
+        /* Switch the url from https to http because older versions of android have a bug that
+        prevents Glide, Picasso, and Fresco from establishing SSL connections, so they can't load
+        the images. */
+        this.profileImageUrl = new StringBuilder(profileImageUrl).deleteCharAt(4).toString();
         this.type = type;
         this.title = title;
         this.viewerCount = viewerCount;
