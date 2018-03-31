@@ -6,8 +6,8 @@ android {
         applicationId "mseffner.twitchnotifier"
         minSdkVersion 15
         targetSdkVersion 26
-        versionCode 17
-        versionName "2.14"
+        versionCode 18
+        versionName "2.15"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

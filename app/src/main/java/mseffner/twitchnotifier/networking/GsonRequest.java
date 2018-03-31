@@ -34,7 +34,7 @@ public class GsonRequest<T> extends Request<T> {
         this.headers = headers;
         this.clazz = clazz;
         this.listener = listener;
-        Log.i(GsonRequest.class.getSimpleName(), url);
+        Log.e(GsonRequest.class.getSimpleName(), url);
         setRetryPolicy(new DefaultRetryPolicy(TIMEOUT_MS, RETRIES, BACKOFF_MUL));
     }
 
@@ -45,7 +45,7 @@ public class GsonRequest<T> extends Request<T> {
             String json = new String(
                     response.data,
                     HttpHeaderParser.parseCharset(response.headers));
-            Log.i(GsonRequest.class.getSimpleName(), json);
+            Log.e(GsonRequest.class.getSimpleName(), json);
             // Build object with gson and return it
             return Response.success(
                     gson.fromJson(json, clazz),

@@ -1,5 +1,6 @@
 package mseffner.twitchnotifier.fragments;
 
+import android.util.Log;
 import android.view.View;
 
 import org.greenrobot.eventbus.EventBus;
@@ -7,7 +8,9 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import mseffner.twitchnotifier.data.ChannelContract;
 import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.data.DataUpdateManager;
 import mseffner.twitchnotifier.data.ListEntry;
@@ -48,6 +51,8 @@ public class FollowingListFragment extends BaseListFragment {
     }
 
     private void sortList(List<ListEntry> list) {
+//        Log.e("List size", "" + list.size());
+//        Log.e("Online size", "" + list.stream().filter(item -> item.type != ChannelContract.StreamEntry.STREAM_TYPE_OFFLINE).collect(Collectors.toList()).size());
         ThreadManager.post(() -> {
             ListEntrySorter.sort(list);
             EventBus.getDefault().post(new ListRefreshedEvent(list));
