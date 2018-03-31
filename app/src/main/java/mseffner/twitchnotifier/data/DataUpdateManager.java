@@ -8,10 +8,9 @@ import org.greenrobot.eventbus.EventBus;
 import mseffner.twitchnotifier.ToastMaker;
 import mseffner.twitchnotifier.events.FollowsUpdateStartedEvent;
 import mseffner.twitchnotifier.events.StreamsUpdateStartedEvent;
-import mseffner.twitchnotifier.events.StreamsUpdatedEvent;
 import mseffner.twitchnotifier.events.TopListUpdateStartedEvent;
-import mseffner.twitchnotifier.events.TopStreamsUpdatedEvent;
 import mseffner.twitchnotifier.events.UserIdUpdatedEvent;
+import mseffner.twitchnotifier.networking.BaseListener;
 import mseffner.twitchnotifier.networking.Containers;
 import mseffner.twitchnotifier.networking.RequestTracker;
 import mseffner.twitchnotifier.networking.Requests;
@@ -83,13 +82,6 @@ public class DataUpdateManager {
         followsFetched = 0;
         ChannelDb.setFollowsDirty();
         EventBus.getDefault().post(new FollowsUpdateStartedEvent());
-        ThreadManager.post(DataUpdateManager::performFollowsUpdate);
-    }
-
-    /**
-     * Updates the follows and users data. This method should NOT be called on the main thread.
-     */
-    private static void performFollowsUpdate() {
         Requests.getFollows(null, new FollowsListener());
     }
 
@@ -98,11 +90,9 @@ public class DataUpdateManager {
      * if there is more follows data to fetch, or cleans the follows table and starts
      * the users data update if all of the follows data has been updated.
      */
-    private static class FollowsListener implements Response.Listener<Containers.Follows> {
-
+    private static class FollowsListener extends BaseListener<Containers.Follows> {
         @Override
-        public void onResponse(Containers.Follows followsResponse) {
-            RequestTracker.decrementFollows();
+        protected void handleResponse(Containers.Follows followsResponse) {
             // Track progress of the follows requests
             if (remainingFollowsRequests == 0)  // This is the first request
                 remainingFollowsRequests = (int) Math.ceil(followsResponse.total / 100.0);
@@ -111,19 +101,13 @@ public class DataUpdateManager {
 
             // Fetch more if we haven't reached the limit yet
             if (followsFetched < MAX_FOLLOW_COUNT) {
-                ThreadManager.post(() -> {
-                    ChannelDb.insertFollowsData(followsResponse);
-                    if (remainingFollowsRequests > 0)  // There is still more to fetch
-                        Requests.getFollows(followsResponse.pagination.cursor, new FollowsListener());
-                    else {  // We are done, clean follows and get the users data
-                        followsUpdateComplete();
-                    }
-                });
-            } else {  // If we hit the limit, call it quits
-                ThreadManager.post(() -> {
-                    ToastMaker.makeToastLong(ToastMaker.MESSAGE_TOO_MANY_FOLLOWS);
+                if (remainingFollowsRequests > 0)  // There is still more to fetch
+                    Requests.getFollows(followsResponse.pagination.cursor, new FollowsListener());
+                else  // We are done, clean follows and get the users data
                     followsUpdateComplete();
-                });
+            } else {  // If we hit the limit, call it quits
+                ToastMaker.makeToastLong(ToastMaker.MESSAGE_TOO_MANY_FOLLOWS);
+                followsUpdateComplete();
             }
         }
     }
@@ -135,20 +119,7 @@ public class DataUpdateManager {
     private static void updateUsersData() {
         long[][] userIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIds());
         for (long[] ids : userIds)
-            Requests.getUsers(ids, new UsersListener());
-    }
-
-    /**
-     * Inserts the users data into the database.
-     */
-    private static class UsersListener implements Response.Listener<Containers.Users> {
-        @Override
-        public void onResponse(Containers.Users response) {
-            ThreadManager.post(() -> {
-                ChannelDb.insertUsersData(response);
-                RequestTracker.decrementUsers();
-            });
-        }
+            Requests.getUsers(ids, new BaseListener<Containers.Users>() {});
     }
 
     /**
@@ -166,22 +137,9 @@ public class DataUpdateManager {
     private static void performStreamsUpdate() {
         long[][] userIds = URLTools.splitIdArray(ChannelDb.getAllFollowIds());
         for (long[] ids : userIds)
-            Requests.getStreams(ids, new StreamsListener());
+            Requests.getStreams(ids, new BaseListener<Containers.Streams>() {});
 
         ThreadManager.post(DataUpdateManager::updateUsersData);
-    }
-
-    /**
-     * Inserts the streams data into the database.
-     */
-    private static class StreamsListener implements Response.Listener<Containers.Streams> {
-        @Override
-        public void onResponse(Containers.Streams response) {
-            ThreadManager.post(() -> {
-                ChannelDb.insertStreamsData(response);
-                RequestTracker.decrementStreams();
-            });
-        }
     }
 
     /**
@@ -193,20 +151,7 @@ public class DataUpdateManager {
         // 0 is a null game, so ignore that
         if (gameIds.length == 0 || (gameIds[0].length == 1 && gameIds[0][0] == 0)) return;
         for (long[] ids : gameIds)
-            Requests.getGames(ids, new GamesListener());
-    }
-
-    /**
-     * Inserts games data into database.
-     */
-    private static class GamesListener implements Response.Listener<Containers.Games> {
-        @Override
-        public void onResponse(Containers.Games response) {
-            ThreadManager.post(() -> {
-                ChannelDb.insertGamesData(response);
-                RequestTracker.decrementGames();
-            });
-        }
+            Requests.getGames(ids, new BaseListener<Containers.Games>() {});
     }
 
     public static void updateTopStreamsData() {
@@ -215,7 +160,7 @@ public class DataUpdateManager {
         topStreamsUsersUpdateInProgress = true;
         // Get the top streams
         EventBus.getDefault().post(new TopListUpdateStartedEvent());
-        Requests.getTopStreams(new StreamsListener());
+        Requests.getTopStreams(new BaseListener<Containers.Streams>() {});
     }
 
     private static synchronized void followsUpdateComplete() {
