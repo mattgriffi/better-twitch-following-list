@@ -1,6 +1,8 @@
 package mseffner.twitchnotifier.networking;
 
 
+import android.util.Log;
+
 import com.android.volley.Response;
 
 import org.greenrobot.eventbus.EventBus;
@@ -75,22 +77,13 @@ public class Updates {
     private static class FollowsListener extends BaseListener<Containers.Follows> {
         @Override
         protected void handleResponse(Containers.Follows followsResponse) {
-            // Track progress of the follows requests
-            if (remainingFollowsRequests == 0)  // This is the first request
-                remainingFollowsRequests = (int) Math.ceil(followsResponse.total / 100.0);
-            remainingFollowsRequests--;
-            followsFetched++;
+            if (UpdateCoordinator.followsNotStartedYet())
+                UpdateCoordinator.setRemainingFollows((int) Math.ceil(followsResponse.total / 100.0) - 1);
 
-            // Fetch more if we haven't reached the limit yet
-            if (followsFetched < MAX_FOLLOW_COUNT) {
-                if (remainingFollowsRequests > 0)  // There is still more to fetch
-                    Requests.getFollows(followsResponse.pagination.cursor, new FollowsListener());
-                else  // We are done
-                    followsUpdateSuccessful();
-            } else {  // If we hit the limit, call it quits
-                ToastMaker.makeToastLong(ToastMaker.MESSAGE_TOO_MANY_FOLLOWS);
+            if (UpdateCoordinator.needMoreFollows())
+                Requests.getFollows(followsResponse.pagination.cursor, this);
+            else
                 followsUpdateSuccessful();
-            }
         }
     }
 

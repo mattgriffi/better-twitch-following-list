@@ -13,7 +13,25 @@ public class UpdateCoordinator {
     private static int activeUsers = 0;
     private static int activeGames = 0;
 
+    // Members to track follows update progress
+    private static final int MAX_FOLLOWS_REQUESTS = 25;  // to avoid the rate limit
+    private static int remainingFollows = 0;
+    private static boolean followsStarted = false;
+
     private UpdateCoordinator() {}
+
+    public static synchronized boolean followsNotStartedYet() {
+        return !followsStarted;
+    }
+
+    public static synchronized void setRemainingFollows(int i) {
+        remainingFollows = Math.min(i, MAX_FOLLOWS_REQUESTS);
+        followsStarted = true;
+    }
+
+    public static synchronized boolean needMoreFollows() {
+        return remainingFollows > 0;
+    }
 
     public static synchronized void incrementFollows() {
         activeFollows++;
@@ -38,6 +56,7 @@ public class UpdateCoordinator {
     public static synchronized void decrementFollows() {
         if (activeFollows <= 0) return;
         activeFollows--;
+        remainingFollows--;
         log();
 
         if (activeFollows == 0)
@@ -102,6 +121,8 @@ public class UpdateCoordinator {
         activeStreams = 0;
         activeUsers = 0;
         activeGames = 0;
+        remainingFollows = 0;
+        followsStarted = false;
     }
 
     private static synchronized void updateComplete() {
@@ -114,7 +135,8 @@ public class UpdateCoordinator {
             "streams: " + UpdateCoordinator.getActiveStreams() + "  " +
             "users: " + UpdateCoordinator.getActiveUsers() + "  " +
             "games: " + UpdateCoordinator.getActiveGames() + "  " +
-            "updateInProgress: " + updateInProgress()
+            "updateInProgress: " + updateInProgress() + " " +
+            "remainingFollows: " + remainingFollows
         );
     }
 }
