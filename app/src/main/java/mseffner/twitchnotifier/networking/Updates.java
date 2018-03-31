@@ -85,13 +85,18 @@ public class Updates {
             if (followsFetched < MAX_FOLLOW_COUNT) {
                 if (remainingFollowsRequests > 0)  // There is still more to fetch
                     Requests.getFollows(followsResponse.pagination.cursor, new FollowsListener());
-                else  // We are done, clean follows
-                    ChannelDb.cleanFollows();
+                else  // We are done
+                    followsUpdateSuccessful();
             } else {  // If we hit the limit, call it quits
                 ToastMaker.makeToastLong(ToastMaker.MESSAGE_TOO_MANY_FOLLOWS);
-                ChannelDb.cleanFollows();
+                followsUpdateSuccessful();
             }
         }
+    }
+
+    private static void followsUpdateSuccessful() {
+        ChannelDb.cleanFollows();
+        SettingsManager.setFollowsNeedUpdate(false);
     }
 
     /**
