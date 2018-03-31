@@ -37,16 +37,16 @@ public class ErrorHandler implements Response.ErrorListener {
 
         switch (type) {
             case Requests.REQUEST_TYPE_FOLLOWS:
-                RequestTracker.decrementFollows();
+                UpdateCoordinator.decrementFollows();
                 break;
             case Requests.REQUEST_TYPE_STREAMS:
-                RequestTracker.decrementStreams();
+                UpdateCoordinator.decrementStreams();
                 break;
             case Requests.REQUEST_TYPE_USERS:
-                RequestTracker.decrementUsers();
+                UpdateCoordinator.decrementUsers();
                 break;
             case Requests.REQUEST_TYPE_GAMES:
-                RequestTracker.decrementGames();
+                UpdateCoordinator.decrementGames();
                 break;
         }
 

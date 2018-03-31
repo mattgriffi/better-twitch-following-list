@@ -1,5 +1,6 @@
 package mseffner.twitchnotifier.fragments;
 
+import android.util.Log;
 import android.view.View;
 
 import org.greenrobot.eventbus.EventBus;
@@ -7,17 +8,16 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import mseffner.twitchnotifier.data.ChannelContract;
 import mseffner.twitchnotifier.data.ChannelDb;
-import mseffner.twitchnotifier.data.DataUpdateManager;
 import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.data.ListEntrySorter;
 import mseffner.twitchnotifier.data.ThreadManager;
-import mseffner.twitchnotifier.events.FollowsUpdateStartedEvent;
 import mseffner.twitchnotifier.events.ListRefreshedEvent;
 import mseffner.twitchnotifier.events.PreStreamUpdateEvent;
-import mseffner.twitchnotifier.events.StreamsUpdateStartedEvent;
-import mseffner.twitchnotifier.events.StreamsUpdatedEvent;
+import mseffner.twitchnotifier.networking.UpdateCoordinator;
 
 public class FollowingListFragment extends BaseListFragment {
 
@@ -49,24 +49,12 @@ public class FollowingListFragment extends BaseListFragment {
 
     private void sortList(List<ListEntry> list) {
         ThreadManager.post(() -> {
+            Log.e(this.getClass().getSimpleName(), "list size: " + list.size());
+            int online = list.stream().filter(item -> item.type != ChannelContract.StreamEntry.STREAM_TYPE_OFFLINE).collect(Collectors.toList()).size();
+            Log.e(this.getClass().getSimpleName(), "streams online: " + online);
             ListEntrySorter.sort(list);
             EventBus.getDefault().post(new ListRefreshedEvent(list));
         });
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onFollowsUpdateStartedEvent(FollowsUpdateStartedEvent event) {
-        swipeRefreshLayout.setRefreshing(true);
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onStreamsUpdateStartedEvent(StreamsUpdateStartedEvent event) {
-        swipeRefreshLayout.setRefreshing(true);
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onStreamsUpdatedEvent(StreamsUpdatedEvent event) {
-        updateList();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -78,7 +66,7 @@ public class FollowingListFragment extends BaseListFragment {
         else
             startMessage.setVisibility(View.GONE);
 
-        if (!DataUpdateManager.updateInProgress())
+        if (!UpdateCoordinator.updateInProgress())
             swipeRefreshLayout.setRefreshing(false);
     }
 }

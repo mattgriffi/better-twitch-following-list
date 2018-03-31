@@ -16,8 +16,6 @@ import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.events.ListModeChangedEvent;
 import mseffner.twitchnotifier.events.TopListRefreshedEvent;
-import mseffner.twitchnotifier.events.TopListUpdateStartedEvent;
-import mseffner.twitchnotifier.events.TopStreamsUpdatedEvent;
 import mseffner.twitchnotifier.settings.SettingsManager;
 
 public class TopListFragment extends BaseListFragment {
@@ -48,16 +46,6 @@ public class TopListFragment extends BaseListFragment {
                 list.subList(NUM_TOP_STREAMS, list.size()).clear();
             EventBus.getDefault().post(new TopListRefreshedEvent(list));
         });
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onTopStreamsUpdateStartedEvent(TopListUpdateStartedEvent event) {
-        swipeRefreshLayout.setRefreshing(true);
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onTopStreamsUpdatedEvent(TopStreamsUpdatedEvent event) {
-        updateList();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

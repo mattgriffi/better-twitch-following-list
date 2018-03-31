@@ -37,16 +37,16 @@ public abstract class BaseListener<T> implements Response.Listener<T> {
         the process will be fully complete before RequestTracker is notified. */
         if (response instanceof Containers.Streams) {
             ChannelDb.insertStreamsData((Containers.Streams) response);
-            RequestTracker.decrementStreams();
+            UpdateCoordinator.decrementStreams();
         } else if (response instanceof Containers.Games) {
             ChannelDb.insertGamesData((Containers.Games) response);
-            RequestTracker.decrementGames();
+            UpdateCoordinator.decrementGames();
         } else if (response instanceof Containers.Follows) {
             ChannelDb.insertFollowsData((Containers.Follows) response);
-            RequestTracker.decrementFollows();
+            UpdateCoordinator.decrementFollows();
         } else if (response instanceof Containers.Users) {
             ChannelDb.insertUsersData((Containers.Users) response);
-            RequestTracker.decrementUsers();
+            UpdateCoordinator.decrementUsers();
         }
     }
 }

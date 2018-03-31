@@ -28,6 +28,8 @@ import mseffner.twitchnotifier.R;
 import mseffner.twitchnotifier.adapters.ChannelAdapter;
 import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.events.NetworkErrorEvent;
+import mseffner.twitchnotifier.events.UpdateFinishedEvent;
+import mseffner.twitchnotifier.events.UpdateStartedEvent;
 
 public abstract class BaseListFragment extends Fragment {
 
@@ -148,6 +150,16 @@ public abstract class BaseListFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onNetworkErrorEvent(NetworkErrorEvent event) {
         swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onUpdateStartedEvent(UpdateStartedEvent event) {
+        swipeRefreshLayout.setRefreshing(true);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onUpdatedFinishedEvent(UpdateFinishedEvent event) {
+        updateList();
     }
 
     private static class FABAnimationListener implements Animation.AnimationListener {

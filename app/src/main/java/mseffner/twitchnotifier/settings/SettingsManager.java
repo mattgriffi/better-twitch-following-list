@@ -9,10 +9,10 @@ import org.greenrobot.eventbus.EventBus;
 
 import mseffner.twitchnotifier.R;
 import mseffner.twitchnotifier.data.ChannelDb;
-import mseffner.twitchnotifier.data.DataUpdateManager;
 import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.events.DarkModeChangedEvent;
 import mseffner.twitchnotifier.events.ListModeChangedEvent;
+import mseffner.twitchnotifier.networking.Updates;
 
 /**
  * SettingsManager is a class with static methods allowing all of the preferences
@@ -107,7 +107,7 @@ public class SettingsManager {
         which means that the user set their username in an older version of the app,
         so we need to get their user id */
         if (id == INVALID_USERNAME_ID)
-            DataUpdateManager.updateUserId();
+            Updates.updateUserId();
         return id;
     }
 
@@ -245,7 +245,7 @@ public class SettingsManager {
     private static void onSharedPreferenceChanged(String key) {
         if (key.equals(usernameKey)) {
             setFollowsNeedUpdate(true);
-            DataUpdateManager.updateUserId();
+            Updates.updateUserId();
             ThreadManager.post(ChannelDb::deleteAllFollows);
         } else if (key.equals(darkmodeKey))
             EventBus.getDefault().post(new DarkModeChangedEvent(getDarkModeSetting()));

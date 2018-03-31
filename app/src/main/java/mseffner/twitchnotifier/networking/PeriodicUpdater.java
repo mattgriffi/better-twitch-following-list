@@ -4,11 +4,10 @@ package mseffner.twitchnotifier.networking;
 import org.greenrobot.eventbus.EventBus;
 
 import mseffner.twitchnotifier.data.ChannelDb;
-import mseffner.twitchnotifier.data.DataUpdateManager;
 import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.events.PreStreamUpdateEvent;
-import mseffner.twitchnotifier.events.StreamsUpdatedEvent;
-import mseffner.twitchnotifier.events.TopStreamsUpdatedEvent;
+import mseffner.twitchnotifier.events.UpdateFinishedEvent;
+import mseffner.twitchnotifier.events.UpdateStartedEvent;
 import mseffner.twitchnotifier.settings.SettingsManager;
 
 public class PeriodicUpdater implements Runnable {
@@ -17,9 +16,10 @@ public class PeriodicUpdater implements Runnable {
 
     @Override
     public void run() {
-        RequestTracker.log();
+        UpdateCoordinator.log();
         // If we are ready for a new update
         if (SettingsManager.rateLimitReset()) {
+            EventBus.getDefault().post(new UpdateStartedEvent());
             SettingsManager.setLastUpdated();
             /* Fetch the follows before deleting streams data when first starting so the follows
             list doesn't show everything as offline before the new update completes. */
@@ -32,17 +32,14 @@ public class PeriodicUpdater implements Runnable {
             // Prepare for the update
             ChannelDb.deleteAllStreams();
             ErrorHandler.reset();
-            RequestTracker.reset();
+            UpdateCoordinator.reset();
             // Update either the follows or just streams
             if (SettingsManager.getFollowsNeedUpdate())
-                DataUpdateManager.updateFollowsData();
+                Updates.updateFollows();
             else
-                DataUpdateManager.updateStreamsData();
-            // Update top streams
-            DataUpdateManager.updateTopStreamsData();
+                Updates.updateStreams();
         } else {  // If we shouldn't update yet, refresh with old data
-            EventBus.getDefault().post(new StreamsUpdatedEvent());
-            EventBus.getDefault().post(new TopStreamsUpdatedEvent());
+            EventBus.getDefault().post(new UpdateFinishedEvent());
         }
         needPreStreamData = false;
         ThreadManager.postDelayed(this, 15 * 1000);
