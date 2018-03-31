@@ -1,8 +1,6 @@
 package mseffner.twitchnotifier.networking;
 
 
-import android.util.Log;
-
 import com.android.volley.Response;
 
 import org.greenrobot.eventbus.EventBus;
@@ -19,13 +17,6 @@ import mseffner.twitchnotifier.settings.SettingsManager;
  * will notify listeners when the requests are completed.
  */
 public class Updates {
-    /* Limit the max number of follows to fetch, since more than 25
-    requests would risk hitting the rate limit. */
-    private static final int MAX_FOLLOW_COUNT = 25;
-
-    private static int remainingFollowsRequests;
-
-    private static int followsFetched = 0;
 
     private Updates() {}
 
@@ -62,8 +53,6 @@ public class Updates {
         if (!SettingsManager.validUsername())
             return;
 
-        remainingFollowsRequests = 0;
-        followsFetched = 0;
         ThreadManager.post(() -> {
             ChannelDb.setFollowsDirty();
             Requests.getFollows(null, new FollowsListener());
