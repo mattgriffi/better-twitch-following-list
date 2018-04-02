@@ -55,7 +55,7 @@ public class FollowingListFragment extends BaseListFragment {
     private void sortList(List<ListEntry> list) {
         ThreadManager.post(() -> {
             totalFollows = list.size();
-            onlineFollows = list.stream().filter(item -> item.type != ChannelContract.StreamEntry.STREAM_TYPE_OFFLINE).collect(Collectors.toList()).size();
+            onlineFollows =  countOnline(list);
             ListEntrySorter.sort(list);
             EventBus.getDefault().post(new ListRefreshedEvent(list));
         });
@@ -84,5 +84,13 @@ public class FollowingListFragment extends BaseListFragment {
         } else {
             counterView.setVisibility(View.GONE);
         }
+    }
+
+    private int countOnline(List<ListEntry> list) {
+        int i = 0;
+        for (ListEntry item : list)
+            if (item.type != ChannelContract.StreamEntry.STREAM_TYPE_OFFLINE)
+                i++;
+        return i;
     }
 }
