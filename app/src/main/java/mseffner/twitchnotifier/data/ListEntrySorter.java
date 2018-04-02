@@ -53,12 +53,11 @@ public class ListEntrySorter {
     private static class TypeComparator implements Comparator<ListEntry> {
         @Override
         public int compare(ListEntry a, ListEntry b) {
-            boolean rerunOnline = SettingsManager.getRerunSetting() != SettingsManager.RERUN_OFFLINE;
-            boolean aLive = a.type == StreamEntry.STREAM_TYPE_LIVE || (rerunOnline && a.type == StreamEntry.STREAM_TYPE_RERUN);
-            boolean bLive = b.type == StreamEntry.STREAM_TYPE_LIVE || (rerunOnline && b.type == StreamEntry.STREAM_TYPE_RERUN);
-            if (aLive && !bLive)
+            boolean aOnline = online(a);
+            boolean bOnline = online(b);
+            if (aOnline && !bOnline)
                 return -1;
-            else if (!aLive && bLive)
+            else if (!aOnline && bOnline)
                 return 1;
             return 0;
         }
@@ -74,11 +73,19 @@ public class ListEntrySorter {
     private static class PinnedComparator implements Comparator<ListEntry> {
         @Override
         public int compare(ListEntry a, ListEntry b) {
-            if (a.pinned && !b.pinned)
-                return -1;
-            else if (!a.pinned && b.pinned)
-                return 1;
-            return 0;
+            boolean pinsAtTop = SettingsManager.getPinsAtTopSetting();
+            boolean aOnline = online(a);
+            boolean bOnline = online(b);
+            // If pins should be at top or both are offline, puts pins at the top
+            if (pinsAtTop || !aOnline && !bOnline) {
+                if (a.pinned && !b.pinned)
+                    return -1;
+                else if (!a.pinned && b.pinned)
+                    return 1;
+                return 0;
+            } else {  // If pins should not be at top, don't sort
+                return 0;
+            }
         }
     }
 
@@ -105,5 +112,10 @@ public class ListEntrySorter {
                 return -1;
             return 0;
         }
+    }
+
+    private static boolean online(ListEntry item) {
+        boolean rerunOnline = SettingsManager.getRerunSetting() != SettingsManager.RERUN_OFFLINE;
+        return item.type == StreamEntry.STREAM_TYPE_LIVE || (rerunOnline && item.type == StreamEntry.STREAM_TYPE_RERUN);
     }
 }
