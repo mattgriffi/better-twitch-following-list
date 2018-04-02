@@ -62,6 +62,8 @@
     <string name="fetch_follows_positive">Okay</string>
     <!-- Counter option text -->
     <string name="counter_description">Following counter</string>
+    <!-- Pins at top option -->
+    <string name="pins_at_top_description">Pins at top of list</string>
 
     <!-- Options for how to display vodcasts -->
     <string name="pref_label_vodcast_online">Online</string>
@@ -104,5 +106,6 @@
     <string name="pref_list_mode_compact" translatable="false">list_mode_compact</string>
     <string name="pref_list_mode_minimal" translatable="false">list_mode_minimal</string>
     <string name="pref_counter_key" translatable="false">pref_counter_key</string>
+    <string name="pref_pins_at_top_key" translatable="false">pref_pins_at_top_key</string>
 
 </resources>

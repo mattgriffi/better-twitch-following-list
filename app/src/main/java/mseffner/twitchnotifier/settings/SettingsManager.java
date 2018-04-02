@@ -58,6 +58,7 @@ public class SettingsManager {
     private static String followsNeedUpdateKey;
     private static String listModeKey;
     private static String counterKey;
+    private static String pinsAtTopKey;
 
     private SettingsManager() {}
 
@@ -81,6 +82,7 @@ public class SettingsManager {
         SettingsManager.followsNeedUpdateKey = resources.getString(R.string.need_follows_update_key);
         SettingsManager.listModeKey = resources.getString(R.string.pref_list_mode_key);
         SettingsManager.counterKey = resources.getString(R.string.pref_counter_key);
+        SettingsManager.pinsAtTopKey = resources.getString(R.string.pref_pins_at_top_key);
     }
 
     /**
@@ -195,6 +197,13 @@ public class SettingsManager {
      */
     public static boolean getCounterSetting() {
         return sharedPreferences.getBoolean(counterKey, false);
+    }
+
+    /**
+     * @return true if pins at top of list is on, else false
+     */
+    public static boolean getPinsAtTopSetting() {
+        return sharedPreferences.getBoolean(pinsAtTopKey, true);
     }
 
     /**
