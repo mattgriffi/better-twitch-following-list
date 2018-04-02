@@ -57,6 +57,7 @@ public class SettingsManager {
     private static String sortAscDescKey;
     private static String followsNeedUpdateKey;
     private static String listModeKey;
+    private static String counterKey;
 
     private SettingsManager() {}
 
@@ -79,6 +80,7 @@ public class SettingsManager {
         SettingsManager.sortAscDescKey = resources.getString(R.string.pref_order_ascending_key);
         SettingsManager.followsNeedUpdateKey = resources.getString(R.string.need_follows_update_key);
         SettingsManager.listModeKey = resources.getString(R.string.pref_list_mode_key);
+        SettingsManager.counterKey = resources.getString(R.string.pref_counter_key);
     }
 
     /**
@@ -186,6 +188,13 @@ public class SettingsManager {
      */
     public static boolean getDarkModeSetting() {
         return sharedPreferences.getBoolean(darkmodeKey, false);
+    }
+
+    /**
+     * @return true if counter is on, else false
+     */
+    public static boolean getCounterSetting() {
+        return sharedPreferences.getBoolean(counterKey, false);
     }
 
     /**

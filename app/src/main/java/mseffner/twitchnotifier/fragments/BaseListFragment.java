@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -40,6 +41,7 @@ public abstract class BaseListFragment extends Fragment {
     protected SwipeRefreshLayout swipeRefreshLayout;
     protected FloatingActionButton scrollTopButton;
     protected LinearLayout startMessage;
+    protected TextView counterView;
 
     protected boolean needToRestoreState = false;
     protected Parcelable layoutManagerState;
@@ -58,6 +60,7 @@ public abstract class BaseListFragment extends Fragment {
         swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh);
         scrollTopButton = rootView.findViewById(R.id.scroll_top_fab);
         startMessage = rootView.findViewById(R.id.start_message);
+        counterView = rootView.findViewById(R.id.list_counter);
 
         Context context = recyclerView.getContext();
 

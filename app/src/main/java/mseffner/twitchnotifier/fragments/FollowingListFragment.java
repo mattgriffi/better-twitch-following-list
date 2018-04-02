@@ -10,6 +10,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import mseffner.twitchnotifier.R;
 import mseffner.twitchnotifier.data.ChannelContract;
 import mseffner.twitchnotifier.data.ChannelDb;
 import mseffner.twitchnotifier.data.ListEntry;
@@ -18,8 +19,12 @@ import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.events.ListRefreshedEvent;
 import mseffner.twitchnotifier.events.PreStreamUpdateEvent;
 import mseffner.twitchnotifier.networking.UpdateCoordinator;
+import mseffner.twitchnotifier.settings.SettingsManager;
 
 public class FollowingListFragment extends BaseListFragment {
+
+    private int onlineFollows = 0;
+    private int totalFollows = 0;
 
     @Override
     public void onStart() {
@@ -49,9 +54,8 @@ public class FollowingListFragment extends BaseListFragment {
 
     private void sortList(List<ListEntry> list) {
         ThreadManager.post(() -> {
-            Log.e(this.getClass().getSimpleName(), "list size: " + list.size());
-            int online = list.stream().filter(item -> item.type != ChannelContract.StreamEntry.STREAM_TYPE_OFFLINE).collect(Collectors.toList()).size();
-            Log.e(this.getClass().getSimpleName(), "streams online: " + online);
+            totalFollows = list.size();
+            onlineFollows = list.stream().filter(item -> item.type != ChannelContract.StreamEntry.STREAM_TYPE_OFFLINE).collect(Collectors.toList()).size();
             ListEntrySorter.sort(list);
             EventBus.getDefault().post(new ListRefreshedEvent(list));
         });
@@ -61,12 +65,24 @@ public class FollowingListFragment extends BaseListFragment {
     public void onListRefreshedEvent(ListRefreshedEvent event) {
         updateAdapter(event.list);
         // Show startMessage if adapter is empty, else hide it
-        if (channelAdapter.getItemCount() == 0)
+        if (channelAdapter.getItemCount() == 0) {
             startMessage.setVisibility(View.VISIBLE);
-        else
+            counterView.setVisibility(View.GONE);
+        } else {
             startMessage.setVisibility(View.GONE);
-
+            setupCounter();
+        }
         if (!UpdateCoordinator.updateInProgress())
             swipeRefreshLayout.setRefreshing(false);
+    }
+
+    private void setupCounter() {
+        if (SettingsManager.getCounterSetting()) {
+            counterView.setVisibility(View.VISIBLE);
+            String text = getString(R.string.counter_text_format, onlineFollows, totalFollows);
+            counterView.setText(text);
+        } else {
+            counterView.setVisibility(View.GONE);
+        }
     }
 }
