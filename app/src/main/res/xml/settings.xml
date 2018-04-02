@@ -55,6 +55,12 @@
         android:key="@string/pref_order_ascending_key"
         android:title="@string/sort_order"/>
 
+    <!-- Toggle follows counter -->
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="@string/pref_counter_key"
+        android:title="@string/counter_description"/>
+
     <!-- Fetch new follows data setting -->
     <mseffner.twitchnotifier.settings.UpdateFollowsDialogPreference
         android:dialogMessage="@string/fetch_follows_description"
