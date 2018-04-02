@@ -13,6 +13,9 @@ public class UpdateCoordinator {
     private static int activeUsers = 0;
     private static int activeGames = 0;
 
+    private static boolean usersUpdateNeeded = true;
+    private static boolean gamesUpdateNeeded = true;
+
     // Members to track follows update progress
     private static final int MAX_FOLLOWS_REQUESTS = 25;  // to avoid the rate limit
     private static int remainingFollows = 0;
@@ -76,6 +79,7 @@ public class UpdateCoordinator {
 
     public static synchronized void decrementUsers() {
         if (activeUsers <= 0) return;
+        usersUpdateNeeded = false;
         decrementUsersNoUpdate();
         if (!updateInProgress())
             updateComplete();
@@ -89,9 +93,22 @@ public class UpdateCoordinator {
 
     public static synchronized void decrementGames() {
         if (activeGames <= 0) return;
+        gamesUpdateNeeded = false;
         activeGames--;
         log();
 
+        if (!updateInProgress())
+            updateComplete();
+    }
+
+    public static synchronized void noUsersUpdateNeeded() {
+        usersUpdateNeeded = false;
+        if (!updateInProgress())
+            updateComplete();
+    }
+
+    public static synchronized void noGamesUpdateNeeded() {
+        gamesUpdateNeeded = false;
         if (!updateInProgress())
             updateComplete();
     }
@@ -113,7 +130,8 @@ public class UpdateCoordinator {
     }
 
     public static synchronized boolean updateInProgress() {
-        return !(activeFollows == 0 && activeStreams == 0 && activeUsers == 0 && activeGames == 0);
+        return !(activeFollows == 0 && activeStreams == 0 && activeUsers == 0 && activeGames == 0 &&
+        !usersUpdateNeeded && ! gamesUpdateNeeded);
     }
 
     public static synchronized void reset() {
@@ -123,6 +141,8 @@ public class UpdateCoordinator {
         activeGames = 0;
         remainingFollows = 0;
         followsStarted = false;
+        usersUpdateNeeded = true;
+        gamesUpdateNeeded = true;
     }
 
     private static synchronized void updateComplete() {

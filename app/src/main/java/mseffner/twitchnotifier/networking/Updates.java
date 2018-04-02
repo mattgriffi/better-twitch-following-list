@@ -101,6 +101,7 @@ public class Updates {
     public static void updateUsers() {
         ThreadManager.post(() -> {
             long[][] userIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIds());
+            if (userIds.length == 0) UpdateCoordinator.noUsersUpdateNeeded();
             for (long[] ids : userIds)
                 Requests.getUsers(ids, new BaseListener<Containers.Users>() {});
         });
@@ -114,7 +115,10 @@ public class Updates {
         ThreadManager.post(() -> {
             long[][] gameIds = URLTools.splitIdArray(ChannelDb.getUnknownGameIds());
             // 0 is a null game, so ignore that
-            if (gameIds.length == 0 || (gameIds[0].length == 1 && gameIds[0][0] == 0)) return;
+            if (gameIds.length == 0 || (gameIds[0].length == 1 && gameIds[0][0] == 0)) {
+                UpdateCoordinator.noGamesUpdateNeeded();
+                return;
+            }
             for (long[] ids : gameIds)
                 Requests.getGames(ids, new BaseListener<Containers.Games>() {});
         });
