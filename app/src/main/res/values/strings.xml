@@ -19,6 +19,8 @@
     <string name="pin_icon">Channel pin icon</string>
     <string name="offline">Offline</string>
     <string name="vodcast_tag">rerun</string>
+    <!-- Counter text -->
+    <string name="counter_text_format">%1$d/%2$d Online</string>
 
     <!-- Starting message -->
     <!-- This line is displayed in large, purple text -->
@@ -58,6 +60,8 @@
     <string name="fetch_follows_description">The following list will be updated on the next automatic refresh.</string>
     <string name="fetch_follows_summary">Use this if you\'ve followed or unfollowed any streams recently.</string>
     <string name="fetch_follows_positive">Okay</string>
+    <!-- Counter option text -->
+    <string name="counter_description">Following counter</string>
 
     <!-- Options for how to display vodcasts -->
     <string name="pref_label_vodcast_online">Online</string>
@@ -99,5 +103,6 @@
     <string name="pref_list_mode_full" translatable="false">list_mode_full</string>
     <string name="pref_list_mode_compact" translatable="false">list_mode_compact</string>
     <string name="pref_list_mode_minimal" translatable="false">list_mode_minimal</string>
+    <string name="pref_counter_key" translatable="false">pref_counter_key</string>
 
 </resources>
