@@ -6,6 +6,18 @@
     android:layout_height="match_parent"
     tools:context="mseffner.twitchnotifier.MainActivity">
 
+    <!-- Counter for the following list -->
+    <TextView
+        android:id="@+id/list_counter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:textColor="?android:textColorSecondary"
+        android:visibility="gone"
+        tools:ignore="RtlHardcoded"
+        tools:text="36/215 Online"
+        tools:visibility="visible" />
+
     <!-- The following list -->
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh"
