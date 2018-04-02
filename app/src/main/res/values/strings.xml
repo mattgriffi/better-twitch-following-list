@@ -60,10 +60,12 @@
     <string name="fetch_follows_description">The following list will be updated on the next automatic refresh.</string>
     <string name="fetch_follows_summary">Use this if you\'ve followed or unfollowed any streams recently.</string>
     <string name="fetch_follows_positive">Okay</string>
-    <!-- Counter option text -->
-    <string name="counter_description">Following counter</string>
+    <!-- Counter option -->
+    <string name="counter_title">Following counter</string>
+    <string name="counter_description">Shows a count of how many channels you are following and how many are online.</string>
     <!-- Pins at top option -->
-    <string name="pins_at_top_description">Pins at top of list</string>
+    <string name="pins_at_top_title">Pins at top of list</string>
+    <string name="pins_at_top_description">Turn this off if you want pinned channels to be sorted normally.</string>
 
     <!-- Options for how to display vodcasts -->
     <string name="pref_label_vodcast_online">Online</string>

@@ -59,13 +59,15 @@
     <SwitchPreference
         android:defaultValue="false"
         android:key="@string/pref_counter_key"
-        android:title="@string/counter_description"/>
+        android:summary="@string/counter_description"
+        android:title="@string/counter_title"/>
 
     <!-- Toggle pins at top of list -->
     <SwitchPreference
         android:defaultValue="true"
         android:key="@string/pref_pins_at_top_key"
-        android:title="@string/pins_at_top_description"/>
+        android:summary="@string/pins_at_top_description"
+        android:title="@string/pins_at_top_title"/>
 
     <!-- Fetch new follows data setting -->
     <mseffner.twitchnotifier.settings.UpdateFollowsDialogPreference
