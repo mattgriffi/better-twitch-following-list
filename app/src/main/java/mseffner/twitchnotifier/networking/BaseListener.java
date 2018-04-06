@@ -38,6 +38,9 @@ public abstract class BaseListener<T> implements Response.Listener<T> {
         if (response instanceof Containers.Streams) {
             ChannelDb.insertStreamsData((Containers.Streams) response);
             UpdateCoordinator.decrementStreams();
+        } else if (response instanceof Containers.StreamsLegacy) {
+            ChannelDb.insertStreamsLegacyData((Containers.StreamsLegacy) response);
+            UpdateCoordinator.decrementStreams();
         } else if (response instanceof Containers.Games) {
             ChannelDb.insertGamesData((Containers.Games) response);
             UpdateCoordinator.decrementGames();
