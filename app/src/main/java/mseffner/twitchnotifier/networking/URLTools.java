@@ -15,6 +15,7 @@ public class URLTools {
 
     // Base URLs
     private static final String TWITCH_API_BASE_URL = "https://api.twitch.tv/helix";
+    private static final String TWITCH_API_BASE_URL_LEGACY = "https://api.twitch.tv/kraken";
     private static final String TWITCH_STREAM_BASE_URL = "https://www.twitch.tv";
 
     // Paths
@@ -32,10 +33,14 @@ public class URLTools {
     private static final String PARAM_TYPE = "type";
     private static final String PARAM_USER_ID = "user_id";
     private static final String PARAM_USER_LOGIN = "user_login";
+    private static final String PARAM_CHANNEL = "channel";
+    private static final String PARAM_LIMIT = "limit";
+    private static final String PARAM_API_VERSION = "api_version";
 
     // Arguments
     private static final String FIRST_MAX = "100";
     private static final String FIRST_DEFAULT = "25";
+    private static final String API_VERSION = "5";
 
     /**
      * @return  url to get the user information for the app user
@@ -67,6 +72,27 @@ public class URLTools {
      */
     public static String getStreamsUrl(long[] idArray) {
         return getMultiParamBuilder(PATH_STREAMS, PARAM_USER_ID, idArray).build().toString();
+    }
+
+    /**
+     * @return  url to get info from legacy streams endpoint
+     */
+    public static String getStreamsUrlLegacy(long[] idArray) {
+        return getMultiParamBuilderLegacy(PATH_STREAMS, PARAM_CHANNEL, idArray)
+                .appendQueryParameter(PARAM_API_VERSION, API_VERSION)
+                .build().toString();
+    }
+
+    private static Uri.Builder getMultiParamBuilderLegacy(String path, String param, long[] idArray) {
+        Uri.Builder builder = Uri.parse(TWITCH_API_BASE_URL_LEGACY).buildUpon()
+                .appendPath(path);
+        StringBuilder stringBuilder = new StringBuilder();
+        for (long id : idArray) {
+            stringBuilder.append(Long.toString(id));
+            stringBuilder.append(",");
+        }
+        builder.appendQueryParameter(param, stringBuilder.toString());
+        return builder;
     }
 
     private static Uri.Builder getMultiParamBuilder(String path, String param, long[] idArray) {

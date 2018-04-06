@@ -14,7 +14,7 @@ ids2 = [28577834]
 
 
 def main():
-    pprint_json(test_url('https://api.twitch.tv/kraken/streams/?channel=154723532,67650991,24147592,110690086,37138771&api_version=5'))
+    pprint_json(test_url('https://api.twitch.tv/kraken/streams?channel=154723532,67650991,24147592,110690086,37138771,&api_version=5'))
 
 
 def main5():
