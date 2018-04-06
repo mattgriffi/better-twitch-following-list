@@ -85,10 +85,14 @@ public class FollowingListFragment extends BaseListFragment {
     }
 
     private int countOnline(List<ListEntry> list) {
-        int i = 0;
-        for (ListEntry item : list)
-            if (item.type != ChannelContract.StreamEntry.STREAM_TYPE_OFFLINE)
-                i++;
-        return i;
+        int count = 0;
+        for (ListEntry item : list) {
+            boolean live = item.type == ChannelContract.StreamEntry.STREAM_TYPE_LIVE;
+            boolean rerun = item.type == ChannelContract.StreamEntry.STREAM_TYPE_RERUN;
+            boolean rerunOnline = SettingsManager.getRerunSetting() != SettingsManager.RERUN_OFFLINE;
+            if (live || (rerun && rerunOnline))
+                count++;
+        }
+        return count;
     }
 }
