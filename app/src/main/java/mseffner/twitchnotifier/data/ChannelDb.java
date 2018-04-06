@@ -20,6 +20,7 @@ import mseffner.twitchnotifier.data.ChannelContract.FollowEntry;
 import mseffner.twitchnotifier.data.ChannelContract.GameEntry;
 import mseffner.twitchnotifier.data.ChannelContract.StreamEntry;
 import mseffner.twitchnotifier.data.ChannelContract.UserEntry;
+import mseffner.twitchnotifier.data.ChannelContract.StreamLegacyEntry;
 import mseffner.twitchnotifier.networking.Containers;
 
 
@@ -106,15 +107,33 @@ public class ChannelDb {
         });
     }
 
+    public static void insertStreamsLegacyData(@NonNull Containers.StreamsLegacy streams) {
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        wrapTransaction(database, () -> {
+            for (Containers.StreamsLegacy.Data data : streams.streams) {
+                ContentValues values = new ContentValues();
+                values.put(StreamLegacyEntry._ID, data.channel._id);
+                values.put(StreamLegacyEntry.COLUMN_GAME, data.channel._id);
+                int streamType = "live".equals(data.stream_type) ? StreamEntry.STREAM_TYPE_LIVE : StreamEntry.STREAM_TYPE_RERUN;
+                values.put(StreamLegacyEntry.COLUMN_TYPE, streamType);
+                values.put(StreamLegacyEntry.COLUMN_TITLE, data.channel.status);
+                values.put(StreamLegacyEntry.COLUMN_VIEWER_COUNT, data.viewers);
+                values.put(StreamLegacyEntry.COLUMN_STARTED_AT, getUnixTimestampFromUTC(data.created_at));
+                values.put(StreamLegacyEntry.COLUMN_LANGUAGE, data.channel.language);
+                values.put(StreamLegacyEntry.COLUMN_THUMBNAIL_URL, data.preview.template);
+
+                insert(database, StreamLegacyEntry.TABLE_NAME, values, SQLiteDatabase.CONFLICT_REPLACE);
+            }
+        });
+    }
+
     private static void wrapTransaction(SQLiteDatabase db, Runnable r) {
         db.beginTransaction();
         try {
             r.run();
             db.setTransactionSuccessful();
-
         } finally {
             db.endTransaction();
-
         }
     }
 
