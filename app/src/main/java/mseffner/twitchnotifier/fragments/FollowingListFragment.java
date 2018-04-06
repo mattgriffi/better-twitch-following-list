@@ -47,7 +47,7 @@ public class FollowingListFragment extends BaseListFragment {
 
     @Override
     protected void updateList() {
-        ThreadManager.post(() -> sortList(Database.getAllFollows()));
+        ThreadManager.post(() -> sortList(Database.getAllFollowsLegacy()));
     }
 
     private void sortList(List<ListEntry> list) {

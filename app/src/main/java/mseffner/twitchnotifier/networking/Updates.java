@@ -89,7 +89,7 @@ public class Updates {
         ThreadManager.post(() -> {
             long[][] userIds = URLTools.splitIdArray(Database.getAllFollowIds());
             for (long[] ids : userIds)
-                Requests.getStreams(ids, new BaseListener<Containers.Streams>() {});
+                Requests.getStreamsLegacy(ids, new BaseListener<Containers.StreamsLegacy>() {});
             Requests.getTopStreams(new BaseListener<Containers.Streams>() {});
         });
     }
