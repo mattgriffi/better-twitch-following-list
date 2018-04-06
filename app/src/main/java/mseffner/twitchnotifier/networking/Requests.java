@@ -21,6 +21,7 @@ public class Requests {
     public static final int REQUEST_TYPE_STREAMS = 1;
     public static final int REQUEST_TYPE_FOLLOWS = 2;
     public static final int REQUEST_TYPE_GAMES = 3;
+    public static final int REQUEST_TYPE_STREAMS_LEGACY = 4;
 
     private static final int CACHE_SIZE = 1024 * 1024;  // in bytes
 
@@ -56,6 +57,12 @@ public class Requests {
     public static void getStreams(long[] ids, Response.Listener<Containers.Streams> listener) {
         String url = URLTools.getStreamsUrl(ids);
         queue.add(RequestFactory.getRequest(REQUEST_TYPE_STREAMS, url, listener));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void getStreamsLegacy(long[] ids, Response.Listener<Containers.StreamsLegacy> listener) {
+        String url = URLTools.getStreamsUrlLegacy(ids);
+        queue.add(RequestFactory.getRequest(REQUEST_TYPE_STREAMS_LEGACY, url, listener));
     }
 
     @SuppressWarnings("unchecked")

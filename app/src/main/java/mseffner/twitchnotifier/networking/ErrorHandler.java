@@ -40,6 +40,7 @@ public class ErrorHandler implements Response.ErrorListener {
                 UpdateCoordinator.decrementFollows();
                 break;
             case Requests.REQUEST_TYPE_STREAMS:
+            case Requests.REQUEST_TYPE_STREAMS_LEGACY:
                 UpdateCoordinator.decrementStreams();
                 break;
             case Requests.REQUEST_TYPE_USERS:

@@ -34,6 +34,9 @@ public class RequestFactory {
                 UpdateCoordinator.incrementGames();
                 request = getGamesRequest(url, listener);
                 break;
+            case Requests.REQUEST_TYPE_STREAMS_LEGACY:
+                UpdateCoordinator.incrementStreams();
+                request = getStreamsLegacyRequest(url, listener);
         }
         return request;
     }
@@ -52,5 +55,9 @@ public class RequestFactory {
 
     private static GsonRequest getGamesRequest(String url, Response.Listener<Containers.Games> listener) {
         return new GsonRequest<>(url, Containers.Games.class, headers, listener, new ErrorHandler(Requests.REQUEST_TYPE_GAMES));
+    }
+
+    private static GsonRequest getStreamsLegacyRequest(String url, Response.Listener<Containers.StreamsLegacy> listener) {
+        return new GsonRequest<>(url, Containers.StreamsLegacy.class, headers, listener, new ErrorHandler(Requests.REQUEST_TYPE_STREAMS_LEGACY));
     }
 }
