@@ -3,11 +3,9 @@ package mseffner.twitchnotifier.data;
 import android.provider.BaseColumns;
 
 public final class ChannelContract {
-
     private ChannelContract() {}
 
     public static class ChannelEntry implements BaseColumns {
-
         private ChannelEntry() {}
 
         // General channel data
@@ -84,5 +82,18 @@ public final class ChannelContract {
         public static final int STREAM_TYPE_OFFLINE = 0;
         public static final int STREAM_TYPE_LIVE = 1;
         public static final int STREAM_TYPE_RERUN = 2;
+    }
+
+    public static class StreamLegacyEntry implements BaseColumns {
+        private StreamLegacyEntry() {}
+
+        public static final String TABLE_NAME = "streams_legacy";
+        public static final String COLUMN_GAME = "game";
+        public static final String COLUMN_TYPE = "type";
+        public static final String COLUMN_TITLE = "title";
+        public static final String COLUMN_VIEWER_COUNT = "viewer_count";
+        public static final String COLUMN_STARTED_AT = "started_at";
+        public static final String COLUMN_LANGUAGE = "language";
+        public static final String COLUMN_THUMBNAIL_URL = "thumbnail_url";
     }
 }
