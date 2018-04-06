@@ -78,6 +78,38 @@ public class Containers {
     }
 
     /**
+     * Used for streams endpoint in API v5
+     * https://api.twitch.tv/kraken/channels/
+     */
+    public class StreamsLegacy {
+
+        public class Data {
+
+            public class Channel {
+                public String status;
+                public String language;
+                public int _id;
+                public String name;
+            }
+
+            public class Preview {
+                public String template;
+            }
+
+            public String game;
+            public int viewers;
+            public String created_at;
+            public String stream_type;
+
+            public Preview preview;
+            public Channel channel;
+        }
+
+        public int _total;
+        public List<Data> streams = new ArrayList<>();
+    }
+
+    /**
      * Used for games endpoint
      * https://api.twitch.tv/helix/games
      */
