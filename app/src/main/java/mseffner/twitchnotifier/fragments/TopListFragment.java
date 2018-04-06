@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mseffner.twitchnotifier.data.ChannelContract;
-import mseffner.twitchnotifier.data.ChannelDb;
+import mseffner.twitchnotifier.data.Database;
 import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.events.ListModeChangedEvent;
@@ -37,7 +37,7 @@ public class TopListFragment extends BaseListFragment {
     @Override
     protected void updateList() {
         ThreadManager.post(() -> {
-            List<ListEntry> list = ChannelDb.getTopStreams();
+            List<ListEntry> list = Database.getTopStreams();
             // If reruns are set to be shown as offline, remove them from the top list entirely
             if (SettingsManager.getRerunSetting() == SettingsManager.RERUN_OFFLINE)
                 list = removeNonliveChannels(list);

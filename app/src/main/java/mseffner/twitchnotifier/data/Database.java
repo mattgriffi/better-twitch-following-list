@@ -24,15 +24,15 @@ import mseffner.twitchnotifier.data.ChannelContract.StreamLegacyEntry;
 import mseffner.twitchnotifier.networking.Containers;
 
 
-public class ChannelDb {
+public class Database {
 
-    private static ChannelDbHelper dbHelper;
+    private static DatabaseHelper dbHelper;
 
-    private ChannelDb() {
+    private Database() {
     }
 
     public static void initialize(Context context) {
-        dbHelper = new ChannelDbHelper(context.getApplicationContext());
+        dbHelper = new DatabaseHelper(context.getApplicationContext());
     }
 
     public static void destroy() {

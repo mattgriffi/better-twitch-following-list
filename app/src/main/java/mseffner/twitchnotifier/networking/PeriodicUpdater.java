@@ -3,7 +3,7 @@ package mseffner.twitchnotifier.networking;
 
 import org.greenrobot.eventbus.EventBus;
 
-import mseffner.twitchnotifier.data.ChannelDb;
+import mseffner.twitchnotifier.data.Database;
 import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.events.PreStreamUpdateEvent;
 import mseffner.twitchnotifier.events.UpdateFinishedEvent;
@@ -27,10 +27,10 @@ public class PeriodicUpdater implements Runnable {
                 PreStreamUpdateEvent stickyEvent = EventBus.getDefault().getStickyEvent(PreStreamUpdateEvent.class);
                 if (stickyEvent != null)
                     EventBus.getDefault().removeStickyEvent(stickyEvent);
-                EventBus.getDefault().postSticky(new PreStreamUpdateEvent(ChannelDb.getAllFollows()));
+                EventBus.getDefault().postSticky(new PreStreamUpdateEvent(Database.getAllFollows()));
             }
             // Prepare for the update
-            ChannelDb.deleteAllStreams();
+            Database.deleteAllStreams();
             ErrorHandler.reset();
             UpdateCoordinator.reset();
             // Update either the follows or just streams

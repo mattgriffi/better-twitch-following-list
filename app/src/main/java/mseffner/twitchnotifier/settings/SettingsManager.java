@@ -8,7 +8,7 @@ import android.os.SystemClock;
 import org.greenrobot.eventbus.EventBus;
 
 import mseffner.twitchnotifier.R;
-import mseffner.twitchnotifier.data.ChannelDb;
+import mseffner.twitchnotifier.data.Database;
 import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.events.DarkModeChangedEvent;
 import mseffner.twitchnotifier.events.ListModeChangedEvent;
@@ -264,7 +264,7 @@ public class SettingsManager {
         if (key.equals(usernameKey)) {
             setFollowsNeedUpdate(true);
             Updates.updateUserId();
-            ThreadManager.post(ChannelDb::deleteAllFollows);
+            ThreadManager.post(Database::deleteAllFollows);
         } else if (key.equals(darkmodeKey))
             EventBus.getDefault().post(new DarkModeChangedEvent(getDarkModeSetting()));
         else if (key.equals(listModeKey))

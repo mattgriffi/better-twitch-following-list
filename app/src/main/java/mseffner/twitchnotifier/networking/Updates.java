@@ -6,7 +6,7 @@ import com.android.volley.Response;
 import org.greenrobot.eventbus.EventBus;
 
 import mseffner.twitchnotifier.ToastMaker;
-import mseffner.twitchnotifier.data.ChannelDb;
+import mseffner.twitchnotifier.data.Database;
 import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.events.UserIdUpdatedEvent;
 import mseffner.twitchnotifier.settings.SettingsManager;
@@ -54,7 +54,7 @@ public class Updates {
             return;
 
         ThreadManager.post(() -> {
-            ChannelDb.setFollowsDirty();
+            Database.setFollowsDirty();
             Requests.getFollows(null, new FollowsListener());
         });
     }
@@ -77,7 +77,7 @@ public class Updates {
     }
 
     private static void followsUpdateSuccessful() {
-        ChannelDb.cleanFollows();
+        Database.cleanFollows();
         SettingsManager.setFollowsNeedUpdate(false);
     }
 
@@ -87,7 +87,7 @@ public class Updates {
      */
     public static void updateStreams() {
         ThreadManager.post(() -> {
-            long[][] userIds = URLTools.splitIdArray(ChannelDb.getAllFollowIds());
+            long[][] userIds = URLTools.splitIdArray(Database.getAllFollowIds());
             for (long[] ids : userIds)
                 Requests.getStreams(ids, new BaseListener<Containers.Streams>() {});
             Requests.getTopStreams(new BaseListener<Containers.Streams>() {});
@@ -100,7 +100,7 @@ public class Updates {
      */
     public static void updateUsers() {
         ThreadManager.post(() -> {
-            long[][] userIds = URLTools.splitIdArray(ChannelDb.getUnknownUserIds());
+            long[][] userIds = URLTools.splitIdArray(Database.getUnknownUserIds());
             if (userIds.length == 0) UpdateCoordinator.noUsersUpdateNeeded();
             for (long[] ids : userIds)
                 Requests.getUsers(ids, new BaseListener<Containers.Users>() {});
@@ -113,7 +113,7 @@ public class Updates {
      */
     public static void updateGames() {
         ThreadManager.post(() -> {
-            long[][] gameIds = URLTools.splitIdArray(ChannelDb.getUnknownGameIds());
+            long[][] gameIds = URLTools.splitIdArray(Database.getUnknownGameIds());
             // 0 is a null game, so ignore that
             if (gameIds.length == 0 || (gameIds[0].length == 1 && gameIds[0][0] == 0)) {
                 UpdateCoordinator.noGamesUpdateNeeded();

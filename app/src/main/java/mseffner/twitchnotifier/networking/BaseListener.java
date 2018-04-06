@@ -2,7 +2,7 @@ package mseffner.twitchnotifier.networking;
 
 import com.android.volley.Response;
 
-import mseffner.twitchnotifier.data.ChannelDb;
+import mseffner.twitchnotifier.data.Database;
 import mseffner.twitchnotifier.data.ThreadManager;
 
 
@@ -36,19 +36,19 @@ public abstract class BaseListener<T> implements Response.Listener<T> {
         /* The inserts must happen before the corresponding decrement so that
         the process will be fully complete before RequestTracker is notified. */
         if (response instanceof Containers.Streams) {
-            ChannelDb.insertStreamsData((Containers.Streams) response);
+            Database.insertStreamsData((Containers.Streams) response);
             UpdateCoordinator.decrementStreams();
         } else if (response instanceof Containers.StreamsLegacy) {
-            ChannelDb.insertStreamsLegacyData((Containers.StreamsLegacy) response);
+            Database.insertStreamsLegacyData((Containers.StreamsLegacy) response);
             UpdateCoordinator.decrementStreams();
         } else if (response instanceof Containers.Games) {
-            ChannelDb.insertGamesData((Containers.Games) response);
+            Database.insertGamesData((Containers.Games) response);
             UpdateCoordinator.decrementGames();
         } else if (response instanceof Containers.Follows) {
-            ChannelDb.insertFollowsData((Containers.Follows) response);
+            Database.insertFollowsData((Containers.Follows) response);
             UpdateCoordinator.decrementFollows();
         } else if (response instanceof Containers.Users) {
-            ChannelDb.insertUsersData((Containers.Users) response);
+            Database.insertUsersData((Containers.Users) response);
             UpdateCoordinator.decrementUsers();
         }
     }

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
 
-import mseffner.twitchnotifier.data.ChannelDb;
+import mseffner.twitchnotifier.data.Database;
 import mseffner.twitchnotifier.data.ThreadManager;
 
 public class ClearPinsDialogPreference extends DialogPreference {
@@ -17,7 +17,7 @@ public class ClearPinsDialogPreference extends DialogPreference {
     protected void onDialogClosed(boolean positiveResult) {
         super.onDialogClosed(positiveResult);
         if (positiveResult) {
-            ThreadManager.post(ChannelDb::removeAllPins);
+            ThreadManager.post(Database::removeAllPins);
         }
     }
 }

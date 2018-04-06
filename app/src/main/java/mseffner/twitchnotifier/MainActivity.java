@@ -15,7 +15,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.lang.reflect.Method;
 
 import mseffner.twitchnotifier.adapters.ListPagerAdapter;
-import mseffner.twitchnotifier.data.ChannelDb;
+import mseffner.twitchnotifier.data.Database;
 import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.events.DarkModeChangedEvent;
 import mseffner.twitchnotifier.networking.PeriodicUpdater;
@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SettingsManager.initialize(sharedPreferences, getResources());
         ThreadManager.initialize();
-        ChannelDb.initialize(this);
+        Database.initialize(this);
         Requests.initialize(this);
         ToastMaker.initialize(this);
 
@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         // Destroy static classes to prevent memory leaks
         EventBus.getDefault().unregister(this);
         SettingsManager.destroy();
-        ChannelDb.destroy();
+        Database.destroy();
         Requests.destroy();
         ToastMaker.destroy();
         ThreadManager.destroy();

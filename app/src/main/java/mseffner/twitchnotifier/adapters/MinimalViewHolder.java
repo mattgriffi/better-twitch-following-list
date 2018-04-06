@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import mseffner.twitchnotifier.R;
 import mseffner.twitchnotifier.data.ChannelContract;
-import mseffner.twitchnotifier.data.ChannelDb;
+import mseffner.twitchnotifier.data.Database;
 import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.data.ThreadManager;
 import mseffner.twitchnotifier.settings.SettingsManager;
@@ -56,7 +56,7 @@ public class MinimalViewHolder extends RecyclerView.ViewHolder {
             itemView.setOnLongClickListener(view -> {
                 if (vibrator != null)
                     vibrator.vibrate(vibrateTime);
-                ThreadManager.post(() -> ChannelDb.toggleChannelPin(listEntry.id));
+                ThreadManager.post(() -> Database.toggleChannelPin(listEntry.id));
                 listEntry.togglePinned();
                 setPinDisplay(listEntry);
                 return true;
