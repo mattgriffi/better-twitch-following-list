@@ -27,7 +27,7 @@ public class PeriodicUpdater implements Runnable {
                 PreStreamUpdateEvent stickyEvent = EventBus.getDefault().getStickyEvent(PreStreamUpdateEvent.class);
                 if (stickyEvent != null)
                     EventBus.getDefault().removeStickyEvent(stickyEvent);
-                EventBus.getDefault().postSticky(new PreStreamUpdateEvent(Database.getAllFollows()));
+                EventBus.getDefault().postSticky(new PreStreamUpdateEvent(Database.getAllFollowsLegacy()));
             }
             // Prepare for the update
             Database.deleteAllStreams();
