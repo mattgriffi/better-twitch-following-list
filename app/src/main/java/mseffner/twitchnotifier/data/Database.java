@@ -19,8 +19,8 @@ import java.util.TimeZone;
 import mseffner.twitchnotifier.data.ChannelContract.FollowEntry;
 import mseffner.twitchnotifier.data.ChannelContract.GameEntry;
 import mseffner.twitchnotifier.data.ChannelContract.StreamEntry;
-import mseffner.twitchnotifier.data.ChannelContract.UserEntry;
 import mseffner.twitchnotifier.data.ChannelContract.StreamLegacyEntry;
+import mseffner.twitchnotifier.data.ChannelContract.UserEntry;
 import mseffner.twitchnotifier.networking.Containers;
 
 
@@ -113,7 +113,7 @@ public class Database {
             for (Containers.StreamsLegacy.Data data : streams.streams) {
                 ContentValues values = new ContentValues();
                 values.put(StreamLegacyEntry._ID, data.channel._id);
-                values.put(StreamLegacyEntry.COLUMN_GAME, data.channel._id);
+                values.put(StreamLegacyEntry.COLUMN_GAME, data.game);
                 int streamType = "live".equals(data.stream_type) ? StreamEntry.STREAM_TYPE_LIVE : StreamEntry.STREAM_TYPE_RERUN;
                 values.put(StreamLegacyEntry.COLUMN_TYPE, streamType);
                 values.put(StreamLegacyEntry.COLUMN_TITLE, data.channel.status);
