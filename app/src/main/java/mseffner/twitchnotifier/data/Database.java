@@ -389,14 +389,6 @@ public class Database {
         return getIdSet(FollowEntry.TABLE_NAME, FollowEntry._ID);
     }
 
-    public static Set<Long> getUserIdSet() {
-        return getIdSet(UserEntry.TABLE_NAME, UserEntry._ID);
-    }
-
-    public static Set<Long> getGameIdSet() {
-        return getIdSet(GameEntry.TABLE_NAME, GameEntry._ID);
-    }
-
     private static Set<Long> getIdSet(String tableName, String columnName) {
         Cursor cursor = query(tableName, new String[]{columnName},
                 null, null);
@@ -440,12 +432,6 @@ public class Database {
         update(FollowEntry.TABLE_NAME, values, null, null);
     }
 
-    public static void setFollowsClean() {
-        ContentValues values = new ContentValues();
-        values.put(FollowEntry.COLUMN_DIRTY, FollowEntry.CLEAN);
-        update(FollowEntry.TABLE_NAME, values, null, null);
-    }
-
     public static void cleanFollows() {
         String selection = FollowEntry.COLUMN_DIRTY + "=?";
         String[] selectionArgs = {Integer.toString(FollowEntry.DIRTY)};
@@ -454,6 +440,7 @@ public class Database {
 
     public static void deleteAllStreams() {
         delete(StreamEntry.TABLE_NAME, null, null);
+        delete(StreamLegacyEntry.TABLE_NAME, null, null);
     }
 
     public static void deleteAllFollows() {
@@ -479,7 +466,7 @@ public class Database {
         database.delete(tableName, selection, selectionArgs);
     }
 
-    public static long getUnixTimestampFromUTC(String utcFormattedTimestamp) {
+    private static long getUnixTimestampFromUTC(String utcFormattedTimestamp) {
         @SuppressLint("SimpleDateFormat")
         // This is the format returned by the Twitch API
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
