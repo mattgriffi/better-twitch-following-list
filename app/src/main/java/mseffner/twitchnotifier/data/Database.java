@@ -137,6 +137,68 @@ public class Database {
         }
     }
 
+    public static List<ListEntry> getAllFollowsLegacy() {
+        String selection =
+                "SELECT " +
+                        FollowEntry.TABLE_NAME + "." + FollowEntry._ID + ", " +
+                        FollowEntry.TABLE_NAME + "." + FollowEntry.COLUMN_PINNED + ", " +
+                        UserEntry.TABLE_NAME + "." + UserEntry.COLUMN_LOGIN + ", " +
+                        UserEntry.TABLE_NAME + "." + UserEntry.COLUMN_DISPLAY_NAME + ", " +
+                        UserEntry.TABLE_NAME + "." + UserEntry.COLUMN_PROFILE_IMAGE_URL + ", " +
+                        StreamLegacyEntry.TABLE_NAME + "." + StreamLegacyEntry.COLUMN_GAME + ", " +
+                        StreamLegacyEntry.TABLE_NAME + "." + StreamLegacyEntry.COLUMN_TYPE + ", " +
+                        StreamLegacyEntry.TABLE_NAME + "." + StreamLegacyEntry.COLUMN_TITLE + ", " +
+                        StreamLegacyEntry.TABLE_NAME + "." + StreamLegacyEntry.COLUMN_VIEWER_COUNT + ", " +
+                        StreamLegacyEntry.TABLE_NAME + "." + StreamLegacyEntry.COLUMN_STARTED_AT + ", " +
+                        StreamLegacyEntry.TABLE_NAME + "." + StreamLegacyEntry.COLUMN_LANGUAGE + ", " +
+                        StreamLegacyEntry.TABLE_NAME + "." + StreamLegacyEntry.COLUMN_THUMBNAIL_URL +
+                        " FROM " + FollowEntry.TABLE_NAME +
+                        " INNER JOIN " + UserEntry.TABLE_NAME + " ON " +
+                        FollowEntry.TABLE_NAME + "." + FollowEntry._ID + " = " +
+                        UserEntry.TABLE_NAME + "." + UserEntry._ID +
+                        " LEFT OUTER JOIN " + StreamEntry.TABLE_NAME + " ON " +
+                        FollowEntry.TABLE_NAME + "." + FollowEntry._ID + " = " +
+                        StreamLegacyEntry.TABLE_NAME + "." + StreamLegacyEntry._ID + ";";
+
+        Cursor cursor = dbHelper.getReadableDatabase().rawQuery(selection, null);
+
+        // Get column indices
+        int id = cursor.getColumnIndex(FollowEntry._ID);
+        int pinned = cursor.getColumnIndex(FollowEntry.COLUMN_PINNED);
+        int login = cursor.getColumnIndex(UserEntry.COLUMN_LOGIN);
+        int display_name = cursor.getColumnIndex(UserEntry.COLUMN_DISPLAY_NAME);
+        int profile_image_url = cursor.getColumnIndex(UserEntry.COLUMN_PROFILE_IMAGE_URL);
+        int type = cursor.getColumnIndex(StreamLegacyEntry.COLUMN_TYPE);
+        int title = cursor.getColumnIndex(StreamLegacyEntry.COLUMN_TITLE);
+        int viewer_count = cursor.getColumnIndex(StreamLegacyEntry.COLUMN_VIEWER_COUNT);
+        int started_at = cursor.getColumnIndex(StreamLegacyEntry.COLUMN_STARTED_AT);
+        int language = cursor.getColumnIndex(StreamLegacyEntry.COLUMN_LANGUAGE);
+        int thumbnail_url = cursor.getColumnIndex(StreamLegacyEntry.COLUMN_THUMBNAIL_URL);
+        int game_name = cursor.getColumnIndex(StreamLegacyEntry.COLUMN_GAME);
+
+        List<ListEntry> list = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            list.add(new ListEntry(
+                            cursor.getLong(id),
+                            cursor.getInt(pinned),
+                            cursor.getString(login),
+                            cursor.getString(display_name),
+                            cursor.getString(profile_image_url),
+                            cursor.getInt(type),
+                            cursor.getString(title),
+                            cursor.getInt(viewer_count),
+                            cursor.getLong(started_at),
+                            cursor.getString(language),
+                            cursor.getString(thumbnail_url),
+                            cursor.getString(game_name),
+                            ""
+                    )
+            );
+        }
+        cursor.close();
+        return list;
+    }
+
     public static List<ListEntry> getAllFollows() {
         String selection =
             "SELECT " +
