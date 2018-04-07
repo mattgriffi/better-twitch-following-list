@@ -349,8 +349,17 @@ public class Database {
     }
 
     private static long[] getUnknownUserIdsFromStreams() {
-        return getUnknownIds(StreamEntry.TABLE_NAME, StreamEntry._ID,
+        long streams[] = getUnknownIds(StreamEntry.TABLE_NAME, StreamEntry._ID,
                 UserEntry.TABLE_NAME, UserEntry._ID);
+        long streamsLegacy[] = getUnknownIds(StreamLegacyEntry.TABLE_NAME, StreamLegacyEntry._ID,
+                UserEntry.TABLE_NAME, UserEntry._ID);
+        long total[] = new long[streams.length + streamsLegacy.length];
+        int i = 0;
+        for (long id : streams)
+            total[i++] = id;
+        for (long id : streamsLegacy)
+            total[i++] = id;
+        return total;
     }
 
     public static long[] getUnknownGameIds() {
