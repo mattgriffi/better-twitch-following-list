@@ -38,29 +38,24 @@ public class UpdateCoordinator {
 
     public static synchronized void incrementFollows() {
         activeFollows++;
-        log();
     }
 
     public static synchronized void incrementStreams() {
         activeStreams++;
-        log();
     }
 
     public static synchronized void incrementUsers() {
         activeUsers++;
-        log();
     }
 
     public static synchronized void incrementGames() {
         activeGames++;
-        log();
     }
 
     public static synchronized void decrementFollows() {
         if (activeFollows <= 0) return;
         activeFollows--;
         remainingFollows--;
-        log();
 
         if (activeFollows == 0)
             Updates.updateStreams();
@@ -69,7 +64,6 @@ public class UpdateCoordinator {
     public static synchronized void decrementStreams() {
         if (activeStreams <= 0) return;
         activeStreams--;
-        log();
 
         if (activeStreams == 0) {
             Updates.updateUsers();
@@ -88,14 +82,12 @@ public class UpdateCoordinator {
     public static synchronized void decrementUsersNoUpdate() {
         if (activeUsers <= 0) return;
         activeUsers--;
-        log();
     }
 
     public static synchronized void decrementGames() {
         if (activeGames <= 0) return;
         gamesUpdateNeeded = false;
         activeGames--;
-        log();
 
         if (!updateInProgress())
             updateComplete();

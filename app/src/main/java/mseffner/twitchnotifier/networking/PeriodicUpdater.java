@@ -16,7 +16,6 @@ public class PeriodicUpdater implements Runnable {
 
     @Override
     public void run() {
-        UpdateCoordinator.log();
         // If we are ready for a new update
         if (SettingsManager.rateLimitReset()) {
             EventBus.getDefault().post(new UpdateStartedEvent());
