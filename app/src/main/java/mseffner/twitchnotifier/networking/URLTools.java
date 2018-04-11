@@ -71,7 +71,9 @@ public class URLTools {
      * @return  url to get info for streams in idArray
      */
     public static String getStreamsUrl(long[] idArray) {
-        return getMultiParamBuilder(PATH_STREAMS, PARAM_USER_ID, idArray).build().toString();
+        return getMultiParamBuilder(PATH_STREAMS, PARAM_USER_ID, idArray)
+                .appendQueryParameter(PARAM_FIRST, FIRST_MAX)
+                .build().toString();
     }
 
     /**
@@ -80,6 +82,7 @@ public class URLTools {
     public static String getStreamsUrlLegacy(long[] idArray) {
         return getMultiParamBuilderLegacy(PATH_STREAMS, PARAM_CHANNEL, idArray)
                 .appendQueryParameter(PARAM_API_VERSION, API_VERSION)
+                .appendQueryParameter(PARAM_LIMIT, FIRST_MAX)
                 .build().toString();
     }
 
