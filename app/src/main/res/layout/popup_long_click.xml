@@ -10,20 +10,20 @@
 
     <CheckBox
         android:id="@+id/channel_pin"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="16dp"
         android:paddingTop="16dp"
-        android:text="@string/pin_channel"
-        android:textColor="?android:textColorSecondary"/>
+        android:textColor="?android:textColorSecondary"
+        tools:text="@string/pin_channel"/>
 
     <CheckBox
         android:id="@+id/game_favorite"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="16dp"
         android:paddingTop="16dp"
-        android:text="@string/favorite_game"
-        android:textColor="?android:textColorSecondary"/>
+        android:textColor="?android:textColorSecondary"
+        tools:text="@string/favorite_game"/>
 
 </LinearLayout>
