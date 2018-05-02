@@ -3,6 +3,7 @@ package mseffner.twitchnotifier.adapters;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Vibrator;
 import android.support.v7.widget.RecyclerView;
@@ -46,9 +47,10 @@ public class MinimalViewHolder extends RecyclerView.ViewHolder {
         channelName.setText(listEntry.displayName);
 
         // Set the pin
-        if (allowLongClick)
+        if (allowLongClick) {
             setPinDisplay(listEntry);
-        else
+            setGameDisplay(listEntry);
+        } else
             pinIcon.setVisibility(View.GONE);
 
         // LongClickListener to toggle pin (does not apply to top streams list)
@@ -59,6 +61,10 @@ public class MinimalViewHolder extends RecyclerView.ViewHolder {
                 ThreadManager.post(() -> Database.toggleChannelPin(listEntry.id));
                 listEntry.togglePinned();
                 setPinDisplay(listEntry);
+
+                // TODO update db with game favorite
+                listEntry.toggleGameFavorited();
+                setGameDisplay(listEntry);
                 return true;
             });
 
@@ -83,6 +89,13 @@ public class MinimalViewHolder extends RecyclerView.ViewHolder {
             pinIcon.setVisibility(View.INVISIBLE);
             itemView.setBackgroundColor(Color.argb(0, 0, 0, 0));
         }
+    }
+
+    private void setGameDisplay(ListEntry listEntry) {
+        if (listEntry.gameFavorited)
+            currentGame.setPaintFlags(currentGame.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        else
+            currentGame.setPaintFlags(currentGame.getPaintFlags() & ~Paint.UNDERLINE_TEXT_FLAG);
     }
 
     protected void bindOfflineStream() {
