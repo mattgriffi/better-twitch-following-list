@@ -67,5 +67,6 @@ public final class ChannelContract {
         public static final String COLUMN_STARTED_AT = "started_at";
         public static final String COLUMN_LANGUAGE = "language";
         public static final String COLUMN_THUMBNAIL_URL = "thumbnail_url";
+        public static final String COLUMN_GAME_FAVORITE = "game_favorite";
     }
 }
