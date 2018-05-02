@@ -138,6 +138,9 @@ public class Database {
     }
 
     public static List<ListEntry> getAllFollowsLegacy() {
+
+        /* Note: The join to the games table needs to be last, otherwise the outer join
+        results in too many rows and we run out of memory. */
         String selection =
                 "SELECT " +
                         FollowEntry.TABLE_NAME + "." + FollowEntry._ID + ", " +
@@ -151,15 +154,19 @@ public class Database {
                         StreamLegacyEntry.TABLE_NAME + "." + StreamLegacyEntry.COLUMN_VIEWER_COUNT + ", " +
                         StreamLegacyEntry.TABLE_NAME + "." + StreamLegacyEntry.COLUMN_STARTED_AT + ", " +
                         StreamLegacyEntry.TABLE_NAME + "." + StreamLegacyEntry.COLUMN_LANGUAGE + ", " +
-                        StreamLegacyEntry.TABLE_NAME + "." + StreamLegacyEntry.COLUMN_GAME_FAVORITE + ", " +
-                        StreamLegacyEntry.TABLE_NAME + "." + StreamLegacyEntry.COLUMN_THUMBNAIL_URL +
+                        StreamLegacyEntry.TABLE_NAME + "." + StreamLegacyEntry.COLUMN_THUMBNAIL_URL + ", " +
+                        GameEntry.TABLE_NAME + "." + GameEntry.COLUMN_FAVORITE +
                         " FROM " + FollowEntry.TABLE_NAME +
                         " INNER JOIN " + UserEntry.TABLE_NAME + " ON " +
                         FollowEntry.TABLE_NAME + "." + FollowEntry._ID + " = " +
                         UserEntry.TABLE_NAME + "." + UserEntry._ID +
                         " LEFT OUTER JOIN " + StreamLegacyEntry.TABLE_NAME + " ON " +
                         FollowEntry.TABLE_NAME + "." + FollowEntry._ID + " = " +
-                        StreamLegacyEntry.TABLE_NAME + "." + StreamLegacyEntry._ID + ";";
+                        StreamLegacyEntry.TABLE_NAME + "." + StreamLegacyEntry._ID +
+                        " LEFT OUTER JOIN " + GameEntry.TABLE_NAME + " ON " +
+                        StreamLegacyEntry.TABLE_NAME + "." + StreamLegacyEntry.COLUMN_GAME + " = " +
+                        GameEntry.TABLE_NAME + "." + GameEntry.COLUMN_NAME + ";";
+
 
         Cursor cursor = dbHelper.getReadableDatabase().rawQuery(selection, null);
 
@@ -176,7 +183,7 @@ public class Database {
         int language = cursor.getColumnIndex(StreamLegacyEntry.COLUMN_LANGUAGE);
         int thumbnail_url = cursor.getColumnIndex(StreamLegacyEntry.COLUMN_THUMBNAIL_URL);
         int game_name = cursor.getColumnIndex(StreamLegacyEntry.COLUMN_GAME);
-        int game_favorite = cursor.getColumnIndex(StreamLegacyEntry.COLUMN_GAME_FAVORITE);
+        int game_favorite = cursor.getColumnIndex(GameEntry.COLUMN_FAVORITE);
 
         List<ListEntry> list = new ArrayList<>();
         while (cursor.moveToNext()) {
