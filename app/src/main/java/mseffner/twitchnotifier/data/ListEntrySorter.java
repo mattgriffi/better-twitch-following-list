@@ -13,14 +13,14 @@ public class ListEntrySorter {
     public static void sort(List<ListEntry> list) {
         Collections.sort(list, new DisplayNameLexicographicComparator());
         Collections.sort(list, new ViewerCountComparator());
-        doFinalSort(list);
+        sortByChosenOrder(list);
         if (SettingsManager.getFavoritesAtTopSetting())
             Collections.sort(list, new FavoritedComparator());
         Collections.sort(list, new PinnedComparator());
         Collections.sort(list, new TypeComparator());
     }
 
-    private static void doFinalSort(List<ListEntry> list) {
+    private static void sortByChosenOrder(List<ListEntry> list) {
         int sortBy = SettingsManager.getSortBySetting();
         boolean ascending = SettingsManager.getSortAscendingSetting();
 
