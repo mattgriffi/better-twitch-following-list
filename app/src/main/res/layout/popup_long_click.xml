@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:paddingBottom="16dp"
         android:paddingTop="16dp"
-        android:textColor="?android:textColorSecondary"
+        android:textColor="?android:textColorPrimary"
         tools:text="@string/pin_channel"/>
 
     <CheckBox
@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:paddingBottom="16dp"
         android:paddingTop="16dp"
-        android:textColor="?android:textColorSecondary"
+        android:textColor="?android:textColorPrimary"
         tools:text="@string/favorite_game"/>
 
 </LinearLayout>
