@@ -167,7 +167,6 @@ public class Database {
                         StreamLegacyEntry.TABLE_NAME + "." + StreamLegacyEntry.COLUMN_GAME + " = " +
                         GameEntry.TABLE_NAME + "." + GameEntry.COLUMN_NAME + ";";
 
-
         Cursor cursor = dbHelper.getReadableDatabase().rawQuery(selection, null);
 
         // Get column indices
@@ -367,9 +366,6 @@ public class Database {
         ContentValues values = new ContentValues();
         values.put(GameEntry.COLUMN_FAVORITE, newStatus);
         update(GameEntry.TABLE_NAME, values, GameEntry.COLUMN_NAME + "=?", new String[]{name});
-        values.clear();
-        values.put(StreamLegacyEntry.COLUMN_GAME_FAVORITE, newStatus);
-        update(StreamLegacyEntry.TABLE_NAME, values, StreamLegacyEntry.COLUMN_GAME + "=?", new String[]{name});
     }
 
     public static void removeAllPins() {
