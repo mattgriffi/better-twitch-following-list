@@ -75,11 +75,11 @@
 
     <!-- Pins at top option -->
     <string name="pins_at_top_title">Pinned channels at top</string>
-    <string name="pins_at_top_description">Turn this off if you want pinned channels to be sorted normally.</string>
+    <string name="pins_at_top_description">If this is off, pinned channels will be sorted normally.</string>
 
     <!-- Favorite games at top option -->
     <string name="favorites_at_top_title">Favorite games at top</string>
-    <string name="favorites_at_top_description">Turn this off if you want favorited games to be sorted normally.</string>
+    <string name="favorites_at_top_description">If this is off, favorited games will be sorted normally.</string>
 
     <!-- Long click popup window -->
     <string name="pin_channel">Pin %1$s</string>
