@@ -369,15 +369,21 @@ public class Database {
     }
 
     public static void removeAllPins() {
-        ContentValues values = new ContentValues();
-        values.put(FollowEntry.COLUMN_PINNED, FollowEntry.NOT_PINNED);
-        update(FollowEntry.TABLE_NAME, values, null, null);
+        setColumnInt(FollowEntry.TABLE_NAME, FollowEntry.COLUMN_PINNED, FollowEntry.NOT_PINNED);
+    }
+
+    public static void removeAllFavorites() {
+        setColumnInt(GameEntry.TABLE_NAME, GameEntry.COLUMN_FAVORITE, GameEntry.NOT_FAVORITED);
     }
 
     public static void setFollowsDirty() {
+        setColumnInt(FollowEntry.TABLE_NAME, FollowEntry.COLUMN_DIRTY, FollowEntry.DIRTY);
+    }
+
+    private static void setColumnInt(String table, String column, int value) {
         ContentValues values = new ContentValues();
-        values.put(FollowEntry.COLUMN_DIRTY, FollowEntry.DIRTY);
-        update(FollowEntry.TABLE_NAME, values, null, null);
+        values.put(column, value);
+        update(table, values, null, null);
     }
 
     public static void cleanFollows() {
