@@ -14,6 +14,7 @@ import mseffner.twitchnotifier.data.Database;
 import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.data.ListEntrySorter;
 import mseffner.twitchnotifier.data.ThreadManager;
+import mseffner.twitchnotifier.events.ListChangeMadeEvent;
 import mseffner.twitchnotifier.events.ListRefreshedEvent;
 import mseffner.twitchnotifier.events.PreStreamUpdateEvent;
 import mseffner.twitchnotifier.networking.UpdateCoordinator;
@@ -57,6 +58,11 @@ public class FollowingListFragment extends BaseListFragment {
             ListEntrySorter.sort(list);
             EventBus.getDefault().post(new ListRefreshedEvent(list));
         });
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onListChangeMadeEvent(ListChangeMadeEvent event) {
+        updateList();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
