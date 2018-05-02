@@ -4,7 +4,6 @@ package mseffner.twitchnotifier.settings;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.SystemClock;
-import android.util.Log;
 
 import org.greenrobot.eventbus.EventBus;
 
