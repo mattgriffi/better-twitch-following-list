@@ -50,6 +50,10 @@ public class ListEntry {
         pinned = !pinned;
     }
 
+    public void toggleGameFavorited() {
+        gameFavorited = !gameFavorited;
+    }
+
     @Override
     public String toString() {
         return "id: " + id +
