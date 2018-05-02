@@ -2,6 +2,7 @@ package mseffner.twitchnotifier.data;
 
 
 import mseffner.twitchnotifier.data.ChannelContract.FollowEntry;
+import mseffner.twitchnotifier.data.ChannelContract.GameEntry;
 import mseffner.twitchnotifier.networking.URLTools;
 
 public class ListEntry {
@@ -20,10 +21,11 @@ public class ListEntry {
     public String gameName;
     public String boxArtUrl;
     public String streamUrl;
+    public boolean gameFavorited;
 
     public ListEntry(long id, int pinned, String login, String displayName, String profileImageUrl,
                      int type, String title, int viewerCount, long startedAt, String language,
-                     String thumbnailUrl, String gameName, String boxArtUrl) {
+                     String thumbnailUrl, String gameName, String boxArtUrl, int gameFavorited) {
         this.id = id;
         this.pinned = pinned == FollowEntry.PINNED;
         this.login = login;
@@ -41,6 +43,7 @@ public class ListEntry {
         this.gameName = gameName != null ? gameName : "";
         this.boxArtUrl = boxArtUrl;
         this.streamUrl = URLTools.getStreamUrl(this.login);
+        this.gameFavorited = gameFavorited == GameEntry.FAVORITED;
     }
 
     public void togglePinned() {
@@ -62,6 +65,7 @@ public class ListEntry {
                 "\tthumbnailUrl: " + thumbnailUrl +
                 "\tgameName: " + gameName +
                 "\tboxArtUrl: " + boxArtUrl +
+                "\tgameFavorited: " + gameFavorited +
                 "\tstreamUrl: " + streamUrl + "\n";
     }
 }
