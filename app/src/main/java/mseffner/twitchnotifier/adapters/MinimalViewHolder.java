@@ -58,12 +58,12 @@ public class MinimalViewHolder extends RecyclerView.ViewHolder {
             itemView.setOnLongClickListener(view -> {
                 if (vibrator != null)
                     vibrator.vibrate(vibrateTime);
-                ThreadManager.post(() -> Database.toggleChannelPin(listEntry.id));
                 listEntry.togglePinned();
+                ThreadManager.post(() -> Database.toggleChannelPin(listEntry.id, listEntry.pinned));
                 setPinDisplay(listEntry);
 
-                // TODO update db with game favorite
                 listEntry.toggleGameFavorited();
+                ThreadManager.post(() -> Database.toggleGameFavorite(listEntry.gameName, listEntry.gameFavorited));
                 setGameDisplay(listEntry);
                 return true;
             });

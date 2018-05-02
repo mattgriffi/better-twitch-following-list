@@ -346,24 +346,23 @@ public class Database {
         return set;
     }
 
-    public static void toggleChannelPin(long id) {
-        // Determine the current pin status of the channel
-        String selection = FollowEntry._ID + "=?";
-        String[] selectionArgs = {Long.toString(id)};
-        String[] projection = {FollowEntry.COLUMN_PINNED};
-        Cursor cursor = query(FollowEntry.TABLE_NAME, projection, selection, selectionArgs);
-        // If the cursor is empty, then the channel somehow isn't in the db, so abort
-        if (cursor == null || cursor.getCount() == 0) return;
-        // Get current status
-        cursor.moveToFirst();
-        int status = cursor.getInt(cursor.getColumnIndex(FollowEntry.COLUMN_PINNED));
-        cursor.close();
-
-        // Toggle pin status
+    public static void toggleChannelPin(long id, boolean pinned) {
+        int newStatus = pinned ? FollowEntry.PINNED : FollowEntry.NOT_PINNED;
+        // Update table
         ContentValues values = new ContentValues();
-        int newStatus = status == FollowEntry.PINNED ? FollowEntry.NOT_PINNED : FollowEntry.PINNED;
         values.put(FollowEntry.COLUMN_PINNED, newStatus);
-        update(FollowEntry.TABLE_NAME, values, selection, selectionArgs);
+        update(FollowEntry.TABLE_NAME, values, FollowEntry._ID + "=?", new String[]{Long.toString(id)});
+    }
+
+    public static void toggleGameFavorite(String name, boolean favorited) {
+        int newStatus = favorited ? GameEntry.FAVORITED : GameEntry.NOT_FAVORITED;
+        // Update the tables
+        ContentValues values = new ContentValues();
+        values.put(GameEntry.COLUMN_FAVORITE, newStatus);
+        update(GameEntry.TABLE_NAME, values, GameEntry.COLUMN_NAME + "=?", new String[]{name});
+        values.clear();
+        values.put(StreamLegacyEntry.COLUMN_GAME_FAVORITE, newStatus);
+        update(StreamLegacyEntry.TABLE_NAME, values, StreamLegacyEntry.COLUMN_GAME + "=?", new String[]{name});
     }
 
     public static void removeAllPins() {
