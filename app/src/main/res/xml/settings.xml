@@ -70,7 +70,7 @@
 
     <!-- Toggle favorite games at top of list -->
     <SwitchPreference
-        android:defaultValue="true"
+        android:defaultValue="false"
         android:key="@string/pref_favorites_at_top_key"
         android:summary="@string/favorites_at_top_description"
         android:title="@string/favorites_at_top_title"/>
