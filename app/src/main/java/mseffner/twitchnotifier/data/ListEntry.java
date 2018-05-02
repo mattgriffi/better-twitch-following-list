@@ -25,7 +25,7 @@ public class ListEntry {
                      int type, String title, int viewerCount, long startedAt, String language,
                      String thumbnailUrl, String gameName, String boxArtUrl) {
         this.id = id;
-        this.pinned = pinned == FollowEntry.IS_PINNED;
+        this.pinned = pinned == FollowEntry.PINNED;
         this.login = login;
         this.displayName = displayName;
         /* Switch the url from https to http because older versions of android have a bug that

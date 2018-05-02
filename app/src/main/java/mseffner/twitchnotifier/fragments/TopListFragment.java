@@ -63,7 +63,7 @@ public class TopListFragment extends BaseListFragment {
     private List<ListEntry> removeNonliveChannels(@NonNull List<ListEntry> list) {
         List<ListEntry> newList = new ArrayList<>();
         for (ListEntry listEntry : list)
-            if (listEntry.type == ChannelContract.ChannelEntry.STREAM_TYPE_LIVE)
+            if (listEntry.type == ChannelContract.StreamEntry.STREAM_TYPE_LIVE)
                 newList.add(listEntry);
         return newList;
     }

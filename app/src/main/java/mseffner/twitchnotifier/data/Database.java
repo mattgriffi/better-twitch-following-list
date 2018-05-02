@@ -311,7 +311,7 @@ public class Database {
         while (cursor.moveToNext() && i < 100 /* only get top 100 */) {
             list.add(new ListEntry(
                             cursor.getLong(id),
-                            FollowEntry.IS_NOT_PINNED,
+                            FollowEntry.NOT_PINNED,
                             cursor.getString(login),
                             cursor.getString(display_name),
                             cursor.getString(profile_image_url),
@@ -424,14 +424,14 @@ public class Database {
 
         // Toggle pin status
         ContentValues values = new ContentValues();
-        int newStatus = status == FollowEntry.IS_PINNED ? FollowEntry.IS_NOT_PINNED : FollowEntry.IS_PINNED;
+        int newStatus = status == FollowEntry.PINNED ? FollowEntry.NOT_PINNED : FollowEntry.PINNED;
         values.put(FollowEntry.COLUMN_PINNED, newStatus);
         update(FollowEntry.TABLE_NAME, values, selection, selectionArgs);
     }
 
     public static void removeAllPins() {
         ContentValues values = new ContentValues();
-        values.put(FollowEntry.COLUMN_PINNED, FollowEntry.IS_NOT_PINNED);
+        values.put(FollowEntry.COLUMN_PINNED, FollowEntry.NOT_PINNED);
         update(FollowEntry.TABLE_NAME, values, null, null);
     }
 

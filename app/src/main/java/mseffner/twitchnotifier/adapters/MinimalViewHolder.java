@@ -64,7 +64,7 @@ public class MinimalViewHolder extends RecyclerView.ViewHolder {
 
         // Determine whether to treat stream as online or offline, and finish binding there
         boolean offline = listEntry.type == ChannelContract.StreamEntry.STREAM_TYPE_OFFLINE;
-        boolean rerun = listEntry.type == ChannelContract.ChannelEntry.STREAM_TYPE_RERUN;
+        boolean rerun = listEntry.type == ChannelContract.StreamEntry.STREAM_TYPE_RERUN;
         boolean rerunOffline = SettingsManager.getRerunSetting() == SettingsManager.RERUN_OFFLINE;
         if (offline || (rerun && rerunOffline))
             bindOfflineStream();
