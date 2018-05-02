@@ -2,6 +2,7 @@ package mseffner.twitchnotifier.settings;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
@@ -32,8 +33,11 @@ public class LongClickPopup extends PopupWindow implements PopupWindow.OnDismiss
         setFocusable(true);
         setOnDismissListener(this);
 
+        Resources res = context.getResources();
         channelPinCheckBox = view.findViewById(R.id.channel_pin);
         gameFavoriteCheckBox = view.findViewById(R.id.game_favorite);
+        channelPinCheckBox.setText(res.getString(R.string.pin_channel, listEntry.displayName));
+        gameFavoriteCheckBox.setText(res.getString(R.string.favorite_game, listEntry.gameName));
 
         this.listEntry = listEntry;
         channelPinned = listEntry.pinned;
