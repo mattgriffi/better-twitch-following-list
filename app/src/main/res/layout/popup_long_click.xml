@@ -5,12 +5,14 @@
     android:orientation="vertical">
 
     <CheckBox
+        android:id="@+id/channel_pin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/pin_channel"
         android:textColor="?android:textColorSecondary"/>
 
     <CheckBox
+        android:id="@+id/game_favorite"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/favorite_game"
