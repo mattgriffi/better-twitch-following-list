@@ -213,9 +213,7 @@ public class SettingsManager {
      * @return true if favorite games at top of list is on, else false
      */
     public static boolean getFavoritesAtTopSetting() {
-        boolean b =  sharedPreferences.getBoolean(favoritesAtTopKey, false);
-        Log.e("TEST", "" + b);
-        return b;
+        return sharedPreferences.getBoolean(favoritesAtTopKey, false);
     }
 
     /**
