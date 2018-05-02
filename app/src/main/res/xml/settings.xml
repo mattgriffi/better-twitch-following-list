@@ -87,4 +87,13 @@
         android:positiveButtonText="@string/delete_pins"
         android:title="@string/delete_pins_title"/>
 
+    <!-- Unfavorite games button (not actually a preference) -->
+    <mseffner.twitchnotifier.settings.ClearPinsDialogPreference
+        android:dialogMessage="@string/unfavorite_games_warning"
+        android:dialogTitle="@string/unfavorite_games_title"
+        android:negativeButtonText="@string/cancel"
+        android:persistent="false"
+        android:positiveButtonText="@string/unfavorite_games"
+        android:title="@string/unfavorite_games_title"/>
+
 </PreferenceScreen>

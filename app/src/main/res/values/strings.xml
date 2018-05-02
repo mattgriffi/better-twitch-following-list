@@ -43,12 +43,21 @@
     <string name="sort_order">Sort order</string>
     <!-- Settings option for the list mode -->
     <string name="list_mode">List mode</string>
+
     <!-- Settings option to delete all of the user's set pins, also used for the positive confirmation button -->
     <string name="delete_pins">Unpin channels</string>
     <!-- Title of the delete pins confirmation dialog -->
     <string name="delete_pins_title">Unpin all channels</string>
     <!-- Warning message when deleting pins -->
     <string name="delete_pin_warning">Are you sure you want to unpin all channels?</string>
+
+    <!-- Settings option to unfavorite user's favorited games, also used for the positive confirmation button -->
+    <string name="unfavorite_games">Unfavorite games</string>
+    <!-- Title of the unfavorite games confirmation dialog -->
+    <string name="unfavorite_games_title">Unfavorite all games</string>
+    <!-- Warning message when unfavoriting games -->
+    <string name="unfavorite_games_warning">Are you sure you want to unfavorite all games?</string>
+
     <!-- Prompt to change user's name -->
     <string name="enter_username_prompt">Please enter your Twitch username.</string>
     <!-- Positive button for changing the user's name -->
