@@ -67,6 +67,10 @@
     <string name="pins_at_top_title">Pins at top of list</string>
     <string name="pins_at_top_description">Turn this off if you want pinned channels to be sorted normally.</string>
 
+    <!-- Long click popup window -->
+    <string name="pin_channel">Pin channel</string>
+    <string name="favorite_game">Favorite game</string>
+
     <!-- Options for how to display vodcasts -->
     <string name="pref_label_vodcast_online">Online</string>
     <string name="pref_label_vodcast_online_tag">Online with tag</string>
