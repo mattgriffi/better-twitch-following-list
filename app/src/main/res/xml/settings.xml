@@ -68,6 +68,13 @@
         android:summary="@string/pins_at_top_description"
         android:title="@string/pins_at_top_title"/>
 
+    <!-- Toggle favorite games at top of list -->
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/pref_favorites_at_top_key"
+        android:summary="@string/favorites_at_top_description"
+        android:title="@string/favorites_at_top_title"/>
+
     <!-- Fetch new follows data setting -->
     <mseffner.twitchnotifier.settings.UpdateFollowsDialogPreference
         android:dialogMessage="@string/fetch_follows_description"

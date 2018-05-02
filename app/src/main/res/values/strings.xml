@@ -72,9 +72,14 @@
     <!-- Counter option -->
     <string name="counter_title">Following counter</string>
     <string name="counter_description">Shows a count of how many channels you are following and how many are online.</string>
+
     <!-- Pins at top option -->
-    <string name="pins_at_top_title">Pins at top of list</string>
+    <string name="pins_at_top_title">Pinned channels at top</string>
     <string name="pins_at_top_description">Turn this off if you want pinned channels to be sorted normally.</string>
+
+    <!-- Favorite games at top option -->
+    <string name="favorites_at_top_title">Favorite games at top</string>
+    <string name="favorites_at_top_description">Turn this off if you want favorited games to be sorted normally.</string>
 
     <!-- Long click popup window -->
     <string name="pin_channel">Pin %1$s</string>
@@ -122,5 +127,6 @@
     <string name="pref_list_mode_minimal" translatable="false">list_mode_minimal</string>
     <string name="pref_counter_key" translatable="false">pref_counter_key</string>
     <string name="pref_pins_at_top_key" translatable="false">pref_pins_at_top_key</string>
+    <string name="pref_favorites_at_top_key" translatable="false">pref_favorites_at_top_key</string>
 
 </resources>

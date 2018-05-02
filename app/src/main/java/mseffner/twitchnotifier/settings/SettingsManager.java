@@ -59,6 +59,7 @@ public class SettingsManager {
     private static String listModeKey;
     private static String counterKey;
     private static String pinsAtTopKey;
+    private static String favoritesAtTopKey;
 
     private SettingsManager() {}
 
@@ -83,6 +84,7 @@ public class SettingsManager {
         SettingsManager.listModeKey = resources.getString(R.string.pref_list_mode_key);
         SettingsManager.counterKey = resources.getString(R.string.pref_counter_key);
         SettingsManager.pinsAtTopKey = resources.getString(R.string.pref_pins_at_top_key);
+        SettingsManager.pinsAtTopKey = resources.getString(R.string.pref_favorites_at_top_key);
     }
 
     /**
@@ -204,6 +206,13 @@ public class SettingsManager {
      */
     public static boolean getPinsAtTopSetting() {
         return sharedPreferences.getBoolean(pinsAtTopKey, true);
+    }
+
+    /**
+     * @return true if favorite games at top of list is on, else false
+     */
+    public static boolean getFavoritesAtTopSetting() {
+        return sharedPreferences.getBoolean(favoritesAtTopKey, true);
     }
 
     /**
