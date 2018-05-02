@@ -4,6 +4,7 @@ package mseffner.twitchnotifier.settings;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.SystemClock;
+import android.util.Log;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -84,7 +85,7 @@ public class SettingsManager {
         SettingsManager.listModeKey = resources.getString(R.string.pref_list_mode_key);
         SettingsManager.counterKey = resources.getString(R.string.pref_counter_key);
         SettingsManager.pinsAtTopKey = resources.getString(R.string.pref_pins_at_top_key);
-        SettingsManager.pinsAtTopKey = resources.getString(R.string.pref_favorites_at_top_key);
+        SettingsManager.favoritesAtTopKey = resources.getString(R.string.pref_favorites_at_top_key);
     }
 
     /**
@@ -212,7 +213,9 @@ public class SettingsManager {
      * @return true if favorite games at top of list is on, else false
      */
     public static boolean getFavoritesAtTopSetting() {
-        return sharedPreferences.getBoolean(favoritesAtTopKey, true);
+        boolean b =  sharedPreferences.getBoolean(favoritesAtTopKey, false);
+        Log.e("TEST", "" + b);
+        return b;
     }
 
     /**

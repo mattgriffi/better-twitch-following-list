@@ -14,6 +14,8 @@ public class ListEntrySorter {
         Collections.sort(list, new DisplayNameLexicographicComparator());
         Collections.sort(list, new ViewerCountComparator());
         doFinalSort(list);
+        if (SettingsManager.getFavoritesAtTopSetting())
+            Collections.sort(list, new FavoritedComparator());
         Collections.sort(list, new PinnedComparator());
         Collections.sort(list, new TypeComparator());
     }
@@ -83,9 +85,19 @@ public class ListEntrySorter {
                 else if (!a.pinned && b.pinned)
                     return 1;
                 return 0;
-            } else {  // If pins should not be at top, don't sort
+            } else  // If pins should not be at top, don't sort
                 return 0;
-            }
+        }
+    }
+
+    private static class FavoritedComparator implements Comparator<ListEntry> {
+        @Override
+        public int compare(ListEntry a, ListEntry b) {
+            if (a.gameFavorited && !b.gameFavorited)
+                return -1;
+            else if (!a.gameFavorited && b.gameFavorited)
+                return 1;
+            return 0;
         }
     }
 
