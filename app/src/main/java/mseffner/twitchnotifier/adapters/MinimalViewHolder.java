@@ -7,8 +7,10 @@ import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Vibrator;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import mseffner.twitchnotifier.R;
@@ -16,6 +18,7 @@ import mseffner.twitchnotifier.data.ChannelContract;
 import mseffner.twitchnotifier.data.Database;
 import mseffner.twitchnotifier.data.ListEntry;
 import mseffner.twitchnotifier.data.ThreadManager;
+import mseffner.twitchnotifier.settings.LongClickPopup;
 import mseffner.twitchnotifier.settings.SettingsManager;
 
 
@@ -58,13 +61,8 @@ public class MinimalViewHolder extends RecyclerView.ViewHolder {
             itemView.setOnLongClickListener(view -> {
                 if (vibrator != null)
                     vibrator.vibrate(vibrateTime);
-                listEntry.togglePinned();
-                ThreadManager.post(() -> Database.toggleChannelPin(listEntry.id, listEntry.pinned));
-                setPinDisplay(listEntry);
-
-                listEntry.toggleGameFavorited();
-                ThreadManager.post(() -> Database.toggleGameFavorite(listEntry.gameName, listEntry.gameFavorited));
-                setGameDisplay(listEntry);
+                PopupWindow popupWindow = new LongClickPopup(itemView.getContext(), listEntry);
+                popupWindow.showAtLocation(itemView, Gravity.CENTER_HORIZONTAL, 0, 0);
                 return true;
             });
 
