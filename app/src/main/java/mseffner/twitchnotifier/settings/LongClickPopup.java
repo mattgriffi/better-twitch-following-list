@@ -51,6 +51,11 @@ public class LongClickPopup extends PopupWindow implements PopupWindow.OnDismiss
         gameFavorited = listEntry.gameFavorited;
         channelPinCheckBox.setChecked(channelPinned);
         gameFavoriteCheckBox.setChecked(gameFavorited);
+
+        if ("".equals(listEntry.gameName))
+            gameFavoriteCheckBox.setVisibility(View.GONE);
+        else
+            gameFavoriteCheckBox.setVisibility(View.VISIBLE);
     }
 
     @Override
