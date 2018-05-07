@@ -38,7 +38,9 @@ public class LongClickPopup extends PopupWindow implements PopupWindow.OnDismiss
         super(view, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         setOnDismissListener(this);
         // Background must be set for popup to be dismissable on older API versions
-        setBackgroundDrawable(new ColorDrawable());
+        boolean darkMode = SettingsManager.getDarkModeSetting();
+        int color = view.getResources().getColor(darkMode ? android.R.color.background_dark : android.R.color.background_light);
+        setBackgroundDrawable(new ColorDrawable(color));
 
         Resources res = view.getContext().getResources();
         channelPinCheckBox = view.findViewById(R.id.channel_pin);

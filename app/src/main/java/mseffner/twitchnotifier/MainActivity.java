@@ -1,6 +1,5 @@
 package mseffner.twitchnotifier;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -11,8 +10,6 @@ import android.support.v7.app.AppCompatActivity;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-
-import java.lang.reflect.Method;
 
 import mseffner.twitchnotifier.adapters.ListPagerAdapter;
 import mseffner.twitchnotifier.data.Database;
@@ -29,6 +26,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Set the theme based on whether dark mode is on;
+        String key = getString(R.string.pref_dark_mode);
+        boolean darkMode = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(key, false);
+        int theme = darkMode ? R.style.AppTheme_Dark : R.style.AppTheme_Light;
+        setTheme(theme);
+        getApplicationContext().setTheme(theme);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -40,10 +44,6 @@ public class MainActivity extends AppCompatActivity {
         Database.initialize(this);
         Requests.initialize(this);
         ToastMaker.initialize(this);
-
-        // Set the theme based on whether dark mode is on;
-        boolean darkMode = SettingsManager.getDarkModeSetting();
-        setTheme(darkMode ? R.style.AppTheme_Dark : R.style.AppTheme_Light);
 
         // Set up ViewPager and TabLayout
         ViewPager viewPager = findViewById(R.id.viewpager);
@@ -79,24 +79,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDarkModeChanged(DarkModeChangedEvent event) {
-        int themeID = getThemeId();
-        if (event.darkModeEnabled && themeID != R.style.AppTheme_Dark)
             recreate();
-        else if (!event.darkModeEnabled && themeID != R.style.AppTheme_Light)
-            recreate();
-    }
-
-    private int getThemeId() {
-        // Thank you Stack Overflow for helping me to work around Android's garbage API
-        try {
-            Class<?> wrapper = Context.class;
-            Method method = wrapper.getMethod("getThemeResId");
-            method.setAccessible(true);
-            return (Integer) method.invoke(this);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        // 0 shows an invalid resource ID
-        return 0;
     }
 }
