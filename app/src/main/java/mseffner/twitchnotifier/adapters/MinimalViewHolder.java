@@ -4,8 +4,11 @@ package mseffner.twitchnotifier.adapters;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Vibrator;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
 import android.view.View;
@@ -24,6 +27,10 @@ public class MinimalViewHolder extends RecyclerView.ViewHolder {
 
     private Vibrator vibrator;
     private View itemView;
+
+    private Drawable darkPinnedBackground = new ColorDrawable(Color.argb(125, 75, 54, 124));
+    private Drawable lightPinnedBackground = new ColorDrawable(Color.argb(50, 177, 157, 216));
+    private Drawable transparentBackground = new ColorDrawable(Color.TRANSPARENT);
 
     protected TextView channelName;
     protected TextView currentGame;
@@ -78,12 +85,12 @@ public class MinimalViewHolder extends RecyclerView.ViewHolder {
         if (listEntry.pinned) {
             pinIcon.setVisibility(View.VISIBLE);
             if (SettingsManager.getDarkModeSetting())
-                itemView.setBackgroundColor(Color.argb(125, 75, 54, 124));
+                ViewCompat.setBackground(itemView, darkPinnedBackground);
             else
-                itemView.setBackgroundColor(Color.argb(50, 177, 157, 216));
+                ViewCompat.setBackground(itemView, lightPinnedBackground);
         } else {
             pinIcon.setVisibility(View.INVISIBLE);
-            itemView.setBackgroundColor(Color.argb(0, 0, 0, 0));
+            ViewCompat.setBackground(itemView, transparentBackground);
         }
     }
 
